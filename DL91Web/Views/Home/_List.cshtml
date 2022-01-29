@@ -1,0 +1,151 @@
+﻿
+@{
+    Layout = null;
+
+    int pageCount = Model.Page.PageCount;
+    int currentPage = Model.Page.CurrentPage;
+    int recordCount = Model.Page.RecordCount;
+    int pageSize = Model.Page.PageSize;
+    Func<int, string> pageUrl = x =>
+    {
+        return Url.Action("IndexForAjax") + "?currentPage=" + x + "&&title1=" + Model.title1 + "&&title2=" + Model.title2;
+    };
+    string updateTargetID = "SalesOrderResult";
+    string PostOrGet = "Post";
+    string onSuccess = "";
+    string onAjaxBegin = "";
+    int index = 0;
+    }
+    @model SearchViewModel
+<div class="table-responsive" style="overflow-x:hidden">
+    @if (!Model.Data.Any())
+    {
+        <div class="text-center EmptyList">
+            <span class="text-danger">No Result</span>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var item in Model.Data)
+            {
+                <div class="col-md-2">
+                    <a href="@Url.Action("play")?id=@item.Id" target="_blank">
+                        <img style="width:256px;height:144px" src="@Url.Action("img")?id=@item.Id" />
+                    </a>
+                    <div style="min-height:36px;">@item.Title</div>
+                </div>
+                if (index % 6 == 5)
+                {
+                    <div class="clearfix"></div>
+                }
+                index++;
+            }
+
+            <div class="clearfix"></div>
+        </div>
+
+        @*<table id="salesOrderList" class="table table-hover table-striped small index-table-format">
+            <thead>
+                <tr>
+                    <th class="text-center"></th>
+                    <th>
+                        Title
+                    </th>
+                    <th class="text-center">
+                        Desc1
+                    </th>
+                    <th>
+                        Desc2
+                    </th>
+                    <th>
+                        Desc3
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Data)
+                {
+                    <tr>
+                        <td></td>
+                        <td>@item.Title</td>
+                        <td>@item.Desc1</td>
+                        <td>@item.Desc2</td>
+                        <td>@item.Desc3</td>
+                    </tr>
+                }
+            </tbody>
+        </table>*@
+        <div class="pagination-sm">
+            <div class="pagination-container">
+                <input type="hidden" name="hipagebaseurl" value="@(pageUrl(0))" />
+                <input type="hidden" name="hicurrentPage" value="@currentPage" />
+                <input type="hidden" name="hipageCount" value="@pageCount" />
+                <input type="hidden" name="hiupdateTargetID" value="@updateTargetID" />
+                <input type="hidden" name="hirecordCount" value="@recordCount" />
+                <input type="hidden" name="hipageSize" value="@pageSize" />
+                <input type="hidden" name="hiOnSuccess" value="@onSuccess" />
+                <input type="hidden" name="hiRequestFun" value="@PostOrGet" />
+                <input type="hidden" name="hionAjaxBegin" value="@onAjaxBegin" />
+                <ul class="pagination">
+                    <li>
+                        <span>
+                            <select name="selpagesize">
+                                @Html.Raw("<option " + (pageSize == 12 ? "selected=\"selected\"" : "") + ">12</option>");
+                                @Html.Raw("<option " + (pageSize == 24 ? "selected=\"selected\"" : "") + ">24</option>");
+                                @Html.Raw("<option " + (pageSize == 30 ? "selected=\"selected\"" : "") + ">30</option>");
+                                @Html.Raw("<option " + (pageSize == 36 ? "selected=\"selected\"" : "") + ">36</option>");
+                                @Html.Raw("<option " + (pageSize == 42 ? "selected=\"selected\"" : "") + ">42</option>");
+                                @Html.Raw("<option " + (pageSize == 48 ? "selected=\"selected\"" : "") + ">48</option>");
+                                @Html.Raw("<option " + (pageSize == 54 ? "selected=\"selected\"" : "") + ">54</option>");
+                                @Html.Raw("<option " + (pageSize == 60 ? "selected=\"selected\"" : "") + ">60</option>");
+                                @Html.Raw("<option " + (pageSize == 84 ? "selected=\"selected\"" : "") + ">84</option>");
+                            </select>
+                        </span>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <span title="Go to the frist page" class="btnfirst pagebutton">
+                            <i class="fa fa-step-backward"></i>
+                        </span>
+                    </li>
+                    <li>
+                        <span title="Go to previous page" class="btnprevious pagebutton">
+                            <i class="fa fa-arrow-left"></i>
+                        </span>
+                    </li>
+                    <li>
+                        <span>
+                            <input name="inpcurrentpage" type="number" style="width:40px;color: #333 !important;" value="@currentPage" />&nbsp;/&nbsp;@pageCount
+                        </span>
+                    </li>
+                    <li>
+                        <span title="Go to next page" class="btnnext pagebutton">
+                            <i class="fa fa-arrow-right"></i>
+                        </span>
+                    </li>
+                    <li>
+                        <span title="Go to the last page" class="btnlast pagebutton">
+                            <i class="fa fa-step-forward"></i>
+                        </span>
+                    </li>
+                    <li>
+                        <span title="Refresh" class="btnrefresh pagebutton">
+                            <i class="fa fa-refresh"></i>
+                        </span>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        @{
+                            var pageInformation = string.Format("Displaying {0} to {1} of {2} items", ((currentPage - 1) * pageSize) + 1, (currentPage * pageSize) > recordCount ? recordCount : (currentPage * pageSize), recordCount);
+                        }
+                        <span class="labTotalInfo" title="@pageInformation"><span>@pageInformation</span></span>
+                    </li>
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+
+        <script src="~/js/ajaxpager/ajaxpager.js"></script>
+    }
+</div>
