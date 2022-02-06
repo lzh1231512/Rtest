@@ -37,7 +37,7 @@ namespace DL91Web.Controllers
                     .Select(f => new DataViewModel()
                     {
                         Id = f.id,
-                        Title = f.title
+                        Title = getTimeString(f.time) +" "+ f.title
                     }).ToList();
                 model.Page.RecordCount = dt3.Count();
             }
@@ -51,6 +51,13 @@ namespace DL91Web.Controllers
                 return View(model);
             }
         }
+
+        private string getTimeString(int time)
+        {
+            return string.Format("{0:D2}:{1:D2}", time / 60, time % 60);
+        }
+
+
         private byte[] FileToByte(string fileUrl)
         {
             try

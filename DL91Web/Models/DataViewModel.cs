@@ -9,8 +9,5 @@ namespace DL91Web.Models
     {
         public int Id { set; get; }
         public string Title { set; get; }
-        public string Desc1 { set; get; }
-        public string Desc2 { set; get; }
-        public string Desc3 { set; get; }
     }
 }
