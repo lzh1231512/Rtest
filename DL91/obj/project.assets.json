@@ -4239,11 +4239,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\lzhen\\source\\repos\\DL91\\DL91\\DL91.csproj",
+      "projectUniqueName": "C:\\Git\\Rtest\\DL91\\DL91.csproj",
       "projectName": "DL91",
-      "projectPath": "C:\\Users\\lzhen\\source\\repos\\DL91\\DL91\\DL91.csproj",
+      "projectPath": "C:\\Git\\Rtest\\DL91\\DL91.csproj",
       "packagesPath": "C:\\Users\\lzhen\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\lzhen\\source\\repos\\DL91\\DL91\\obj\\",
+      "outputPath": "C:\\Git\\Rtest\\DL91\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

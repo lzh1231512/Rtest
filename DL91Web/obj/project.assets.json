@@ -12535,11 +12535,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\lzhen\\source\\repos\\DL91\\DL91Web\\DL91Web.csproj",
+      "projectUniqueName": "C:\\Git\\Rtest\\DL91Web\\DL91Web.csproj",
       "projectName": "DL91Web",
-      "projectPath": "C:\\Users\\lzhen\\source\\repos\\DL91\\DL91Web\\DL91Web.csproj",
+      "projectPath": "C:\\Git\\Rtest\\DL91Web\\DL91Web.csproj",
       "packagesPath": "C:\\Users\\lzhen\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\lzhen\\source\\repos\\DL91\\DL91Web\\obj\\",
+      "outputPath": "C:\\Git\\Rtest\\DL91Web\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -12558,8 +12558,8 @@
       "frameworks": {
         "netcoreapp2.2": {
           "projectReferences": {
-            "C:\\Users\\lzhen\\source\\repos\\DL91\\DL91\\DL91.csproj": {
-              "projectPath": "C:\\Users\\lzhen\\source\\repos\\DL91\\DL91\\DL91.csproj"
+            "C:\\Git\\Rtest\\DL91\\DL91.csproj": {
+              "projectPath": "C:\\Git\\Rtest\\DL91\\DL91.csproj"
             }
           }
         }

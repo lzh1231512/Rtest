@@ -14,10 +14,13 @@ namespace DL91Web
     {
         public static void Main(string[] args)
         {
+#if DEBUG
+#else
             Task.Factory.StartNew(() =>
             {
                 DL91.Job.Main(args);
             });
+#endif
             CreateWebHostBuilder(args).Build().Run();
         }
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
