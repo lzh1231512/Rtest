@@ -51,6 +51,33 @@ namespace DL91Web.Controllers
                 return View(model);
             }
         }
+        public IActionResult img(int id)
+        {
+            try
+            {
+                return File(FileToByte(getSavePath(id)), @"image/jpg");
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public IActionResult IndexForAjax(SearchViewModel model, int currentPage = 1)
+        {
+            return Index(model, currentPage, true);
+        }
+
+        public IActionResult play(int id)
+        {
+            using (var db = new DB91Context())
+            {
+                ViewBag.title = db.DB91s.Where(f => f.id == id).FirstOrDefault()?.title;
+            }
+            var domain = id < 72125 ? "https://cust91rb.163cdn.net" : "https://cust91rb2.163cdn.net";
+            ViewBag.url = domain + "/hls/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8";
+            return View();
+        }
 
         private string getTimeString(int time)
         {
@@ -74,37 +101,9 @@ namespace DL91Web.Controllers
                 return null;
             }
         }
-        string getSavePath(int id)
+        private string getSavePath(int id)
         {
             return "imgs/" + (id / 1000) + "/" + id + ".jpg";
-        }
-        public IActionResult img(int id)
-        {
-            try
-            {
-                return File(FileToByte(getSavePath(id)), @"image/jpg");
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        public IActionResult IndexForAjax(SearchViewModel model, int currentPage = 1)
-        {
-            return Index(model, currentPage, true);
-        }
-
-
-        public IActionResult play(int id)
-        {
-            using (var db = new DB91Context())
-            {
-                ViewBag.title = db.DB91s.Where(f => f.id == id).FirstOrDefault()?.title;
-            }
-            var domain = id < 72125 ? "https://cust91rb.163cdn.net" : "https://cust91rb2.163cdn.net";
-            ViewBag.url = domain + "/hls/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8";
-            return View();
-        }
+        }   
     }
 }
