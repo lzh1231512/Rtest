@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,7 +37,17 @@ namespace DL91Web
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
+        { 
+            //------以下添加MIME---------
+            var provider = new FileExtensionContentTypeProvider();
+            provider.Mappings[".m3u8"] = "application/x-mpegURL"; //m3u8的MIME
+            provider.Mappings[".ts"] = "video/MP2TL"; //.ts的MIME
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                ContentTypeProvider = provider
+            });
+            //------以上添加MIME---------
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

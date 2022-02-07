@@ -1,7 +1,9 @@
 ﻿using GetWebInfo;
 using HtmlAgilityPack;
 using System;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 
 namespace DL91
@@ -11,21 +13,106 @@ namespace DL91
         static string domain = "https://www.91rb.net";
         public static void Main(string[] args)
         {
+            var index = 0;
             while (true)
             {
                 try
                 {
-                    getList();
-                    DownloadImg();
+                    if (index == 0)
+                    {
+                        getList();
+                        DownloadImg();
+                        index = 12;
+                    }
+                    index--;
+                    DownloadVideo();
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
                 }
-                Thread.Sleep(60000 * 60 * 12); ;
+                Thread.Sleep(60000 * 60 * 1);
             }
         }
 
+        static bool downloadM3u8(int id)
+        {
+            WebPage p = new WebPage(getM3u8Url(id));
+            if (!p.IsGood)
+            {
+                return false;
+            }
+            var info = p.Html.Split("\n");
+            var urls = info.Where(f => f.ToLower().StartsWith("http"));
+            var dLst = urls.Select(f => new DLTask()
+            {
+                url = f,
+                savepath = getVideoSavePath(id, f)
+            });
+            var dLst2 = DLHelper.DL(dLst.ToList(), 8);
+            using(FileStream fs=new FileStream(getVideoSavePath(id, p.URL), FileMode.Create, FileAccess.ReadWrite))
+            {
+                using (StreamWriter sw=new StreamWriter(fs))
+                {
+                    foreach (var item in info)
+                    {
+                        if (item.ToLower().StartsWith("http"))
+                        {
+                            var name = item.Substring(item.LastIndexOf('/') + 1);
+                            sw.Write(name + '\n');
+                        }
+                        else
+                        {
+                            sw.Write(item + '\n');
+                        }
+                    }
+                    sw.Close();
+                    fs.Close();
+                }
+            }
+            return true;
+        }
+
+        static string getM3u8Url(int id)
+        {
+            var domain = id < 72125 ? "https://cust91rb.163cdn.net" : "https://cust91rb2.163cdn.net";
+            var result = domain + "/hls/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_720p.mp4/index.m3u8";
+            if (testHttp(result))
+                return result;
+            return domain + "/hls/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8";
+        }
+
+        static bool testHttp(string url)
+        {
+            try
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "GET";
+                request.Accept = "*/*";
+                request.CookieContainer = new CookieContainer();
+                HttpWebResponse respons = (HttpWebResponse)request.GetResponse();
+                return respons.StatusCode == HttpStatusCode.OK;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        static void DownloadVideo()
+        {
+            while (true)
+            {
+                using (var db = new DB91Context())
+                {
+                    var obj = db.DB91s.Where(f => f.isLike == 1 && f.isVideoDownloaded == 0).FirstOrDefault();
+                    if (obj == null)
+                        break;
+                    Console.WriteLine("download video " + obj.id);
+                    obj.isVideoDownloaded = downloadM3u8(obj.id) ? 1 : 2;
+                    db.SaveChanges();
+                }
+            }
+        }
         static void DownloadImg()
         {
             var downloaded = 0;
@@ -64,6 +151,12 @@ namespace DL91
         static string getSavePath(DB91 task)
         {
             return "wwwroot/imgs/" + (task.id / 1000) + "/" + task.id + ".jpg";
+        }
+
+        static string getVideoSavePath(int id,string url)
+        {
+            var name = url.Substring(url.LastIndexOf('/') + 1);
+            return "wwwroot/video/" + (id / 1000) + "/" + id + "/" + name;
         }
 
 
