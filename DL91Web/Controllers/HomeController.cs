@@ -54,17 +54,6 @@ namespace DL91Web.Controllers
                 return View(model);
             }
         }
-        public IActionResult img(int id)
-        {
-            try
-            {
-                return File(FileToByte(getSavePath(id)), @"image/jpg");
-            }
-            catch
-            {
-                return null;
-            }
-        }
 
         public IActionResult IndexForAjax(SearchViewModel model, int currentPage = 1)
         {
@@ -126,26 +115,5 @@ namespace DL91Web.Controllers
             return string.Format("{0:D2}:{1:D2}", time / 60, time % 60);
         }
 
-
-        private byte[] FileToByte(string fileUrl)
-        {
-            try
-            {
-                using (FileStream fs = new FileStream(fileUrl, FileMode.Open, FileAccess.Read))
-                {
-                    byte[] byteArray = new byte[fs.Length];
-                    fs.Read(byteArray, 0, byteArray.Length);
-                    return byteArray;
-                }
-            }
-            catch
-            {
-                return null;
-            }
-        }
-        private string getSavePath(int id)
-        {
-            return "imgs/" + (id / 1000) + "/" + id + ".jpg";
-        }   
     }
 }
