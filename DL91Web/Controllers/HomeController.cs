@@ -8,6 +8,7 @@ using DL91Web.Models;
 using DL91Web.Helpers;
 using DL91;
 using System.IO;
+using System.Net;
 
 namespace DL91Web.Controllers
 {
@@ -74,9 +75,34 @@ namespace DL91Web.Controllers
             {
                 ViewBag.title = db.DB91s.Where(f => f.id == id).FirstOrDefault()?.title;
             }
-            var domain = id < 72125 ? "https://cust91rb.163cdn.net" : "https://cust91rb2.163cdn.net";
-            ViewBag.url = domain + "/hls/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8";
+            ViewBag.url = getM3u8(id);
             return View();
+        }
+
+        private string getM3u8(int id)
+        {
+            var domain = id < 72125 ? "https://cust91rb.163cdn.net" : "https://cust91rb2.163cdn.net";
+            var result = domain + "/hls/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_720p.mp4/index.m3u8";
+            if (testHttp(result))
+                return result;
+            return domain + "/hls/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8";
+        }
+
+        private bool testHttp(string url)
+        {
+            try
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "GET";
+                request.Accept = "*/*";
+                request.CookieContainer = new CookieContainer();
+                HttpWebResponse respons = (HttpWebResponse)request.GetResponse();
+                return respons.StatusCode == HttpStatusCode.OK;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private string getTimeString(int time)
