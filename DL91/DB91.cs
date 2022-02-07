@@ -11,6 +11,8 @@ namespace DL91
         public string url { set; get; }
         public string imgUrl { set; get; }
         public int time { set; get; }
+        public int isLike { set; get; }
+        public int isVideoDownloaded { set; get; }
 
         public int IsImgDownload { set; get; }
     }

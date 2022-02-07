@@ -8,6 +8,7 @@
     <link href="~/js/videojs/video-js.css" rel="stylesheet" />
     <script src="~/js/videojs/video.js"></script>
     <script src="~/js/videojs/videojs-contrib-hls.js"></script>
+    <script src="~/js/jquery-1.10.2.js"></script>
 </head>
 <body>
     <style>
@@ -15,6 +16,10 @@
             position: relative !important;
         }
     </style>
+    <div>
+        <input type="checkbox" id="isLike" @(ViewBag.isLike==1?"checked=\"checked\"":"") />
+        Like
+    </div>
     <div>
         @ViewBag.url
     </div>
@@ -31,25 +36,32 @@
 </body>
 
 <script>
-		var myVideo = videojs('myVideo', {
-			bigPlayButton: true,
-			textTrackDisplay: false,
-			posterImage: false,
-			errorDisplay: false,
-		})
-		myVideo.play()
-		var changeVideo = function(vdoSrc) {
-			if (/\.m3u8$/.test(vdoSrc)) {
-				myVideo.src({
-					src: vdoSrc,
-					type: 'application/x-mpegURL'
-				})
-			} else {
-				myVideo.src(vdoSrc)
-			}
-			myVideo.load();
-			myVideo.play();
-		}
+    $(function () {
+        $('#isLike').change(function () {
+            $.post('@Url.Action("like")?id=' + @(ViewBag.id) +'&&isLike=' + (this.checked ? 1 : 0));
+        });
+
+
+        var myVideo = videojs('myVideo', {
+            bigPlayButton: true,
+            textTrackDisplay: false,
+            posterImage: false,
+            errorDisplay: false,
+        })
+        myVideo.play()
+        var changeVideo = function (vdoSrc) {
+            if (/\.m3u8$/.test(vdoSrc)) {
+                myVideo.src({
+                    src: vdoSrc,
+                    type: 'application/x-mpegURL'
+                })
+            } else {
+                myVideo.src(vdoSrc)
+            }
+            myVideo.load();
+            myVideo.play();
+        }
+    });
 </script>
 
 

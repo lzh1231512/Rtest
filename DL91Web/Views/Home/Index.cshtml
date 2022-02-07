@@ -27,11 +27,19 @@
                     @Html.LabelFor(m => m.title2)
                     @Html.EditorFor(m => m.title2, new { htmlAttributes = new { @class = "form-control" } })
                 </div>
+                <div class="col-md-3">
+                    @Html.LabelFor(m => m.isLike)
+                    <select id="isLike" name="isLike" class="form-control">
+                        @Html.Raw("<option " + (Model.isLike == 2 ? "selected=\"selected\"" : "") + "  value='2'>ALL</option>");
+                        @Html.Raw("<option " + (Model.isLike == 1 ? "selected=\"selected\"" : "") + "  value='1'>Like</option>");
+                        @Html.Raw("<option " + (Model.isLike == 0 ? "selected=\"selected\"" : "") + "  value='0'>No Like</option>");
+                    </select>
+                </div>
             </div>
             <div class="row" style="margin-top:10px;">
                 <div class="col-md-12 form-button-Lines">
                     <button id="btnSubmitSalesOrderSearch" class="btn btn-info CommonBtn"><i class='fa fa-search'></i> Search</button>
-                    <input name="resetForm" type="button" class="btn btn-default CommonBtn" value="Clear All" onclick="reset()" />
+                    <input id="btnClear" type="button" class="btn btn-default CommonBtn" value="Clear All" />
                 </div>
             </div>
         </div>
@@ -40,8 +48,11 @@
         @Html.Partial("_List", Model)
     </div>
     <script>
-        function reset() {
-            $('#title1,#title2').val('');
-        }
+        $(function () {
+            $('#btnClear').click(function(){
+                $('#title1,#title2').val('');
+                $('#isLike').val(2);
+            });
+        });
     </script>
 </form>

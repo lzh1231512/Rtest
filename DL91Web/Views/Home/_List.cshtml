@@ -8,7 +8,7 @@
     int pageSize = Model.Page.PageSize;
     Func<int, string> pageUrl = x =>
     {
-        return Url.Action("IndexForAjax") + "?currentPage=" + x + "&&title1=" + Model.title1 + "&&title2=" + Model.title2;
+        return Url.Action("IndexForAjax") + "?currentPage=" + x + "&&title1=" + Model.title1 + "&&title2=" + Model.title2 + "&&isLike=" + Model.isLike;
     };
     string updateTargetID = "SalesOrderResult";
     string PostOrGet = "Post";

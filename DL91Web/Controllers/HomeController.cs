@@ -32,7 +32,9 @@ namespace DL91Web.Controllers
                 var c1 = (model.title1 ?? "").Split(' ');
                 var c2 = (model.title2 ?? "").Split(' ');
                 var dt3 = db.DB91s.Where(f =>
-                    c1.All(z => f.title.Contains(z)) && c2.All(z => z == "" || !f.title.Contains(z))
+                    c1.All(z => f.title.Contains(z)) &&
+                    c2.All(z => z == "" || !f.title.Contains(z)) &&
+                    model.isLike == 2 || f.isLike == model.isLike
                 ).OrderByDescending(f => f.id);
                 model.Data = dt3.Skip((currentPage - 1) * model.Page.PageSize).Take(model.Page.PageSize)
                     .Select(f => new DataViewModel()
@@ -73,10 +75,24 @@ namespace DL91Web.Controllers
         {
             using (var db = new DB91Context())
             {
-                ViewBag.title = db.DB91s.Where(f => f.id == id).FirstOrDefault()?.title;
+                var obj = db.DB91s.Where(f => f.id == id).FirstOrDefault();
+                ViewBag.title = obj?.title;
+                ViewBag.isLike = obj?.isLike;
             }
             ViewBag.url = getM3u8(id);
+            ViewBag.id = id;
             return View();
+        }
+
+        public IActionResult like(int id, int isLike)
+        {
+            using (var db = new DB91Context())
+            {
+                var obj = db.DB91s.Where(f => f.id == id).FirstOrDefault();
+                obj.isLike = isLike;
+                db.SaveChanges();
+            }
+            return Json(1);
         }
 
         private string getM3u8(int id)
