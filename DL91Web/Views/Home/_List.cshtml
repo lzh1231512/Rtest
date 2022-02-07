@@ -29,9 +29,10 @@
         <div class="row">
             @foreach (var item in Model.Data)
             {
+                var url= "imgs/" + (item.Id / 1000) + "/" + item.Id + ".jpg";
                 <div class="col-md-2">
                     <a href="@Url.Action("play")?id=@item.Id" target="_blank">
-                        <img style="width:256px;height:144px" src="@Url.Action("img")?id=@item.Id" />
+                        <img style="width:256px;height:144px" src="@url" />
                     </a>
                     <div style="min-height:36px;">@item.Title</div>
                 </div>

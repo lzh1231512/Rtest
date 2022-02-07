@@ -63,7 +63,7 @@ namespace DL91
 
         static string getSavePath(DB91 task)
         {
-            return "imgs/" + (task.id / 1000) + "/" + task.id + ".jpg";
+            return "wwwroot/imgs/" + (task.id / 1000) + "/" + task.id + ".jpg";
         }
 
 
