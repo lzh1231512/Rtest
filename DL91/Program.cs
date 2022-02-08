@@ -22,7 +22,7 @@ namespace DL91
                     {
                         getList();
                         DownloadImg();
-                        index = 12;
+                        index = 12 * 6;
                     }
                     index--;
                     DownloadVideo();
@@ -31,7 +31,7 @@ namespace DL91
                 {
                     Console.WriteLine(e.Message);
                 }
-                Thread.Sleep(60000 * 60 * 1);
+                Thread.Sleep(60000 * 10);
             }
         }
 
@@ -197,7 +197,7 @@ namespace DL91
                 doc.LoadHtml(getHtml(page));
                 HtmlNode navNode = doc.GetElementbyId("list_videos_latest_videos_list_items");
                 HtmlNodeCollection categoryNodeList = navNode.SelectNodes("div");
-                var isBreak = false;
+                var isBreak = 0;
                 for (int i = 0; i < categoryNodeList.Count; i++)
                 {
                     HtmlNode nat = categoryNodeList[i];
@@ -233,12 +233,16 @@ namespace DL91
                         }
                     }
 
-                    if (id <= maxID)
+                    if (id <= maxID&& isBreak==0)
                     {
-                        isBreak = true;
+                        isBreak = 1;
                     }
                 }
-                if (isBreak)
+                if (isBreak > 0)
+                {
+                    isBreak++;
+                }
+                if (isBreak >= 3)
                 {
                     break;
                 }
