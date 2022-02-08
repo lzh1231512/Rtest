@@ -10,6 +10,7 @@ using DL91;
 using System.IO;
 using System.Net;
 using System.Text;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace DL91Web.Controllers
 {
@@ -60,28 +61,19 @@ namespace DL91Web.Controllers
         {
             return Index(model, currentPage, true);
         }
-        private string GetAbsoluteUri()
-        {
-            return new StringBuilder()
-             .Append(Request.Scheme)
-             .Append("://")
-             .Append(Request.Host)
-             .Append(Request.PathBase)
-             .ToString();
-        }
 
         public IActionResult play(int id)
         {
-            string url = GetAbsoluteUri();
+            string url = Request.GetDisplayUrl();
 
             using (var db = new DB91Context())
             {
                 var obj = db.DB91s.Where(f => f.id == id).FirstOrDefault();
                 ViewBag.title = obj?.title;
                 ViewBag.isLike = obj?.isLike;
-                if (obj.isVideoDownloaded == 1)
+                if (obj.isVideoDownloaded == 0)
                 {
-                    ViewBag.url2 = url + "/video/" + (id / 1000) + "/" + id + "/index.m3u8";
+                    ViewBag.url2 = url.Substring(0, url.ToLower().IndexOf("home")) + "video/" + (id / 1000) + "/" + id + "/index.m3u8";
                 }
             }
             ViewBag.url = getM3u8(id);
