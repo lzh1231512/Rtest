@@ -71,7 +71,7 @@ namespace DL91Web.Controllers
                 var obj = db.DB91s.Where(f => f.id == id).FirstOrDefault();
                 ViewBag.title = obj?.title;
                 ViewBag.isLike = obj?.isLike;
-                if (obj.isVideoDownloaded == 0)
+                if (obj.isVideoDownloaded == 1)
                 {
                     ViewBag.url2 = url.Substring(0, url.ToLower().IndexOf("home")) + "video/" + (id / 1000) + "/" + id + "/index.m3u8";
                 }
