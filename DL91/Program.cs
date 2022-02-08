@@ -190,6 +190,7 @@ namespace DL91
                 maxID = db.getMaxID();
             }
             var newMaxID = 0;
+            var isBreak = 0;
             for (int page = 1;; page++)
             {
                 Console.WriteLine("Load Page" + page);
@@ -197,7 +198,6 @@ namespace DL91
                 doc.LoadHtml(getHtml(page));
                 HtmlNode navNode = doc.GetElementbyId("list_videos_latest_videos_list_items");
                 HtmlNodeCollection categoryNodeList = navNode.SelectNodes("div");
-                var isBreak = 0;
                 for (int i = 0; i < categoryNodeList.Count; i++)
                 {
                     HtmlNode nat = categoryNodeList[i];
