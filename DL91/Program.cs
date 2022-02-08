@@ -242,7 +242,7 @@ namespace DL91
                 {
                     isBreak++;
                 }
-                if (isBreak >= 3)
+                if (isBreak > 5)
                 {
                     break;
                 }
