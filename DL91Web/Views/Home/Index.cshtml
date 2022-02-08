@@ -48,6 +48,20 @@
         @Html.Partial("_List", Model)
     </div>
     <script>
+        function play(obj,id) {
+            var xxurl = window.location.href;
+            if (xxurl.indexOf('/',10) > 0) {
+                xxurl = xxurl.substr(0, xxurl.indexOf('/', 10));
+            }
+            if (xxurl.indexOf('?') > 0) {
+                xxurl = xxurl.substr(0, xxurl.indexOf('?'));
+            }
+            if (xxurl.indexOf('#') > 0) {
+                xxurl = xxurl.substr(0, xxurl.indexOf('#'));
+            }
+            var url = '@Url.Action("play")?id=' + id + '&url=' + encodeURIComponent(xxurl);
+            obj.href = url;
+        }
         $(function () {
             $('#btnClear').click(function(){
                 $('#title1,#title2').val('');

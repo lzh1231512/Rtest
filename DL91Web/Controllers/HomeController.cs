@@ -62,10 +62,8 @@ namespace DL91Web.Controllers
             return Index(model, currentPage, true);
         }
 
-        public IActionResult play(int id)
+        public IActionResult play(int id,string url)
         {
-            string url = Request.GetDisplayUrl();
-
             using (var db = new DB91Context())
             {
                 var obj = db.DB91s.Where(f => f.id == id).FirstOrDefault();
@@ -73,7 +71,7 @@ namespace DL91Web.Controllers
                 ViewBag.isLike = obj?.isLike;
                 if (obj.isVideoDownloaded == 1)
                 {
-                    ViewBag.url2 = url.Substring(0, url.ToLower().IndexOf("home")) + "video/" + (id / 1000) + "/" + id + "/index.m3u8";
+                    ViewBag.url2 = url + "/video/" + (id / 1000) + "/" + id + "/index.m3u8";
                 }
             }
             ViewBag.url = getM3u8(id);

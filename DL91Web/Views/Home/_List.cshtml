@@ -31,7 +31,7 @@
             {
                 var url= "imgs/" + (item.Id / 1000) + "/" + item.Id + ".jpg";
                 <div class="col-md-2">
-                    <a href="@Url.Action("play")?id=@item.Id" target="_blank">
+                    <a href="#" onclick="play(this,@item.Id)" target="_blank">
                         <img style="width:256px;height:144px" src="@url" />
                     </a>
                     <div style="min-height:36px;">@item.Title</div>
@@ -45,38 +45,6 @@
 
             <div class="clearfix"></div>
         </div>
-
-        @*<table id="salesOrderList" class="table table-hover table-striped small index-table-format">
-            <thead>
-                <tr>
-                    <th class="text-center"></th>
-                    <th>
-                        Title
-                    </th>
-                    <th class="text-center">
-                        Desc1
-                    </th>
-                    <th>
-                        Desc2
-                    </th>
-                    <th>
-                        Desc3
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.Data)
-                {
-                    <tr>
-                        <td></td>
-                        <td>@item.Title</td>
-                        <td>@item.Desc1</td>
-                        <td>@item.Desc2</td>
-                        <td>@item.Desc3</td>
-                    </tr>
-                }
-            </tbody>
-        </table>*@
         <div class="pagination-sm">
             <div class="pagination-container">
                 <input type="hidden" name="hipagebaseurl" value="@(pageUrl(0))" />
