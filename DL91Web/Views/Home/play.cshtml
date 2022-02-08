@@ -1,5 +1,6 @@
 ﻿@{
     Layout = null;
+    var url2 = ViewBag.url2;
 }
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -17,20 +18,31 @@
         }
     </style>
     <div>
-        <input type="checkbox" id="isLike" @(ViewBag.isLike==1?"checked=\"checked\"":"") />
+        <input type="checkbox" id="isLike" @(ViewBag.isLike == 1 ? "checked=\"checked\"" : "") />
         Like
     </div>
     <div>
+        @if (!string.IsNullOrEmpty(url2))
+        {
+            <input type="radio" name="urlx" value="1" checked="checked" />
+        }
         @ViewBag.url
     </div>
+    @if (!string.IsNullOrEmpty(url2))
+    {
+        <div>
+             <input type="radio" name="urlx" value="2"/>
+            @url2
+        </div>
+    }
     <div>
         @ViewBag.title
     </div>
     <div>
         <video id="myVideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" data-setup='{}'
                style='width: auto;height: auto'>
-            <source id="source" src="@ViewBag.url" type="application/x-mpegURL">
-            </source>
+            <source id="source" src="@ViewBag.url" type="application/x-mpegURL" />
+            <source id="source2" src="https://cust91rb.163cdn.net/hls/videos/26000/26977/26977.mp4/index.m3u8" type="application/x-mpegURL" />
         </video>
     </div>
 </body>
@@ -40,7 +52,15 @@
         $('#isLike').change(function () {
             $.post('@Url.Action("like")?id=' + @(ViewBag.id) +'&&isLike=' + (this.checked ? 1 : 0));
         });
-
+        $('[name=urlx]').change(function () {
+            var val = $('[name=urlx]:checked').val();
+            if (val == 1) {
+                changeVideo( '@ViewBag.url');
+            }
+            else {
+                changeVideo('@url2');
+            }
+        });
 
         var myVideo = videojs('myVideo', {
             bigPlayButton: true,
