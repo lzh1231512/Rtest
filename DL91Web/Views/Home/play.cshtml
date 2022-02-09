@@ -31,7 +31,7 @@
             <input type="radio" name="urlx" @(i==0?"checked=\"checked\"":"") value="@i" />
         }
         @urls[i]
-        @if (i == 2)
+        @if (i == urls.Count - 1 && !string.IsNullOrEmpty(fileSize))
         {
             <span>&nbsp;&nbsp;&nbsp;&nbsp; @fileSize</span>
         }
