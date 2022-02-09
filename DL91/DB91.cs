@@ -15,5 +15,7 @@ namespace DL91
         public int isVideoDownloaded { set; get; }
 
         public int IsImgDownload { set; get; }
+
+        public long videoFileSize { set; get; }
     }
 }

@@ -13,6 +13,7 @@ namespace DL91
         public string url { set; get; }
         public string savepath { set; get; }
         public int result { set; get; }
+        public long fileSize { set; get; }
     }
     public class DLHelper
     {
@@ -87,13 +88,16 @@ namespace DL91
                 Stream responseStream = response.GetResponseStream();
                 byte[] bArr = new byte[1024];
                 int size = responseStream.Read(bArr, 0, (int)bArr.Length);
+                long fileSize = size;
                 while (size > 0)
                 {
                     fs.Write(bArr, 0, size);
                     size = responseStream.Read(bArr, 0, (int)bArr.Length);
+                    fileSize += size;
                 }
                 fs.Close();
                 responseStream.Close();
+                task.fileSize = fileSize;
                 return true;
             }
             catch (Exception ex)

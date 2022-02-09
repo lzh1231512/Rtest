@@ -2,14 +2,16 @@
 using DL91;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DL91.Migrations
 {
     [DbContext(typeof(DB91Context))]
-    partial class DB91ContextModelSnapshot : ModelSnapshot
+    [Migration("20220209120241_db5")]
+    partial class db5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,8 +47,6 @@ namespace DL91.Migrations
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd();
-
-                    b.Property<string>("blockKeyWord");
 
                     b.Property<int>("isRuning");
 

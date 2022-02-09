@@ -35,8 +35,9 @@ namespace DL91
             }
         }
 
-        static bool downloadM3u8(int id)
+        static bool downloadM3u8(int id,out long fileSize)
         {
+            fileSize = 0;
             WebPage p = new WebPage(getM3u8Url(id));
             if (!p.IsGood)
             {
@@ -50,7 +51,8 @@ namespace DL91
                 savepath = getVideoSavePath(id, f)
             });
             var dLst2 = DLHelper.DL(dLst.ToList(), 8);
-            using(FileStream fs=new FileStream(getVideoSavePath(id, p.URL), FileMode.Create, FileAccess.ReadWrite))
+            fileSize = dLst2.Sum(f => f.fileSize);
+            using (FileStream fs=new FileStream(getVideoSavePath(id, p.URL), FileMode.Create, FileAccess.ReadWrite))
             {
                 using (StreamWriter sw=new StreamWriter(fs))
                 {
@@ -108,7 +110,8 @@ namespace DL91
                     if (obj == null)
                         break;
                     Console.WriteLine("download video " + obj.id);
-                    obj.isVideoDownloaded = downloadM3u8(obj.id) ? 1 : 2;
+                    obj.isVideoDownloaded = downloadM3u8(obj.id, out long fileSize) ? 1 : 2;
+                    obj.videoFileSize = fileSize;
                     db.SaveChanges();
                 }
             }

@@ -9,5 +9,6 @@ namespace DL91
         public int id { set; get; }
         public int maxID { set; get; }
         public int isRuning { set; get; }
+        public string blockKeyWord { set; get; }
     }
 }
