@@ -1,6 +1,7 @@
 ﻿@{
     Layout = null;
     var urls = ViewBag.urls as List<string>;
+    var fileSize = ViewBag.fileSize as string;
 }
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -30,6 +31,10 @@
             <input type="radio" name="urlx" @(i==0?"checked=\"checked\"":"") value="@i" />
         }
         @urls[i]
+        @if (i == 2)
+        {
+            <span>&nbsp;&nbsp;&nbsp;&nbsp; @fileSize</span>
+        }
     </div>
     }
     <div>
