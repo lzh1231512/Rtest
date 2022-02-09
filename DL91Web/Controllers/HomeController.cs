@@ -64,6 +64,7 @@ namespace DL91Web.Controllers
 
         public IActionResult play(int id,string url)
         {
+            var urls = getM3u8(id);
             using (var db = new DB91Context())
             {
                 var obj = db.DB91s.Where(f => f.id == id).FirstOrDefault();
@@ -71,10 +72,10 @@ namespace DL91Web.Controllers
                 ViewBag.isLike = obj?.isLike;
                 if (obj.isVideoDownloaded == 1)
                 {
-                    ViewBag.url2 = url + "/video/" + (id / 1000) + "/" + id + "/index.m3u8";
+                    urls.Add(url + "/video/" + (id / 1000) + "/" + id + "/index.m3u8");
                 }
             }
-            ViewBag.url = getM3u8(id);
+            ViewBag.urls = urls;
             ViewBag.id = id;
             return View();
         }
@@ -90,13 +91,15 @@ namespace DL91Web.Controllers
             return Json(1);
         }
 
-        private string getM3u8(int id)
+        private List<string> getM3u8(int id)
         {
+            var result = new List<string>();
             var domain = id < 72125 ? "https://cust91rb.163cdn.net" : "https://cust91rb2.163cdn.net";
-            var result = domain + "/hls/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_720p.mp4/index.m3u8";
-            if (testHttp(result))
-                return result;
-            return domain + "/hls/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8";
+            var url1 = domain + "/hls/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_720p.mp4/index.m3u8";
+            if (testHttp(url1))
+                result.Add(url1);
+            result.Add(domain + "/hls/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8");
+            return result;
         }
 
         private bool testHttp(string url)
