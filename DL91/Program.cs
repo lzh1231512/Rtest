@@ -218,8 +218,15 @@ namespace DL91
                     String img = atag.SelectNodes("div")[0].SelectNodes("img")[0].Attributes["data-original"].Value;
                     var time = atag.SelectNodes("div")[1].SelectNodes("div")[0].InnerText.Split(':');
 
-                    int timeInt = int.Parse(time[0]) * 60 + int.Parse(time[1]);
-
+                    int timeInt = 0;
+                    if (time.Length == 3)
+                    {
+                        timeInt = int.Parse(time[0]) * 60 * 60 + int.Parse(time[1]) * 60 + int.Parse(time[2]);
+                    }
+                    else if (time.Length == 2)
+                    {
+                        timeInt = int.Parse(time[0]) * 60 + int.Parse(time[1]);
+                    }
                     using (var db = new DB91Context())
                     {
                         if (!db.DB91s.Any(f => f.id == id))
