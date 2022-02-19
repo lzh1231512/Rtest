@@ -11,8 +11,8 @@ namespace DL91
 {
     public class Job
     {
-        static string domain = "https://www.rm2029.com";
-        //static string domain = "https://www.91rb.net";
+        //static string domain = "https://www.rm2029.com";
+        static string domain = "https://www.91rb.net";
         public static void Main(string[] args)
         {
             var index = 0;
@@ -23,11 +23,11 @@ namespace DL91
                     if (index == 0)
                     {
                         getList();
-                        //DownloadImg();
+                        DownloadImg();
                         index = 12 * 6;
                     }
                     index--;
-                    //DownloadVideo();
+                    DownloadVideo();
                 }
                 catch (Exception e)
                 {

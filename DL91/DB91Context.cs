@@ -17,15 +17,23 @@ namespace DL91
         public DbSet<DBCfg> DBCfgs { get; set; }
 
         private IConfiguration configuration;
-
-        public DB91Context()
+        private string connectionString;
+        public DB91Context(string connectionString = null)
         {
+            this.connectionString = connectionString;
             configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json").Build();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite(configuration.GetConnectionString("db"));
+            if (connectionString != null)
+            {
+                optionsBuilder.UseSqlite(connectionString);
+            }
+            else
+            {
+                optionsBuilder.UseSqlite(configuration.GetConnectionString("db"));
+            }
         }
     }
 }
