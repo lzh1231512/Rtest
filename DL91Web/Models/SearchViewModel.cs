@@ -16,5 +16,6 @@ namespace DL91Web.Models
         public string title1 { set; get; }
         public string title2 { set; get; }
         public int isLike { set; get; }
+        public int typeId { set; get; }
     }
 }

@@ -31,18 +31,44 @@ namespace DL91Web.Controllers
 
             using (var db = new DB91Context())
             {
-                var c1 = (model.title1 ?? "").Split(' ');
-                var c2 = (model.title2 ?? "").Split(' ');
-                var dt3 = db.DB91s.Where(f =>
-                    c1.All(z => f.title.Contains(z)) &&
-                    c2.All(z => z == "" || !f.title.Contains(z)) &&
-                    model.isLike == 2 || f.isLike == model.isLike
-                ).OrderByDescending(f => f.id);
+                var TypeLst = db.DBTypes.Select(f => new DBType()
+                {
+                    id = f.id,
+                    name = f.name
+                }).ToList();
+
+                TypeLst.Insert(0, new DBType()
+                {
+                    id = 0,
+                    name = "ALL"
+                });
+                ViewBag.TypeLst = TypeLst;
+
+                var lst = db.DB91s.AsQueryable();
+                if (!string.IsNullOrEmpty(model.title1))
+                {
+                    var c1 = (model.title1 ?? "").Split(' ');
+                    lst = lst.Where(f => c1.All(z => f.title.Contains(z)));
+                }
+                if (!string.IsNullOrEmpty(model.title2))
+                {
+                    var c2 = (model.title2 ?? "").Split(' ');
+                    lst = lst.Where(f => c2.All(z => !f.title.Contains(z)));
+                }
+                if (model.isLike != 2)
+                {
+                    lst = lst.Where(f => f.isLike == model.isLike);
+                }
+                if (model.typeId != 0)
+                {
+                    lst = lst.Where(f => f.typeId == model.typeId);
+                }
+                var dt3 = lst.OrderByDescending(f => f.id);
                 model.Data = dt3.Skip((currentPage - 1) * model.Page.PageSize).Take(model.Page.PageSize)
                     .Select(f => new DataViewModel()
                     {
                         Id = f.id,
-                        Title = getTimeString(f.time) +" "+ f.title
+                        Title =(f.isHD?"[HD]":"")+  getTimeString(f.time) +" "+ f.title
                     }).ToList();
                 model.Page.RecordCount = dt3.Count();
             }
@@ -68,7 +94,7 @@ namespace DL91Web.Controllers
             using (var db = new DB91Context())
             {
                 var obj = db.DB91s.Where(f => f.id == id).FirstOrDefault();
-                ViewBag.title = obj?.title;
+                ViewBag.title = (obj.isHD ? "[HD]" : "") + obj?.title;
                 ViewBag.isLike = obj?.isLike;
                 if (obj.isVideoDownloaded == 1)
                 {
@@ -145,7 +171,7 @@ namespace DL91Web.Controllers
 
         private string getTimeString(int time)
         {
-            return string.Format("{0:D2}:{1:D2}", time / 60, time % 60);
+            return string.Format("[{0:D2}:{1:D2}]", time / 60, time % 60);
         }
 
     }

@@ -1,5 +1,7 @@
-﻿@{
+﻿@using DL91;
+@{
     ViewData["Title"] = "Home Page";
+    var TypeLst = ViewBag.TypeLst as List<DBType>;
 }
 @model SearchViewModel
 <link href="~/css/pager.css" rel="stylesheet" />
@@ -20,15 +22,24 @@
         <div id="SalesOrderSearchArea" data-enter-to-search="#btnSubmitSalesOrderSearch" class="panel-body in searchArea" >
             <div class="row">
                 <div class="col-md-3">
-                    @Html.LabelFor(m => m.title1)
+                    @Html.Label("", "Type")
+                    <select id="typeId" name="typeId" class="form-control">
+                        @foreach (var item in TypeLst)
+                        {
+                            @Html.Raw("<option " + (Model.typeId == item.id ? "selected=\"selected\"" : "") + "  value='" + item.id + "'>" + item.name + "</option>");
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("", "Contains")
                     @Html.EditorFor(m => m.title1, new { htmlAttributes = new { @class = "form-control" } })
                 </div>
                 <div class="col-md-3">
-                    @Html.LabelFor(m => m.title2)
+                    @Html.Label("", "Not Contains")
                     @Html.EditorFor(m => m.title2, new { htmlAttributes = new { @class = "form-control" } })
                 </div>
                 <div class="col-md-3">
-                    @Html.LabelFor(m => m.isLike)
+                    @Html.Label("", "Is Like")
                     <select id="isLike" name="isLike" class="form-control">
                         @Html.Raw("<option " + (Model.isLike == 2 ? "selected=\"selected\"" : "") + "  value='2'>ALL</option>");
                         @Html.Raw("<option " + (Model.isLike == 1 ? "selected=\"selected\"" : "") + "  value='1'>Like</option>");
