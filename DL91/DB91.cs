@@ -17,5 +17,23 @@ namespace DL91
         public int IsImgDownload { set; get; }
 
         public long videoFileSize { set; get; }
+
+        public int typeId { set; get; }
+
+        public bool isHD { set; get; }
+    }
+
+    public class DBType
+    {
+        public int id { set; get; }
+
+        public string name { set; get; }
+
+        public int maxID { set; get; }
+
+        public string url { set; get; }
+
+        public int count { set; get; }
+
     }
 }

@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <Folder Include="imgs\" />
+    <Folder Include="db\" />
   </ItemGroup>
 
 </Project>

@@ -12,24 +12,9 @@ namespace DL91
     {
         public DbSet<DB91> DB91s { get; set; }
 
+        public DbSet<DBType> DBTypes { get; set; }
+
         public DbSet<DBCfg> DBCfgs { get; set; }
-
-        public int getMaxID()
-        {
-            if (!DBCfgs.Any())
-            {
-                DBCfgs.Add(new DBCfg() { id = 1, maxID = 4 });
-                SaveChanges();
-            }
-            return DBCfgs.First().maxID;
-        }
-
-        public void setMaxID(int newID)
-        {
-            getMaxID();
-            DBCfgs.First().maxID = newID;
-            SaveChanges();
-        }
 
         private IConfiguration configuration;
 

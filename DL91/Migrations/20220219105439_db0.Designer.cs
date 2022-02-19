@@ -8,14 +8,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DL91.Migrations
 {
     [DbContext(typeof(DB91Context))]
-    [Migration("20220209120528_db6")]
-    partial class db6
+    [Migration("20220219105439_db0")]
+    partial class db0
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062");
+                .HasAnnotation("ProductVersion", "2.2.0-rtm-35687");
 
             modelBuilder.Entity("DL91.DB91", b =>
                 {
@@ -26,6 +26,8 @@ namespace DL91.Migrations
 
                     b.Property<string>("imgUrl");
 
+                    b.Property<bool>("isHD");
+
                     b.Property<int>("isLike");
 
                     b.Property<int>("isVideoDownloaded");
@@ -33,6 +35,8 @@ namespace DL91.Migrations
                     b.Property<int>("time");
 
                     b.Property<string>("title");
+
+                    b.Property<int>("typeId");
 
                     b.Property<string>("url");
 
@@ -52,11 +56,27 @@ namespace DL91.Migrations
 
                     b.Property<int>("isRuning");
 
-                    b.Property<int>("maxID");
-
                     b.HasKey("id");
 
                     b.ToTable("DBCfgs");
+                });
+
+            modelBuilder.Entity("DL91.DBType", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("count");
+
+                    b.Property<int>("maxID");
+
+                    b.Property<string>("name");
+
+                    b.Property<string>("url");
+
+                    b.HasKey("id");
+
+                    b.ToTable("DBTypes");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,6 +1,7 @@
 ﻿using GetWebInfo;
 using HtmlAgilityPack;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -10,7 +11,8 @@ namespace DL91
 {
     public class Job
     {
-        static string domain = "https://www.91rb.net";
+        static string domain = "https://www.rm2029.com";
+        //static string domain = "https://www.91rb.net";
         public static void Main(string[] args)
         {
             var index = 0;
@@ -21,11 +23,11 @@ namespace DL91
                     if (index == 0)
                     {
                         getList();
-                        DownloadImg();
+                        //DownloadImg();
                         index = 12 * 6;
                     }
                     index--;
-                    DownloadVideo();
+                    //DownloadVideo();
                 }
                 catch (Exception e)
                 {
@@ -162,44 +164,81 @@ namespace DL91
             return "wwwroot/video/" + (id / 1000) + "/" + id + "/" + name;
         }
 
-
-        static string getUrl(int page)
+        static int pageSize = 24;
+        static string getUrl(DBType type, int page)
         {
             if (page == 1)
             {
-                return domain + "/latest-updates/";
+                return domain + type.url;
 
             }
-            return domain + "/latest-updates/" + page + "/";
+            return domain + type.url + page + "/";
         }
-        static string getHtml(int page)
+
+        static string getHtml(DBType type, int page, out bool is404)
         {
+            is404 = false;
             while (true)
             {
-                WebPage p = new WebPage(getUrl(page));
+                WebPage p = new WebPage(getUrl(type, page));
                 if (p.IsGood)
                 {
                     return p.Html;
                 }
+                if (p.Is404)
+                {
+                    is404 = true;
+                    return "";
+                }
                 Thread.Sleep(60000 * 10);
             }
         }
-
         static void getList()
         {
-            var maxID = 4;
+            if (getType())
+            {
+                List<DBType> typelist = null;
+                using (var db = new DB91Context())
+                {
+                    typelist = db.DBTypes.Select(f => new DBType()
+                    {
+                        id = f.id,
+                        url = f.url,
+                        count = f.count,
+                        maxID = f.maxID,
+                        name = f.name
+                    }).ToList();
+                }
+                if (typelist != null)
+                {
+                    foreach (var item in typelist)
+                    {
+                        getSingleList(item);
+                    }
+                }
+            }
+        }
+        static void getSingleList(DBType type)
+        {
+            var newMaxID = 0;
+            var loadCount = 0;
             using (var db = new DB91Context())
             {
-                maxID = db.getMaxID();
+                loadCount = type.count - db.DB91s.Count(f => f.typeId == type.id);
             }
-            var newMaxID = 0;
-            var isBreak = 0;
-            for (int page = 1;; page++)
+            if (loadCount == 0)
+                return;
+            var pageCount = (loadCount % pageSize == 0 ? loadCount / pageSize : (loadCount / pageSize) + 1) + 2;
+            for (int page = 1; page <= pageCount; page++)
             {
-                Console.WriteLine("Load Page" + page);
+                Console.WriteLine("Load Page type " + type.name + " " + page);
+                var html = getHtml(type, page, out bool is404);
+                if (is404)
+                    break;
+
                 HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
-                doc.LoadHtml(getHtml(page));
-                HtmlNode navNode = doc.GetElementbyId("list_videos_latest_videos_list_items");
+                doc.LoadHtml(html);
+                HtmlNode navNode = doc.GetElementbyId("list_videos_common_videos_list_items");
                 HtmlNodeCollection categoryNodeList = navNode.SelectNodes("div");
                 for (int i = 0; i < categoryNodeList.Count; i++)
                 {
@@ -217,7 +256,7 @@ namespace DL91
                     String title = atag.Attributes["title"].Value;
                     String img = atag.SelectNodes("div")[0].SelectNodes("img")[0].Attributes["data-original"].Value;
                     var time = atag.SelectNodes("div")[1].SelectNodes("div")[0].InnerText.Split(':');
-
+                    var isHD = nat.SelectNodes("a//span[@class='is-hd']") != null;
                     int timeInt = 0;
                     if (time.Length == 3)
                     {
@@ -237,34 +276,73 @@ namespace DL91
                                 time = timeInt,
                                 title = title,
                                 imgUrl = img,
-                                url = href
+                                typeId = type.id,
+                                url = href,
+                                isHD = isHD
                             });
                             db.SaveChanges();
                         }
                     }
-
-                    if (id <= maxID&& isBreak==0)
-                    {
-                        isBreak = 1;
-                    }
                 }
-                if (isBreak > 0)
-                {
-                    isBreak++;
-                }
-                if (isBreak > 5)
-                {
-                    break;
-                }
-
             }
-            if (maxID < newMaxID)
+
+            using (var db = new DB91Context())
             {
+                db.DBTypes.Single(f => f.id == type.id).maxID = newMaxID;
+                db.SaveChanges();
+            }
+
+        }
+
+        
+        static bool getType()
+        {
+            Console.WriteLine("Get Types");
+
+            WebPage p = new WebPage(domain + "/categories/");
+            if (!p.IsGood)
+                return false;
+
+            HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+            doc.LoadHtml(p.Html);
+
+            var categoryNodeList = doc.DocumentNode.SelectNodes("//div[@class='main-content']/div[@class='sidebar']/ul/li/a");
+            for (int i = 0; i < categoryNodeList.Count; i++)
+            {
+                HtmlNode nat = categoryNodeList[i];
+
+                var url= nat.Attributes["href"].Value.Replace(domain, "");
+
+                var span= nat.SelectNodes("span")[0];
+                var count = span.InnerText;
+
+                var name = nat.InnerText.Replace(count, "").Trim();
+
+
                 using (var db = new DB91Context())
                 {
-                    db.setMaxID(newMaxID);
+                    var type = db.DBTypes.SingleOrDefault(f => f.url == url);
+                    if (type == null)
+                    {
+                        type = new DBType()
+                        {
+                            url = url,
+                            name = name,
+                            count = int.Parse(count),
+                            maxID = 0
+                        };
+                        db.DBTypes.Add(type);
+                    }
+                    else
+                    {
+                        type.count = int.Parse(count);
+                    }
+                    db.SaveChanges();
                 }
             }
+
+            return true;
         }
+        
     }
 }
