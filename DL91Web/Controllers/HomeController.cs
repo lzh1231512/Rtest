@@ -11,6 +11,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Configuration;
 
 namespace DL91Web.Controllers
 {
@@ -21,8 +22,18 @@ namespace DL91Web.Controllers
         {
         }
 
+        public IActionResult Login()
+        {
+            return View();
+        }
+
         public IActionResult Index(SearchViewModel model, int currentPage = 1, bool isAjax = false)
         {
+            if (!checkLogin())
+            {
+                return Redirect("~/Home/Login");
+            }
+
             model.Page = new Pager()
             {
                 CurrentPage = currentPage,
@@ -90,6 +101,10 @@ namespace DL91Web.Controllers
 
         public IActionResult play(int id,string url)
         {
+            if (!checkLogin())
+            {
+                return Redirect("~/Home/Login");
+            }
             var urls = getM3u8(id);
             using (var db = new DB91Context())
             {
@@ -173,6 +188,15 @@ namespace DL91Web.Controllers
         {
             return string.Format("[{0:D2}:{1:D2}]", time / 60, time % 60);
         }
-
+        private static string loginkey { set; get; }
+        private bool checkLogin()
+        {
+            if (loginkey == null)
+            {
+                var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("config/appsettings.json").Build();
+                loginkey = configuration["App:key"];
+            }
+            return Request.Cookies["key"] == loginkey;
+        }
     }
 }

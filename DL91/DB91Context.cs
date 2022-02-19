@@ -21,7 +21,7 @@ namespace DL91
         public DB91Context(string connectionString = null)
         {
             this.connectionString = connectionString;
-            configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json").Build();
+            configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("config/appsettings.json").Build();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
