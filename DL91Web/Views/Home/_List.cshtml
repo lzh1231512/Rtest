@@ -34,7 +34,7 @@
                     <a href="#" onclick="play(this,@item.Id)" target="_blank">
                         <img style="width:256px;height:144px" src="@url" />
                     </a>
-                    <div style="min-height:36px;">@item.Title</div>
+                    <div style="min-height:36px;">@Html.Raw(item.Title)</div>
                 </div>
                 if (index % 6 == 5)
                 {

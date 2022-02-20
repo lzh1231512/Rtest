@@ -79,7 +79,7 @@ namespace DL91Web.Controllers
                     .Select(f => new DataViewModel()
                     {
                         Id = f.id,
-                        Title =(f.isHD?"[HD]":"")+  getTimeString(f.time) +" "+ f.title
+                        Title =(f.isHD?"[HD]":"")+  getTimeString(f.time) + getTypeName(f.typeId, TypeLst) + "</br>"+ f.title
                     }).ToList();
                 model.Page.RecordCount = dt3.Count();
             }
@@ -108,8 +108,13 @@ namespace DL91Web.Controllers
             var urls = getM3u8(id);
             using (var db = new DB91Context())
             {
+                var TypeLst = db.DBTypes.Select(f => new DBType()
+                {
+                    id = f.id,
+                    name = f.name
+                }).ToList();
                 var obj = db.DB91s.Where(f => f.id == id).FirstOrDefault();
-                ViewBag.title = (obj.isHD ? "[HD]" : "") + obj?.title;
+                ViewBag.title = (obj.isHD ? "[HD]" : "") + getTypeName(obj.typeId, TypeLst) + obj?.title;
                 ViewBag.isLike = obj?.isLike;
                 if (obj.isVideoDownloaded == 1)
                 {
@@ -188,6 +193,14 @@ namespace DL91Web.Controllers
         {
             return string.Format("[{0:D2}:{1:D2}]", time / 60, time % 60);
         }
+        private string getTypeName(int typeId,List<DBType> lst)
+        {
+            var result = lst.SingleOrDefault(f => f.id == typeId);
+            if (result == null)
+                return "";
+            return "[" + result.name + "]";
+        }
+
         private static string loginkey { set; get; }
         private bool checkLogin()
         {
