@@ -228,7 +228,7 @@ namespace DL91
             }
             if (loadCount == 0)
                 return;
-            var pageCount = (loadCount % pageSize == 0 ? loadCount / pageSize : (loadCount / pageSize) + 1) + 2;
+            var pageCount = (loadCount % pageSize == 0 ? loadCount / pageSize : (loadCount / pageSize) + 1) + 20;
             for (int page = 1; page <= pageCount; page++)
             {
                 Console.WriteLine("Load Page type " + type.name + " " + page);
