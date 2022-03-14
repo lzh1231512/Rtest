@@ -114,12 +114,15 @@ namespace DL91Web.Controllers
                     name = f.name
                 }).ToList();
                 var obj = db.DB91s.Where(f => f.id == id).FirstOrDefault();
-                ViewBag.title = (obj.isHD ? "[HD]" : "") + getTypeName(obj.typeId, TypeLst) + obj?.title;
-                ViewBag.isLike = obj?.isLike;
-                if (obj.isVideoDownloaded == 1)
+                if (obj != null)
                 {
-                    ViewBag.fileSize = GetFileSize(obj.videoFileSize);
-                    urls.Add(url + "/video/" + (id / 1000) + "/" + id + "/index.m3u8");
+                    ViewBag.title = (obj.isHD ? "[HD]" : "") + getTypeName(obj.typeId, TypeLst) + obj?.title;
+                    ViewBag.isLike = obj?.isLike;
+                    if (obj.isVideoDownloaded == 1)
+                    {
+                        ViewBag.fileSize = GetFileSize(obj.videoFileSize);
+                        urls.Add(url + "/video/" + (id / 1000) + "/" + id + "/index.m3u8");
+                    }
                 }
             }
             ViewBag.urls = urls;
