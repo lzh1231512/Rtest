@@ -169,10 +169,10 @@ namespace DL91
         {
             if (page == 1)
             {
-                return domain + type.url;
+                return domain + type.url + "?tt=" + Guid.NewGuid();
 
             }
-            return domain + type.url + page + "/";
+            return domain + type.url + page + "/?tt=" + Guid.NewGuid();
         }
 
         static string getHtml(DBType type, int page, out bool is404)
