@@ -192,6 +192,23 @@ namespace DL91
                 Thread.Sleep(60000);
             }
         }
+
+        static string getDetailHtml(string url)
+        {
+            var i = 0;
+            while (i < 3)
+            {
+                WebPage p = new WebPage(url);
+                if (p.IsGood)
+                {
+                    return p.Html;
+                }
+                Thread.Sleep(60000);
+                i++;
+            }
+            return null;
+        }
+
         static void getList()
         {
             if (getType())
@@ -264,7 +281,7 @@ namespace DL91
 
                 if (isExists)
                 {
-                    //break;
+                    break;
                 }
             }
 
@@ -285,15 +302,15 @@ namespace DL91
                         Console.WriteLine("Load Detail " + index + "/" + count);
                     }
 
-                    WebPage p = new WebPage(domain + item.url);
-                    if (p.IsGood)
+                    var html = getDetailHtml(domain + item.url);
+                    if (html != null)
                     {
                         HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
-                        doc.LoadHtml(p.Html);
+                        doc.LoadHtml(html);
                         HtmlNode navNode = doc.GetElementbyId("tab_video_info");
                         foreach (var atag in navNode.SelectNodes("div//a"))
                         {
-                            var href= atag.Attributes["href"].Value;
+                            var href = atag.Attributes["href"].Value;
                             if (href.Contains("categories"))
                             {
                                 var typeName = atag.InnerText.Trim();
