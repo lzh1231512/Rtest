@@ -164,23 +164,22 @@ namespace DL91
             return "wwwroot/video/" + (id / 1000) + "/" + id + "/" + name;
         }
 
-        static int pageSize = 24;
-        static string getUrl(DBType type, int page)
+        static string getUrl(int page)
         {
             if (page == 1)
             {
-                return domain + type.url + "?tt=" + Guid.NewGuid();
+                return domain + "/latest-updates/?tt=" + Guid.NewGuid();
 
             }
-            return domain + type.url + page + "/?tt=" + Guid.NewGuid();
+            return domain + "/latest-updates/" + page + "/?tt=" + Guid.NewGuid();
         }
 
-        static string getHtml(DBType type, int page, out bool is404)
+        static string getHtml(int page, out bool is404)
         {
             is404 = false;
             while (true)
             {
-                WebPage p = new WebPage(getUrl(type, page));
+                WebPage p = new WebPage(getUrl( page));
                 if (p.IsGood)
                 {
                     return p.Html;
@@ -197,49 +196,27 @@ namespace DL91
         {
             if (getType())
             {
-                List<DBType> typelist = null;
-                using (var db = new DB91Context())
-                {
-                    typelist = db.DBTypes.Select(f => new DBType()
-                    {
-                        id = f.id,
-                        url = f.url,
-                        count = f.count,
-                        maxID = f.maxID,
-                        name = f.name
-                    }).ToList();
-                }
-                if (typelist != null)
-                {
-                    foreach (var item in typelist)
-                    {
-                        getSingleList(item);
-                    }
-                }
+                getSingleList();
+                getDetailType();
             }
         }
-        static void getSingleList(DBType type)
+        static void getSingleList()
         {
-            var newMaxID = 0;
-            var loadCount = 0;
-            using (var db = new DB91Context())
-            {
-                loadCount = type.count - db.DB91s.Count(f => f.typeId == type.id);
-            }
-            if (loadCount == 0)
-                return;
-            var pageCount = (loadCount % pageSize == 0 ? loadCount / pageSize : (loadCount / pageSize) + 1) + 20;
+            var pageCount = 500;
             for (int page = 1; page <= pageCount; page++)
             {
-                Console.WriteLine("Load Page type " + type.name + " " + page);
-                var html = getHtml(type, page, out bool is404);
+                Console.WriteLine("Load Page "+ page);
+                var html = getHtml(page, out bool is404);
                 if (is404)
                     break;
 
                 HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
                 doc.LoadHtml(html);
-                HtmlNode navNode = doc.GetElementbyId("list_videos_common_videos_list_items");
+                HtmlNode navNode = doc.GetElementbyId("list_videos_latest_videos_list_items");
                 HtmlNodeCollection categoryNodeList = navNode.SelectNodes("div");
+
+                var isExists = false;
+
                 for (int i = 0; i < categoryNodeList.Count; i++)
                 {
                     HtmlNode nat = categoryNodeList[i];
@@ -249,10 +226,6 @@ namespace DL91
                     var a = href.IndexOf('/', 2);
                     var b = href.IndexOf('/', a + 1);
                     var id = int.Parse(href.Substring(a + 1, b - a - 1));
-                    if (newMaxID == 0)
-                    {
-                        newMaxID = id;
-                    }
                     String title = atag.Attributes["title"].Value;
                     String img = atag.SelectNodes("div")[0].SelectNodes("img")[0].Attributes["data-original"].Value;
                     var time = atag.SelectNodes("div")[1].SelectNodes("div")[0].InnerText.Split(':');
@@ -276,25 +249,75 @@ namespace DL91
                                 time = timeInt,
                                 title = title,
                                 imgUrl = img,
-                                typeId = type.id,
+                                typeId = 0,
                                 url = href,
                                 isHD = isHD
                             });
                             db.SaveChanges();
                         }
+                        else
+                        {
+                            isExists = true;
+                        }
                     }
                 }
-            }
 
-            using (var db = new DB91Context())
-            {
-                db.DBTypes.Single(f => f.id == type.id).maxID = newMaxID;
-                db.SaveChanges();
+                if (isExists)
+                {
+                    //break;
+                }
             }
 
         }
 
-        
+        static void getDetailType()
+        {
+            using (var db = new DB91Context())
+            {
+                var types = db.DBTypes.ToList();
+                var count = db.DB91s.Where(f => f.typeId == 0).Count();
+                var index = 0;
+                foreach (var item in db.DB91s.Where(f => f.typeId == 0))
+                {
+                    index++;
+                    if (index % 10 == 0)
+                    {
+                        Console.WriteLine("Load Detail " + index + "/" + count);
+                    }
+
+                    WebPage p = new WebPage(domain + item.url);
+                    if (p.IsGood)
+                    {
+                        HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+                        doc.LoadHtml(p.Html);
+                        HtmlNode navNode = doc.GetElementbyId("tab_video_info");
+                        foreach (var atag in navNode.SelectNodes("div//a"))
+                        {
+                            var href= atag.Attributes["href"].Value;
+                            if (href.Contains("categories"))
+                            {
+                                var typeName = atag.InnerText.Trim();
+                                var type = types.FirstOrDefault(f => f.name == typeName);
+                                if (type != null)
+                                {
+                                    item.typeId = type.id;
+                                    db.SaveChanges();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        item.typeId = -1;
+                    }
+                }
+               
+            }
+        }
+
+
+
         static bool getType()
         {
             Console.WriteLine("Get Types");
