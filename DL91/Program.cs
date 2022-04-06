@@ -189,7 +189,7 @@ namespace DL91
                     is404 = true;
                     return "";
                 }
-                Thread.Sleep(60000 * 10);
+                Thread.Sleep(60000);
             }
         }
         static void getList()
