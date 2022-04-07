@@ -24,7 +24,7 @@ namespace DL91
                     {
                         getList();
                         DownloadImg();
-                        index = 12 * 6;
+                        index = 6 * 6;
                     }
                     index--;
                     DownloadVideo();
