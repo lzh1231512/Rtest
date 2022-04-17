@@ -159,6 +159,8 @@ namespace DL91Web.Controllers
             {
                 var obj = db.DB91s.Where(f => f.id == id).FirstOrDefault();
                 obj.isLike = isLike;
+                if (obj.IsImgDownload == 2)
+                    obj.IsImgDownload = 0;
                 db.SaveChanges();
             }
             if (isLike == 1)
