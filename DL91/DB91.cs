@@ -21,6 +21,8 @@ namespace DL91
         public int typeId { set; get; }
 
         public bool isHD { set; get; }
+
+        public int createDate { set; get; }
     }
 
     public class DBType

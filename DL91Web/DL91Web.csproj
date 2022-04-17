@@ -57,4 +57,11 @@
     <ProjectReference Include="..\DL91\DL91.csproj" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <None Update="db\91db.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

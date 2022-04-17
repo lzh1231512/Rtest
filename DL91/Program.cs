@@ -233,7 +233,7 @@ namespace DL91
                 HtmlNodeCollection categoryNodeList = navNode.SelectNodes("div");
 
                 var isExists = false;
-
+                var dt91 = new DateTime(1990, 1, 1);
                 for (int i = 0; i < categoryNodeList.Count; i++)
                 {
                     HtmlNode nat = categoryNodeList[i];
@@ -268,7 +268,8 @@ namespace DL91
                                 imgUrl = img,
                                 typeId = 0,
                                 url = href,
-                                isHD = isHD
+                                isHD = isHD,
+                                createDate = (int)(DateTime.UtcNow - dt91).TotalMinutes
                             });
                             db.SaveChanges();
                         }

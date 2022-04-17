@@ -2,14 +2,16 @@
 using DL91;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DL91.Migrations
 {
     [DbContext(typeof(DB91Context))]
-    partial class DB91ContextModelSnapshot : ModelSnapshot
+    [Migration("20220417083802_db1")]
+    partial class db1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

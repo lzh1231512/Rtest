@@ -74,12 +74,12 @@ namespace DL91Web.Controllers
                 {
                     lst = lst.Where(f => f.typeId == model.typeId);
                 }
-                var dt3 = lst.OrderByDescending(f => f.id);
+                var dt3 = lst.OrderByDescending(f => f.createDate);
                 model.Data = dt3.Skip((currentPage - 1) * model.Page.PageSize).Take(model.Page.PageSize)
                     .Select(f => new DataViewModel()
                     {
                         Id = f.id,
-                        Title =(f.isHD?"[HD]":"")+  getTimeString(f.time) + getTypeName(f.typeId, TypeLst) + "</br>"+ f.title
+                        Title = getCreateDateStr(f.createDate) + (f.isHD?"[HD]":"") +   getTimeString(f.time) + getTypeName(f.typeId, TypeLst) + "</br>"+ f.title
                     }).ToList();
                 model.Page.RecordCount = dt3.Count();
             }
@@ -196,6 +196,22 @@ namespace DL91Web.Controllers
         {
             return string.Format("[{0:D2}:{1:D2}]", time / 60, time % 60);
         }
+
+        private string getCreateDateStr(int time)
+        {
+            var dt = new DateTime(1990, 1, 1).AddMinutes(time);
+            var result = DateTime.UtcNow - dt;
+
+            if (result.TotalDays > 365)
+                return "[1年前]";
+            if (result.TotalDays > 7)
+                return "["+ (int)(result.TotalDays / 7) + "周前]";
+            if (result.TotalHours > 24)
+                return "[" + (int)(result.TotalDays) + "天前]";
+            return "[" + (int)(result.TotalHours) + "小时前]";
+        }
+
+
         private string getTypeName(int typeId,List<DBType> lst)
         {
             var result = lst.SingleOrDefault(f => f.id == typeId);
