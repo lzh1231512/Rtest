@@ -51,6 +51,7 @@
                 <div class="col-md-12 form-button-Lines">
                     <button id="btnSubmitSalesOrderSearch" class="btn btn-info CommonBtn"><i class='fa fa-search'></i> Search</button>
                     <input id="btnClear" type="button" class="btn btn-default CommonBtn" value="Clear All" />
+                    <input id="btnSync" type="button" class="btn btn-default CommonBtn" value="Sync Now" />
                 </div>
             </div>
         </div>
@@ -77,6 +78,10 @@
             $('#btnClear').click(function(){
                 $('#title1,#title2').val('');
                 $('#isLike').val(2);
+            });
+            $('#btnSync').click(function () {
+                $.post('@Url.Action("sync")');
+                alert('OK');
             });
         });
     </script>

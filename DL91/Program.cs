@@ -13,27 +13,36 @@ namespace DL91
     {
         static string domain = "https://www.rm2029.com";
         //static string domain = "https://www.91rb.net";
+
+        public static int SyncFlag { set; get; } = 0;
+        public static int DownloadVideoFlag { set; get; } = 0;
+
         public static void Main(string[] args)
         {
-            var index = 0;
             while (true)
             {
                 try
                 {
-                    if (index == 0)
+                    if (SyncFlag <= 0)
                     {
                         getList();
                         DownloadImg();
-                        index = 6 * 6;
+                        SyncFlag = 60 * 6;
                     }
-                    index--;
-                    DownloadVideo();
+                    SyncFlag--;
+
+                    if (DownloadVideoFlag <= 0)
+                    {
+                        DownloadVideo();
+                        DownloadVideoFlag = 10;
+                    }
+                    DownloadVideoFlag--;
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
                 }
-                Thread.Sleep(60000 * 10);
+                Thread.Sleep(60000);
             }
         }
 

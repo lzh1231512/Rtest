@@ -161,6 +161,16 @@ namespace DL91Web.Controllers
                 obj.isLike = isLike;
                 db.SaveChanges();
             }
+            if (isLike == 1)
+            {
+                DL91.Job.DownloadVideoFlag = 0;
+            }
+            return Json(1);
+        }
+
+        public IActionResult sync()
+        {
+            DL91.Job.SyncFlag = 0;
             return Json(1);
         }
 
