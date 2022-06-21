@@ -179,11 +179,12 @@ namespace DL91Web.Controllers
         private List<string> getM3u8(int id)
         {
             var result = new List<string>();
-            var domain = id < 72125 ? "https://cust91rb.163cdn.net" : "https://cust91rb2.163cdn.net";
-            var url1 = domain + "/hls/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_720p.mp4/index.m3u8";
+            //var domain = id < 72125 ? "https://cust91rb.163cdn.net" : "https://cust91rb2.163cdn.net";
+            var domain = "https://cdn.163cdn.net";
+            var url1 = domain + "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_720p.mp4/index.m3u8";
             if (testHttp(url1))
                 result.Add(url1);
-            result.Add(domain + "/hls/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8");
+            result.Add(domain + "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8");
             return result;
         }
 
