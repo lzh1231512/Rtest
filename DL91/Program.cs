@@ -136,7 +136,7 @@ namespace DL91
             {
                 using (var db = new DB91Context())
                 {
-                    var obj = db.DB91s.Where(f => f.isLike == 1 && (f.isVideoDownloaded == 0|| f.isVideoDownloaded == 2)).FirstOrDefault();
+                    var obj = db.DB91s.Where(f => f.isLike == 1 && (f.isVideoDownloaded == 0)).FirstOrDefault();
                     if (obj == null)
                         break;
                     Console.WriteLine("download video " + obj.id);
@@ -248,9 +248,9 @@ namespace DL91
         static void getSingleList()
         {
             var pageCount = 1500;
-            for (int page = 1; page <= pageCount; page++)
+            for (int page = 1, existsflag = 0; page <= pageCount && existsflag < 5; page++)
             {
-                Console.WriteLine("Load Page "+ page);
+                Console.WriteLine("Load Page " + page);
                 var html = getHtml(page, out bool is404);
                 if (is404)
                     break;
@@ -260,7 +260,7 @@ namespace DL91
                 HtmlNode navNode = doc.GetElementbyId("list_videos_latest_videos_list_items");
                 HtmlNodeCollection categoryNodeList = navNode.SelectNodes("div");
 
-                var isExists = false;
+                var isExists = true;
                 var dt91 = new DateTime(1990, 1, 1);
                 for (int i = 0; i < categoryNodeList.Count; i++)
                 {
@@ -288,6 +288,7 @@ namespace DL91
                     {
                         if (!db.DB91s.Any(f => f.id == id))
                         {
+                            isExists = false;
                             db.DB91s.Add(new DB91()
                             {
                                 id = id,
@@ -301,19 +302,14 @@ namespace DL91
                             });
                             db.SaveChanges();
                         }
-                        else
-                        {
-                            isExists = true;
-                        }
                     }
                 }
 
                 if (isExists)
                 {
-                    //break;
+                    existsflag++;
                 }
             }
-
         }
 
         static void getDetailType()
