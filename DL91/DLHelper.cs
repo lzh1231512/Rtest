@@ -84,6 +84,8 @@ namespace DL91
                 if (fi.Exists)
                     fi.Delete();
 
+                Console.WriteLine("download " + task.url);
+
                 FileStream fs = new FileStream(task.savepath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
                 HttpWebRequest request = WebRequest.Create(task.url) as HttpWebRequest;
                 HttpWebResponse response = request.GetResponse() as HttpWebResponse;
