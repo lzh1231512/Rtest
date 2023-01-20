@@ -68,13 +68,21 @@ namespace DL91
             addCount();
             Task.Factory.StartNew(() =>
             {
-                task.result = DLSingleFile(task) ? 1 : 2;
+                task.result = 2;
+                for (int i = 0; i < 10; i++)
+                {
+                    if (DLSingleFile(task, i == 9))
+                    {
+                        task.result = 1;
+                        break;
+                    }
+                }
                 minusCount();
             });
         }
 
 
-        private static bool DLSingleFile(DLTask task)
+        private static bool DLSingleFile(DLTask task,bool isFinal)
         {
             try
             {
@@ -88,9 +96,10 @@ namespace DL91
 
                 FileStream fs = new FileStream(task.savepath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
                 HttpWebRequest request = WebRequest.Create(task.url) as HttpWebRequest;
+                request.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko";
                 HttpWebResponse response = request.GetResponse() as HttpWebResponse;
                 Stream responseStream = response.GetResponseStream();
-                byte[] bArr = new byte[1024];
+                byte[] bArr = new byte[102400];
                 int size = responseStream.Read(bArr, 0, (int)bArr.Length);
                 long fileSize = size;
                 while (size > 0)
@@ -106,7 +115,10 @@ namespace DL91
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                if (isFinal)
+                {
+                    Console.WriteLine(ex.Message);
+                }
                 return false;
             }
         }
