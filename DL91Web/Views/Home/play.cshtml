@@ -41,8 +41,9 @@
     <div>
         @ViewBag.title
     </div>
-    <div>
-        <input id="openInNewTab" type="button" name="name" value="openInNewTab" />
+    <div style="margin:10px">
+        <input id="btnPlay" type="button" name="name" value="play" />&nbsp;&nbsp;&nbsp;&nbsp;
+        <input id="openInNewTab" type="button" name="name" value="play on new Tab" />
     </div>
     <div>
         <video id="myVideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" data-setup='{}'
@@ -65,14 +66,14 @@
         $('#isLike').change(function () {
             $.post('@Url.Action("like")?id=' + @(ViewBag.id) +'&&isLike=' + (this.checked ? 1 : 0));
         });
-        $('[name=urlx]').change(function () {
-            var val = parseInt($('[name=urlx]:checked').val());
-            changeVideo(urls[val]);
-        });
         $('#openInNewTab').click(function () {
             var val = parseInt($('[name=urlx]:checked').val());
             var url = urls[val];
             window.open(url, "_blank");
+        })
+        $('#btnPlay').click(function () {
+            var val = parseInt($('[name=urlx]:checked').val());
+            changeVideo(urls[val]);
         })
         var myVideo = videojs('myVideo', {
             bigPlayButton: true,
@@ -80,7 +81,7 @@
             posterImage: false,
             errorDisplay: false,
         })
-        myVideo.play()
+        //myVideo.play()
         var changeVideo = function (vdoSrc) {
             if (/\.m3u8$/.test(vdoSrc)) {
                 myVideo.src({
