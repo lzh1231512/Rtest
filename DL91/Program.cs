@@ -67,11 +67,13 @@ namespace DL91
         static bool downloadM3u8(int id,out long fileSize)
         {
             fileSize = 0;
-            WebPage p = new WebPage(getM3u8Url(id));
+            var m3url = getM3u8Url(id);
+            WebPage p = new WebPage(m3url);
             if (!p.IsGood)
             {
                 return false;
             }
+            Console.WriteLine(m3url);
             Console.WriteLine(p.Html);
 
             var info = p.Html.Split("\n");
