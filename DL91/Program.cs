@@ -72,6 +72,8 @@ namespace DL91
             {
                 return false;
             }
+            Console.WriteLine(p.Html);
+
             var info = p.Html.Split("\n");
             var urls = info.Where(f => f.ToLower().StartsWith("http"));
             var dLst = urls.Select(f => new DLTask()
