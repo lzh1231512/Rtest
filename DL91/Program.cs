@@ -136,7 +136,7 @@ namespace DL91
             {
                 using (var db = new DB91Context())
                 {
-                    var obj = db.DB91s.Where(f => f.isLike == 1 && f.isVideoDownloaded == 0).FirstOrDefault();
+                    var obj = db.DB91s.Where(f => f.isLike == 1 && (f.isVideoDownloaded == 0|| f.isVideoDownloaded == 2)).FirstOrDefault();
                     if (obj == null)
                         break;
                     Console.WriteLine("download video " + obj.id);
@@ -247,7 +247,7 @@ namespace DL91
         }
         static void getSingleList()
         {
-            var pageCount = 500;
+            var pageCount = 1500;
             for (int page = 1; page <= pageCount; page++)
             {
                 Console.WriteLine("Load Page "+ page);
@@ -310,7 +310,7 @@ namespace DL91
 
                 if (isExists)
                 {
-                    break;
+                    //break;
                 }
             }
 
