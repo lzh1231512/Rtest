@@ -119,19 +119,26 @@ namespace DL91
         }
         static bool testHttp(string url)
         {
-            try
+            for (int i = 0; i < 10; i++)
             {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                request.Method = "GET";
-                request.Accept = "*/*";
-                request.CookieContainer = new CookieContainer();
-                HttpWebResponse respons = (HttpWebResponse)request.GetResponse();
-                return respons.StatusCode == HttpStatusCode.OK;
+                try
+                {
+                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                    request.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko";
+                    request.Method = "GET";
+                    request.Accept = "*/*";
+                    request.CookieContainer = new CookieContainer();
+                    HttpWebResponse respons = (HttpWebResponse)request.GetResponse();
+                    if(respons.StatusCode == HttpStatusCode.OK)
+                    {
+                        return true;
+                    }
+                }
+                catch
+                {
+                }
             }
-            catch
-            {
-                return false;
-            }
+            return false;
         }
         static void DownloadVideo()
         {
