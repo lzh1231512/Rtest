@@ -175,7 +175,11 @@ namespace DL91Web.Controllers
             DL91.Job.SyncFlag = 0;
             return Json(1);
         }
-
+        public IActionResult ResetFailedVideo()
+        {
+            DL91.Job.ResetFailedVideo();
+            return Json(1);
+        }
         private List<string> getM3u8(int id)
         {
             var result = new List<string>();

@@ -7,10 +7,11 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <link href="~/js/videojs/video-js.css" rel="stylesheet" />
-    <script src="~/js/videojs/video.js"></script>
-    <script src="~/js/videojs/videojs-contrib-hls.js"></script>
-    <script src="~/js/jquery-1.10.2.js"></script>
+    <meta content ="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport">
+        <link href="~/js/videojs/video-js.css" rel="stylesheet" />
+        <script src="~/js/videojs/video.js"></script>
+        <script src="~/js/videojs/videojs-contrib-hls.js"></script>
+        <script src="~/js/jquery-1.10.2.js"></script>
 </head>
 <body>
     <style>
@@ -41,6 +42,9 @@
         @ViewBag.title
     </div>
     <div>
+        <input id="openInNewTab" type="button" name="name" value="openInNewTab" />
+    </div>
+    <div>
         <video id="myVideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" data-setup='{}'
                style='width: auto;height: auto'>
             <source id="source" src="@urls[0]" type="application/x-mpegURL" />
@@ -65,7 +69,11 @@
             var val = parseInt($('[name=urlx]:checked').val());
             changeVideo(urls[val]);
         });
-
+        $('#openInNewTab').click(function () {
+            var val = parseInt($('[name=urlx]:checked').val());
+            var url = urls[val];
+            window.open(url, "_blank");
+        })
         var myVideo = videojs('myVideo', {
             bigPlayButton: true,
             textTrackDisplay: false,

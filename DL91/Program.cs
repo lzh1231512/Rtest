@@ -146,6 +146,17 @@ namespace DL91
                 }
             }
         }
+        public static void ResetFailedVideo()
+        {
+            using (var db = new DB91Context())
+            {
+                foreach (var obj in db.DB91s.Where(f => f.isLike == 1 && f.isVideoDownloaded == 2))
+                {
+                    obj.isVideoDownloaded = 0;
+                }
+                db.SaveChanges();
+            }
+        }
         static void DownloadImg()
         {
             var downloaded = 0;
