@@ -135,16 +135,27 @@ namespace DL91
         }
         static void DownloadVideo()
         {
-            while (true)
+            using (var db = new DB91Context())
             {
-                using (var db = new DB91Context())
+                foreach (var item in db.DB91s.Where(f => f.isLike == 1))
                 {
-                    var obj = db.DB91s.Where(f => f.isLike == 1 && (f.isVideoDownloaded == 0)).FirstOrDefault();
-                    if (obj == null)
-                        break;
-                    Console.WriteLine("download video " + obj.id);
-                    obj.isVideoDownloaded = downloadM3u8(obj.id, out long fileSize) ? 1 : 2;
-                    obj.videoFileSize = fileSize;
+                    if (item.isVideoDownloaded == 1)
+                    {
+                        if (File.Exists(getVideoSavePath(item.id, getM3u8Url(item.id))))
+                        {
+                            continue;
+                        }
+                    }
+                    try
+                    {
+                        Console.WriteLine("download video " + item.id);
+                        item.isVideoDownloaded = downloadM3u8(item.id, out long fileSize) ? 1 : 2;
+                        item.videoFileSize = fileSize;
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine("download video " + item.id + "Failed:" + e.Message);
+                    }
                     db.SaveChanges();
                 }
             }
