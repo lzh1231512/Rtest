@@ -83,7 +83,7 @@ namespace DL91
                 url = f.ToLower().StartsWith("http") ? f : m3url.Replace("index.m3u8", f),
                 savepath = getVideoSavePath(id, f)
             });
-            var dLst2 = DLHelper.DL(dLst.ToList(), 8);
+            var dLst2 = DLHelper.DL(dLst.ToList(), 1);
             fileSize = dLst2.Sum(f => f.fileSize);
             using (FileStream fs=new FileStream(getVideoSavePath(id, p.URL), FileMode.Create, FileAccess.ReadWrite))
             {
