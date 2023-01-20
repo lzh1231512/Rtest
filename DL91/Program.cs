@@ -13,7 +13,7 @@ namespace DL91
 {
     public class Job
     {
-        static string domain = "https://www.rm2029.com";
+        public static string domain = "https://www.rm2029.com";
         //static string domain = "https://www.91rb.net";
 
         public static int SyncFlag { set; get; } = 0;
@@ -106,7 +106,8 @@ namespace DL91
 
         static string getM3u8Url(int id)
         {
-            var domain = id < 72125 ? "https://cust91rb.163cdn.net" : "https://cust91rb2.163cdn.net";
+            var domain = "https://cdn.163cdn.net";
+            //var domain = id < 72125 ? "https://cust91rb.163cdn.net" : "https://cust91rb2.163cdn.net";
             var result = domain + "/hls/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_720p.mp4/index.m3u8";
             if (testHttp(result))
                 return result;
@@ -361,7 +362,7 @@ namespace DL91
             }
         }
 
-
+        
 
         static bool getType()
         {
@@ -374,18 +375,13 @@ namespace DL91
             HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
             doc.LoadHtml(p.Html);
 
-            var categoryNodeList = doc.DocumentNode.SelectNodes("//div[@class='main-content']/div[@class='sidebar']/ul/li/a");
+            var categoryNodeList = doc.DocumentNode.SelectNodes("//div[@id='list_categories_categories_list_items']/a[@class='item']");
             for (int i = 0; i < categoryNodeList.Count; i++)
             {
                 HtmlNode nat = categoryNodeList[i];
-
                 var url= nat.Attributes["href"].Value.Replace(domain, "");
-
-                var span= nat.SelectNodes("span")[0];
-                var count = span.InnerText;
-
-                var name = nat.InnerText.Replace(count, "").Trim();
-
+                var count = "0";
+                var name = nat.Attributes["title"].Value;
 
                 using (var db = new DB91Context())
                 {
