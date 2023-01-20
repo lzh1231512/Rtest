@@ -44,6 +44,7 @@ namespace DL91
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
                 }
                 Thread.Sleep(60000);
             }
