@@ -67,13 +67,26 @@
             $.post('@Url.Action("like")?id=' + @(ViewBag.id) +'&&isLike=' + (this.checked ? 1 : 0));
         });
         $('#openInNewTab').click(function () {
-            var val = parseInt($('[name=urlx]:checked').val());
-            var url = urls[val];
+            var url = '';
+            if ($('[name=urlx]:checked').length > 0) {
+                var val = parseInt($('[name=urlx]:checked').val());
+                url = urls[val];
+            }
+            else {
+                url = urls[0];
+            }
             window.open(url, "_blank");
         })
         $('#btnPlay').click(function () {
-            var val = parseInt($('[name=urlx]:checked').val());
-            changeVideo(urls[val]);
+            var url = '';
+            if ($('[name=urlx]:checked').length > 0) {
+                var val = parseInt($('[name=urlx]:checked').val());
+                url = urls[val];
+            }
+            else {
+                url = urls[0];
+            }
+            changeVideo(url);
         })
         var myVideo = videojs('myVideo', {
             bigPlayButton: true,
