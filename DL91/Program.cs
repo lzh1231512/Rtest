@@ -74,13 +74,13 @@ namespace DL91
                 return false;
             }
             Console.WriteLine(m3url);
-            Console.WriteLine(p.Html);
+            //Console.WriteLine(p.Html);
 
             var info = p.Html.Split("\n");
-            var urls = info.Where(f => f.ToLower().StartsWith("http"));
+            var urls = info.Where(f => f.ToLower().StartsWith("http")|| f.ToLower().StartsWith("seg"));
             var dLst = urls.Select(f => new DLTask()
             {
-                url = f,
+                url = f.ToLower().StartsWith("http") ? f : m3url.Replace("index.m3u8", f),
                 savepath = getVideoSavePath(id, f)
             });
             var dLst2 = DLHelper.DL(dLst.ToList(), 8);
