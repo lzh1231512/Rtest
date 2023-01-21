@@ -4,17 +4,37 @@
     var fileSize = ViewBag.fileSize as string;
 }
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta content ="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport">
-        <link href="~/js/videojs/video-js.css" rel="stylesheet" />
-        <script src="~/js/videojs/video.js"></script>
-        <script src="~/js/videojs/videojs-contrib-hls.js"></script>
-        <script src="~/js/jquery-1.10.2.js"></script>
+    <link href="~/js/videojs/video-js.css" rel="stylesheet" />
+    <script src="~/js/videojs/video.js"></script>
+    <script src="~/js/videojs/videojs-contrib-hls.js"></script>
+    <script src="~/js/jquery-1.10.2.js"></script>
 </head>
 <body>
     <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        html, body {
+            width: 100%;
+        }
+
+            body > div {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+        div.url {
+            width: 100%;
+            white-space: normal;
+            word-break: break-all;
+        }
+
         .video-js .vjs-tech {
             position: relative !important;
         }
@@ -26,34 +46,35 @@
 
     @for (int i = 0; i < urls.Count; i++)
     {
-    <div>
-        @if (urls.Count > 1)
-        {
-            <input type="radio" name="urlx" @(i==0?"checked=\"checked\"":"") value="@i" />
-        }
-        @urls[i]
-        @if (i == urls.Count - 1 && !string.IsNullOrEmpty(fileSize))
-        {
-            <span>&nbsp;&nbsp;&nbsp;&nbsp; @fileSize</span>
-        }
-    </div>
+        <div class="url">
+            @if (urls.Count > 1)
+            {
+                <input type="radio" name="urlx" @(i == 0 ? "checked=\"checked\"" : "") value="@i" />
+            }
+            @urls[i]
+            @if (i == urls.Count - 1 && !string.IsNullOrEmpty(fileSize))
+            {
+                <span>&nbsp;&nbsp;&nbsp;&nbsp; @fileSize</span>
+            }
+        </div>
     }
     <div>
         @ViewBag.title
     </div>
-    <div style="margin:10px">
+    <div>
+        &nbsp;&nbsp;&nbsp;&nbsp;
         <input id="btnPlay" type="button" name="name" value="play" />&nbsp;&nbsp;&nbsp;&nbsp;
         <input id="openInNewTab" type="button" name="name" value="play on new Tab" />
     </div>
     <div>
         <video id="myVideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" data-setup='{}'
-               style='width: auto;height: auto'>
+               style='width: 100%;height: auto'>
             <source id="source" src="@urls[0]" type="application/x-mpegURL" />
         </video>
     </div>
-</body>
 
-<script>
+
+    <script>
     $(function () {
         var urls = [];
     @for (int i = 0; i < urls.Count; i++)
@@ -109,6 +130,7 @@
             myVideo.play();
         }
     });
-</script>
+    </script>
 
-
+</body>
+</html>
