@@ -60,6 +60,9 @@
         @Html.Partial("_List", Model)
     </div>
     <script>
+        function onPageLoad() {
+            window.scrollTo(0, 0);
+        }
         function play(obj,id) {
             var xxurl = window.location.href;
             if (xxurl.indexOf('/',10) > 0) {
