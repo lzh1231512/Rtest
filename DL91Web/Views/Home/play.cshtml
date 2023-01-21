@@ -116,12 +116,16 @@
             errorDisplay: false,
             fill: true
         });
-        myVideo.landscapeFullscreen({
-            fullscreen: {
-                enterOnRotate: true,
-                exitOnRotate: true,
-                alwaysInLandscapeMode: true,
-                iOS: true
+        myVideo.on('loadedmetadata', function () {
+            if (myVideo.videoWidth() > myVideo.videoHeight()) {
+                myVideo.landscapeFullscreen({
+                    fullscreen: {
+                        enterOnRotate: true,
+                        exitOnRotate: true,
+                        alwaysInLandscapeMode: true,
+                        iOS: true
+                    }
+                });
             }
         });
         //myVideo.play()
