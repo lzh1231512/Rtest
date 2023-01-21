@@ -18,6 +18,7 @@ namespace DL91
 
         public static int SyncFlag { set; get; } = 0;
         public static int DownloadVideoFlag { set; get; } = 0;
+        public const int VideoDownloadTiemLimit = -50;
 
         public static void Main(string[] args)
         {
@@ -64,17 +65,16 @@ namespace DL91
                     return true;
                 };
         }
-        static bool downloadM3u8(int id,out long fileSize)
+        static int downloadM3u8(int id,bool isHD,int downloadtime,out long fileSize)
         {
             fileSize = 0;
-            var m3url = getM3u8Url(id);
+            var m3url = getM3u8Url(id, isHD);
             WebPage p = new WebPage(m3url);
             if (!p.IsGood)
             {
-                return false;
+                return downloadtime - 1;
             }
             Console.WriteLine(m3url);
-            //Console.WriteLine(p.Html);
 
             var info = p.Html.Split("\n");
             var urls = info.Where(f => f.ToLower().StartsWith("http")|| f.ToLower().StartsWith("seg"));
@@ -84,6 +84,10 @@ namespace DL91
                 savepath = getVideoSavePath(id, f)
             });
             var dLst2 = DLHelper.DL(dLst.ToList(), 1);
+            if (dLst2.Any(f => f.result != 1))
+            {
+                return downloadtime - 1;
+            }
             fileSize = dLst2.Sum(f => f.fileSize);
             using (FileStream fs=new FileStream(getVideoSavePath(id, p.URL), FileMode.Create, FileAccess.ReadWrite))
             {
@@ -105,21 +109,20 @@ namespace DL91
                     fs.Close();
                 }
             }
-            return true;
+            return 1;
         }
 
-        static string getM3u8Url(int id)
+        static string getM3u8Url(int id,bool isHD)
         {
             var domain = "https://cdn.163cdn.net";
-            //var domain = id < 72125 ? "https://cust91rb.163cdn.net" : "https://cust91rb2.163cdn.net";
             var result = domain + "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_720p.mp4/index.m3u8";
-            if (testHttp(result))
+            if (isHD || testHttp(result))
                 return result;
             return domain + "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8";
         }
         static bool testHttp(string url)
         {
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 3; i++)
             {
                 try
                 {
@@ -137,6 +140,7 @@ namespace DL91
                 catch
                 {
                 }
+                Thread.Sleep(500);
             }
             return false;
         }
@@ -144,11 +148,12 @@ namespace DL91
         {
             using (var db = new DB91Context())
             {
-                foreach (var item in db.DB91s.Where(f => f.isLike == 1))
+                foreach (var item in db.DB91s.Where(f => f.isLike == 1 
+                    && f.isVideoDownloaded > VideoDownloadTiemLimit))
                 {
                     if (item.isVideoDownloaded == 1)
                     {
-                        if (File.Exists(getVideoSavePath(item.id, getM3u8Url(item.id))))
+                        if (File.Exists(getVideoSavePath(item.id, getM3u8Url(item.id, item.isHD))))
                         {
                             continue;
                         }
@@ -156,10 +161,11 @@ namespace DL91
                     try
                     {
                         Console.WriteLine("download video " + item.id);
-                        item.isVideoDownloaded = downloadM3u8(item.id, out long fileSize) ? 1 : 2;
+                        item.isVideoDownloaded = downloadM3u8(item.id, item.isHD,
+                            item.isVideoDownloaded, out long fileSize);
                         item.videoFileSize = fileSize;
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         Console.WriteLine("download video " + item.id + "Failed:" + e.Message);
                     }
@@ -171,7 +177,7 @@ namespace DL91
         {
             using (var db = new DB91Context())
             {
-                foreach (var obj in db.DB91s.Where(f => f.isLike == 1 && f.isVideoDownloaded == 2))
+                foreach (var obj in db.DB91s.Where(f => f.isLike == 1 && f.isVideoDownloaded < 0))
                 {
                     obj.isVideoDownloaded = 0;
                 }
