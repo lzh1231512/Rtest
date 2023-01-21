@@ -10,7 +10,7 @@
     <meta content ="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport">
     <link href="~/js/videojs/video-js.css" rel="stylesheet" />
     <script src="~/js/videojs/video.js"></script>
-    <script src="~/js/videojs/videojs-contrib-hls.js"></script>
+    <script src="~/js/videojs/videojs-landscape-fullscreen.min.js"></script>
     <script src="~/js/jquery-1.10.2.js"></script>
 </head>
 <body>
@@ -115,7 +115,15 @@
             posterImage: false,
             errorDisplay: false,
             fill: true
-        })
+        });
+        myVideo.landscapeFullscreen({
+            fullscreen: {
+                enterOnRotate: true,
+                exitOnRotate: true,
+                alwaysInLandscapeMode: true,
+                iOS: true
+            }
+        });
         //myVideo.play()
         var changeVideo = function (vdoSrc) {
             if (/\.m3u8$/.test(vdoSrc)) {
