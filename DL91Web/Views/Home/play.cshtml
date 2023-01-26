@@ -96,7 +96,7 @@
         }
         function initUrl() {
             $('#isHD').prop('checked', localStorage.getItem("isHD") == 1);
-            if (localStorage.getItem("isLocal") == 1) {
+            if (localStorage.getItem("isLocal") == 1 && $('#domain option[data-local="1"]').length > 0) {
                 $('#domain').val($('#domain option[data-local="1"]')[0].value);
             }
             else {
