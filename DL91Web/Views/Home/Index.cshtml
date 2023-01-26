@@ -87,5 +87,10 @@
                 alert('OK');
             });
         });
+        history.pushState(null, null, location.href);
+        window.addEventListener('popstate', function (event) {
+            history.pushState(null, null, location.href);
+            $('span.btnprevious').click();
+        });
     </script>
 </form>
