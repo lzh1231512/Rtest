@@ -91,7 +91,7 @@
             if ($op.data('local') == 1) {
                 return $op.val();
             }
-            return $op.val() + $('#isHD').val() == 1 ? '@Html.Raw(hdurl)' : '@Html.Raw(url)';
+            return $op.val() + ($('#isHD').val() == 1 ? '@Html.Raw(hdurl)' : '@Html.Raw(url)');
         }
         function copy(text) {
             const el = document.createElement('input');
