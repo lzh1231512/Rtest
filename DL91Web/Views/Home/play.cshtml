@@ -1,6 +1,8 @@
 ﻿@{
     Layout = null;
-    var urls = ViewBag.urls as List<string>;
+    var url = ViewBag.url as string;
+    var hdurl = ViewBag.url as string;
+    var localurl = ViewBag.localurl as string;
     var fileSize = ViewBag.fileSize as string;
 }
 <!DOCTYPE html>
@@ -40,74 +42,70 @@
         }
     </style>
     <div>
+        &nbsp;&nbsp;
         <input type="checkbox" id="isLike" @(ViewBag.isLike == 1 ? "checked=\"checked\"" : "") />
         Like
     </div>
-
-    @for (int i = 0; i < urls.Count; i++)
-    {
-        <div class="url">
-            @if (urls.Count > 1)
+    <div>
+        &nbsp;&nbsp;
+        <select id="domain">
+            <option value="https://cdn.163cdn.net">163cdn</option>
+            <option value="https://cdn163.lzhsb.cc">Proxy</option>
+            @if (localurl != null)
             {
-                <input type="radio" name="urlx" @(i == 0 ? "checked=\"checked\"" : "") value="@i" />
+            <option data-local="1" value="@Html.Raw(localurl)">Local(@fileSize)</option>
             }
-            @urls[i]
-            @if (i == urls.Count - 1 && !string.IsNullOrEmpty(fileSize))
+        </select>
+        &nbsp;
+        <select id="isHD">
+            @if (hdurl != null)
             {
-                <span>&nbsp;&nbsp;&nbsp;&nbsp; @fileSize</span>
+                <option value="1">HD</option>
             }
-        </div>
-    }
+            <option value="0">No HD</option>
+        </select>
+    </div>
     <div>
         @ViewBag.title
     </div>
     <div>
         &nbsp;&nbsp;&nbsp;&nbsp;
         <input id="btnPlay" type="button" name="name" value="play" />&nbsp;&nbsp;&nbsp;&nbsp;
-        <input id="openInNewTab" type="button" name="name" value="play on new Tab" />
+        <input id="btnCopy" type="button" name="name" value="copy url" />
     </div>
     <div>
         <video id="myVideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" data-setup='{}'
                style='width: 100%;height: auto'>
-            <source id="source" src="@urls[0]" type="application/x-mpegURL" />
+            <source id="source" src="@("https://cdn.163cdn.net"+url)" type="application/x-mpegURL" />
         </video>
     </div>
 
 
     <script>
     $(function () {
-        var urls = [];
-    @for (int i = 0; i < urls.Count; i++)
-    {
-    <text>
-        urls.push('@urls[i]');
-    </text>
-    }
-
         $('#isLike').change(function () {
             $.post('@Url.Action("like")?id=' + @(ViewBag.id) +'&&isLike=' + (this.checked ? 1 : 0));
         });
-        $('#openInNewTab').click(function () {
-            var url = '';
-            if ($('[name=urlx]:checked').length > 0) {
-                var val = parseInt($('[name=urlx]:checked').val());
-                url = urls[val];
+        function getUrl() {
+            var $op = $('#domain option:selected');
+            if ($op.data('local') == 1) {
+                return $op.val();
             }
-            else {
-                url = urls[0];
-            }
-            window.open(url, "_blank");
+            return $op.val() + $('#isHD').val() == 1 ? '@Html.Raw(hdurl)' : '@Html.Raw(url)';
+        }
+        function copy(text) {
+            const el = document.createElement('input');
+            el.setAttribute('value', text);
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+        }
+        $('#btnCopy').click(function () {
+            copy(getUrl());
         })
         $('#btnPlay').click(function () {
-            var url = '';
-            if ($('[name=urlx]:checked').length > 0) {
-                var val = parseInt($('[name=urlx]:checked').val());
-                url = urls[val];
-            }
-            else {
-                url = urls[0];
-            }
-            changeVideo(url);
+            changeVideo(getUrl());
         })
         var myVideo = videojs('myVideo', {
             bigPlayButton: true,

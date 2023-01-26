@@ -105,7 +105,8 @@ namespace DL91Web.Controllers
             {
                 return Redirect("~/Home/Login");
             }
-            var urls = getM3u8(id);
+            ViewBag.url = getM3u8(id,false,false);
+            
             using (var db = new DB91Context())
             {
                 var TypeLst = db.DBTypes.Select(f => new DBType()
@@ -118,14 +119,21 @@ namespace DL91Web.Controllers
                 {
                     ViewBag.title = (obj.isHD ? "[HD]" : "") + getTypeName(obj.typeId, TypeLst) + obj?.title;
                     ViewBag.isLike = obj?.isLike;
+                    if (obj.isHD)
+                    {
+                        ViewBag.hdurl = getM3u8(id, true, false);
+                    }
                     if (obj.isVideoDownloaded == 1)
                     {
                         ViewBag.fileSize = GetFileSize(obj.videoFileSize);
-                        urls.Add(url + "/video/" + (id / 1000) + "/" + id + "/index.m3u8");
+                        ViewBag.localurl = url + getM3u8(id, true, true);
                     }
                 }
+                else
+                {
+                    ViewBag.hdurl = getM3u8(id, true, false);
+                }
             }
-            ViewBag.urls = urls;
             ViewBag.id = id;
             return View();
         }
@@ -180,40 +188,18 @@ namespace DL91Web.Controllers
             DL91.Job.ResetFailedVideo();
             return Json(1);
         }
-        private List<string> getM3u8(int id)
+        private string getM3u8(int id,bool isHD,bool isLocal)
         {
-            var result = new List<string>();
-            //var domain = id < 72125 ? "https://cust91rb.163cdn.net" : "https://cust91rb2.163cdn.net";
-            var domain = "https://cdn.163cdn.net";
-            var url1 = domain + "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_720p.mp4/index.m3u8";
-            if (testHttp(url1))
-                result.Add(url1);
-            result.Add(domain + "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8");
-            return result;
-        }
-
-        private bool testHttp(string url)
-        {
-            for (int i = 0; i < 3; i++)
+            //var domain = "https://cdn.163cdn.net";
+            if (isLocal)
             {
-                try
-                {
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                    request.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko";
-                    request.Method = "GET";
-                    request.Accept = "*/*";
-                    request.CookieContainer = new CookieContainer();
-                    HttpWebResponse respons = (HttpWebResponse)request.GetResponse();
-                    if (respons.StatusCode == HttpStatusCode.OK)
-                    {
-                        return true;
-                    }
-                }
-                catch
-                {
-                }
+                return "/video/" + (id / 1000) + "/" + id + "/index.m3u8";
             }
-            return false;
+            if (isHD)
+            {
+                return "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_720p.mp4/index.m3u8";
+            }
+            return "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8";
         }
 
         private string getTimeString(int time)
