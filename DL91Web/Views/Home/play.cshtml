@@ -53,17 +53,14 @@
             <option value="https://cdn163.lzhsb.cc">Proxy</option>
             @if (localurl != null)
             {
-            <option data-local="1" value="@Html.Raw(localurl)">Local(@fileSize)</option>
+                <option data-local="1" value="@Html.Raw(localurl)">Local(@fileSize)</option>
             }
         </select>
         &nbsp;
-        <select id="isHD">
-            @if (hdurl != null)
-            {
-                <option value="1">HD</option>
-            }
-            <option value="0">No HD</option>
-        </select>
+        @if (hdurl != null)
+        {
+            <input id="isHD" type="checkbox" name="isHD" value="" /><text>HD</text>
+        }
     </div>
     <div>
         @ViewBag.title
@@ -76,7 +73,7 @@
     <div>
         <video id="myVideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" data-setup='{}'
                style='width: 100%;height: auto'>
-            <source id="source" src="@("https://cdn.163cdn.net"+url)" type="application/x-mpegURL" />
+            <source id="source" src="" type="application/x-mpegURL" />
         </video>
     </div>
 
@@ -88,10 +85,23 @@
         });
         function getUrl() {
             var $op = $('#domain option:selected');
+            localStorage.setItem("isLocal", $op.data('local') == 1 ? "1" : "0");
             if ($op.data('local') == 1) {
                 return $op.val();
             }
-            return $op.val() + ($('#isHD').val() == 1 ? '@Html.Raw(hdurl)' : '@Html.Raw(url)');
+            localStorage.setItem("domain", $op.val());
+            localStorage.setItem("isHD", $('#isHD:checked').length > 0 ? "1" : "0");
+            return $op.val() + ($('#isHD:checked').length > 0 ?
+                '@Html.Raw(hdurl)' : '@Html.Raw(url)');
+        }
+        function initUrl() {
+            $('#isHD').prop('checked', localStorage.getItem("isHD") == 1);
+            if (localStorage.getItem("isLocal") == 1) {
+                $('#domain').val($('#domain option[data-local="1"]')[0].value);
+            }
+            else {
+                $('#domain').val(localStorage.getItem("domain"));
+            }
         }
         function copy(text) {
             const el = document.createElement('input');
@@ -105,7 +115,7 @@
             copy(getUrl());
         })
         $('#btnPlay').click(function () {
-            changeVideo(getUrl());
+            playVideo(getUrl());
         })
         var myVideo = videojs('myVideo', {
             bigPlayButton: true,
@@ -126,8 +136,9 @@
                 });
             }
         });
-        //myVideo.play()
-        var changeVideo = function (vdoSrc) {
+        initUrl();
+        loadVideo(getUrl());
+        function loadVideo(vdoSrc) {
             if (/\.m3u8$/.test(vdoSrc)) {
                 myVideo.src({
                     src: vdoSrc,
@@ -137,6 +148,9 @@
                 myVideo.src(vdoSrc)
             }
             myVideo.load();
+        }
+        function playVideo(vdoSrc) {
+            loadVideo(vdoSrc);
             myVideo.play();
         }
     });
