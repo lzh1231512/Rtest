@@ -89,8 +89,10 @@
         });
         history.pushState(null, null, location.href);
         window.addEventListener('popstate', function (event) {
-            history.pushState(null, null, location.href);
-            $('span.btnprevious').click();
+            if ($('#hicurrentPage').val() != '1') {
+                history.pushState(null, null, location.href);
+                $('span.btnprevious').click();
+            }
         });
     </script>
 </form>
