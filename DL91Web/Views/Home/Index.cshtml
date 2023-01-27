@@ -87,7 +87,6 @@
                 alert('OK');
             });
         });
-        history.pushState(null, null, location.href);
         window.addEventListener('popstate', function (event) {
             if ($('#hicurrentPage').val() != '1') {
                 history.pushState(null, null, location.href);
