@@ -148,6 +148,20 @@ namespace DL91
         {
             using (var db = new DB91Context())
             {
+                foreach (var item in db.DB91s.Where(f => f.isLike == 0
+                    && f.isVideoDownloaded == 1))
+                {
+                    if (Directory.Exists(getVideoSaveFolder(item.id)))
+                    {
+                        Console.WriteLine("Delete folder " + getVideoSaveFolder(item.id));
+                        Directory.Delete(getVideoSaveFolder(item.id), true);
+                    }
+                    item.isVideoDownloaded = 0;
+                    db.SaveChanges();
+                }
+            }
+            using (var db = new DB91Context())
+            {
                 foreach (var item in db.DB91s.Where(f => f.isLike == 1 
                     && f.isVideoDownloaded > VideoDownloadTiemLimit))
                 {
@@ -227,9 +241,12 @@ namespace DL91
         static string getVideoSavePath(int id,string url)
         {
             var name = url.Substring(url.LastIndexOf('/') + 1);
-            return "wwwroot/video/" + (id / 1000) + "/" + id + "/" + name;
+            return getVideoSaveFolder(id) + "/" + name;
         }
-
+        static string getVideoSaveFolder(int id)
+        {
+            return "wwwroot/video/" + (id / 1000) + "/" + id;
+        }
         static string getUrl(int page)
         {
             if (page == 1)
