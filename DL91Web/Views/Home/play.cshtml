@@ -50,11 +50,13 @@
         &nbsp;&nbsp;
         <select id="domain">
             <option value="https://cdn.163cdn.net">163cdn</option>
+            <option value="https://cdn2.163cdn.net">163cdn2</option>
+            <option value="https://cdn3.163cdn.net">163cdn3</option>
             <option value="https://cdn163.lzhsb.cc">Proxy</option>
             @if (localurl != null)
-            {
-                <option data-local="1" value="@Html.Raw(localurl)">Local(@fileSize)</option>
-            }
+    {
+        <option data-local="1" value="@Html.Raw(localurl)">Local(@fileSize)</option>
+}
         </select>
         &nbsp;
         @if (hdurl != null)
