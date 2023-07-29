@@ -182,6 +182,7 @@ namespace DL91
                     catch (Exception e)
                     {
                         Console.WriteLine("download video " + item.id + "Failed:" + e.Message);
+                        Console.WriteLine(e.StackTrace);
                     }
                     db.SaveChanges();
                 }
