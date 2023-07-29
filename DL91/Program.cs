@@ -77,7 +77,7 @@ namespace DL91
             Console.WriteLine(m3url);
 
             var info = p.Html.Split("\n");
-            var urls = info.Where(f => !f.ToLower().StartsWith("#"));
+            var urls = info.Where(f => !f.ToLower().StartsWith("#") && !string.IsNullOrEmpty(f.Trim()));
             var dLst = urls.Select(f => new DLTask()
             {
                 url = f.ToLower().StartsWith("http") ? f : m3url.Replace("index.m3u8", f),
