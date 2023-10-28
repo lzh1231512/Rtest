@@ -382,7 +382,8 @@ namespace DL91
                     {
                         Console.WriteLine("Load Detail " + index + "/" + count);
                     }
-
+                    var typeName = "";
+                    var typeID = -1;
                     var html = getDetailHtml(domain + item.url);
                     if (html != null)
                     {
@@ -394,21 +395,36 @@ namespace DL91
                             var href = atag.Attributes["href"].Value;
                             if (href.Contains("categories"))
                             {
-                                var typeName = atag.InnerText.Trim();
-                                var type = types.FirstOrDefault(f => f.name == typeName);
-                                if (type != null)
-                                {
-                                    item.typeId = type.id;
-                                    db.SaveChanges();
-                                    break;
-                                }
+                                typeName = atag.InnerText.Trim();
+                                break;
                             }
                         }
                     }
-                    else
+
+                    if (!string.IsNullOrEmpty(typeName))
                     {
-                        item.typeId = -1;
+                        var type = types.FirstOrDefault(f => f.name == typeName);
+                        if (type == null)
+                        {
+                            var ntype = new DBType()
+                            {
+                                url = "",
+                                name = typeName,
+                                count = 0,
+                                maxID = 0
+                            };
+                            db.DBTypes.Add(ntype);
+                            db.SaveChanges();
+                            types = db.DBTypes.ToList();
+                            type = types.FirstOrDefault(f => f.name == typeName);
+                        }
+                        if (type != null)
+                        {
+                            typeID = type.id;
+                        }
                     }
+                    item.typeId = typeID;
+                    db.SaveChanges();
                 }
                
             }
