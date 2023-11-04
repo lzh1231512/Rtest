@@ -140,11 +140,10 @@
             $('#divitems img[data-imgid]').each(function () {
                 ids += ',' + $(this).data('imgid');
                 objs.push(this);
-                if (objs.length >= 8) {
-                    loadImg();
-                }
             });
             loadImg();
+            var nextImg = new Image();
+            nextImg.src='@Url.Action("GetImg","Home")?Imgs=@Model.NextPageIDs';
 
         </script>
     }

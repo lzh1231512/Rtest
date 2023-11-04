@@ -83,6 +83,7 @@ namespace DL91Web.Controllers
                         Id = f.id,
                         Title = getCreateDateStr(f.createDate) + (f.isHD?"[HD]":"") +   getTimeString(f.time) + getTypeName(f.typeId, TypeLst) + "</br>"+ f.title
                     }).ToList();
+                model.NextPageIDs = string.Join(',', dt3.Skip((currentPage) * model.Page.PageSize).Take(model.Page.PageSize).Select(f => f.id));
                 model.Page.RecordCount = dt3.Count();
             }
            
@@ -258,9 +259,9 @@ namespace DL91Web.Controllers
             canvas.Format = MagickFormat.Jpeg;
             var index = 0;
             var nopic = new MagickImage("wwwroot/images/NOPIC.jpg");
-            foreach (var item in allImg)
+            foreach (var item in allImg.Select(f => int.TryParse(f, out int res) ? res : 0))
             {
-                var imgpath1 = new FileInfo("wwwroot/imgs/" + item.Substring(0, 3) + "/" + item + ".jpg");
+                var imgpath1 = new FileInfo("wwwroot/imgs/" + (item / 1000) + "/" + item + ".jpg");
                 if (imgpath1.Exists)
                 {
                     var first = new MagickImage(imgpath1.FullName);
