@@ -244,7 +244,7 @@ namespace DL91Web.Controllers
         }
 
 
-        public IActionResult GetImg(string imgs)
+        public IActionResult GetImg(string imgs,bool notOut=false)
         {
             if (string.IsNullOrEmpty(imgs))
             {
@@ -271,7 +271,16 @@ namespace DL91Web.Controllers
                     canvas.Composite(nopic, 0, index++ * 180);
                 }
             }
-            return File(canvas.ToByteArray(MagickFormat.Jpg), "image/Jpeg");
+            canvas.Resize(256, 144 * allImg.Count());
+            if (notOut)
+            {
+                canvas.ToByteArray(MagickFormat.Jpg);
+                return Content("test");
+            }
+            else
+            {
+                return File(canvas.ToByteArray(MagickFormat.Jpg), "image/Jpeg");
+            }
         }
 
     }
