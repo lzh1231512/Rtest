@@ -8,7 +8,7 @@
 "use strict";
 var ajaxPager = ajaxPager || {};
 ajaxPager.pager = (function () {
-    
+
     var selectors = {
         hipagebaseurl: "input[name='hipagebaseurl']",
         hicurrentPage: "input[name='hicurrentPage']",
@@ -38,9 +38,7 @@ ajaxPager.pager = (function () {
         return result;
     }
     var pager = {};
-    var cacheUrl = '';
-    var cachedData = {};
-    pager.gotopage = function (currentpage, container,isFireByChangePage) {
+    pager.gotopage = function (currentpage, container, isFireByChangePage) {
         if (!currentpage)
             currentpage = parseInt($(selectors.hicurrentPage, container).val());
 
@@ -63,7 +61,7 @@ ajaxPager.pager = (function () {
         baseurl += "&inPageSize=" + $(selectors.selpagesize, container).val();
         var hiSortAreaName = $(selectors.hiSortArea, container).val();
         if (hiSortAreaName) {
-            baseurl += "&" + hiSortAreaName+"="+ $("[name='" + hiSortAreaName + "']", container).val();
+            baseurl += "&" + hiSortAreaName + "=" + $("[name='" + hiSortAreaName + "']", container).val();
         }
         var onAjaxBegin = $(selectors.hionAjaxBegin, container).val();
         if (onAjaxBegin) {
@@ -72,66 +70,7 @@ ajaxPager.pager = (function () {
                 baseurl = newUrl;
             }
         }
-        var nextUrl = '';
-        if (currentpage + 1 <= pageCount) {
-            nextUrl = baseurl.replace("currentPage=" + currentpage, "currentPage=" + (currentpage + 1));
-        }
         $(selectors.labTotalInfo, container).html('Processing, please wait...');
-        var requestFun = $(selectors.hiRequestFun, container).val();
-        if (requestFun != 'Get' && requestFun != 'Post') {
-            requestFun = 'Get';
-        }
-        function loaded(data) {
-            var updateTargetID = $(selectors.hiupdateTargetID, container).val();
-            $(container).closest("#" + updateTargetID).html(data);
-            var onSuccess = $(selectors.hiOnSuccess, container).val();
-            if (onSuccess) {
-                var lastchar = onSuccess[onSuccess.length - 1];
-                if (lastchar != ')' && lastchar != ';') {
-                    eval(onSuccess + "();");
-                } else {
-                    eval(onSuccess);
-                }
-            }
-            if (nextUrl) {
-                $.ajax({
-                    cache: false,
-                    type: requestFun,
-                    data: getDataInUrl(nextUrl),
-                    url: baseurl.split('?')[0],
-                    dataType: 'html',
-                    success: function (ndata) {
-                        cacheUrl = nextUrl;
-                        cachedData = ndata;
-                    }
-                });
-            }
-        }
-        if (baseurl == cacheUrl) {
-            loaded(cachedData)
-        }
-        else {
-            $.ajax({
-                cache: false,
-                type: requestFun,
-                data: getDataInUrl(baseurl),
-                url: baseurl.split('?')[0],
-                dataType: 'html',
-                success: loaded,
-                error: function () {
-                    $(selectors.labTotalInfo, container).html('Data loading failed');
-                }
-            });
-        }
-    };
-    pager.cachePage = function (currentpage, container) {
-        var baseurl = $(selectors.hipagebaseurl, container).val();
-        baseurl = baseurl.replace("currentPage=0", "currentPage=" + currentpage);
-        baseurl += "&inPageSize=" + $(selectors.selpagesize, container).val();
-        var hiSortAreaName = $(selectors.hiSortArea, container).val();
-        if (hiSortAreaName) {
-            baseurl += "&" + hiSortAreaName + "=" + $("[name='" + hiSortAreaName + "']", container).val();
-        }
         var requestFun = $(selectors.hiRequestFun, container).val();
         if (requestFun != 'Get' && requestFun != 'Post') {
             requestFun = 'Get';
@@ -142,28 +81,41 @@ ajaxPager.pager = (function () {
             data: getDataInUrl(baseurl),
             url: baseurl.split('?')[0],
             dataType: 'html',
-            success: function (ndata) {
-                cacheUrl = baseurl;
-                cachedData = ndata;
+            success: function (data) {
+                var updateTargetID = $(selectors.hiupdateTargetID, container).val();
+                $(container).closest("#" + updateTargetID).html(data);
+                var onSuccess = $(selectors.hiOnSuccess, container).val();
+                if (onSuccess) {
+                    var lastchar = onSuccess[onSuccess.length - 1];
+                    if (lastchar != ')' && lastchar != ';') {
+                        eval(onSuccess + "();");
+                    } else {
+                        eval(onSuccess);
+                    }
+
+                }
+            },
+            error: function () {
+                $(selectors.labTotalInfo, container).html('Data loading failed');
             }
         });
-    }
-    pager.OnPageChange = function() {
+    };
+    pager.OnPageChange = function () {
         var container = $(this).closest("div.pagination-container");
         var page = $(this).val();
         if (page) {
-            pager.gotopage(page, container,1);
+            pager.gotopage(page, container, 1);
         }
     };
-    pager.OnPageSizeChange = function() {
+    pager.OnPageSizeChange = function () {
         var container = $(this).closest("div.pagination-container");
         pager.gotopage(1, container);
     };
-    pager.bindPageChange = function() {
+    pager.bindPageChange = function () {
         $(document).off("change", "div.pagination-container " + selectors.inpcurrentpage);
         $(document).off("keydown", "div.pagination-container " + selectors.inpcurrentpage);
         $(document).on("change", "div.pagination-container " + selectors.inpcurrentpage, pager.OnPageChange);
-        $(document).on("keydown", "div.pagination-container " + selectors.inpcurrentpage, function(e) {
+        $(document).on("keydown", "div.pagination-container " + selectors.inpcurrentpage, function (e) {
             if (event.keyCode == 13) {
                 pager.OnPageChange.apply(this);
                 return false;
@@ -239,11 +191,10 @@ ajaxPager.pager = (function () {
             pager.gotopage(1, container);
         });
     };
-    pager.init = function() {
+    pager.init = function () {
         pager.bindPageChange();
         pager.bindPageSizeChange();
         pager.bindbtnevent();
-        pager.cachePage(2, $("div.pagination-container"));
     };
     pager.init();
     return pager;
