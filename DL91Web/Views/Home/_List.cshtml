@@ -26,13 +26,13 @@
     }
     else
     {
-        <div class="row">
+        <div id="divitems" class="row">
             @foreach (var item in Model.Data)
             {
                 var url= "imgs/" + (item.Id / 1000) + "/" + item.Id + ".jpg";
                 <div class="col-md-2">
                     <a href="#" onclick="play(this,@item.Id)" target="_blank">
-                        <img style="width:256px;height:144px" src="@url" />
+                        <img data-imgid="@item.Id" style="width:256px;height:144px;" />
                     </a>
                     <div style="min-height:36px;">@Html.Raw(item.Title)</div>
                 </div>
@@ -117,5 +117,27 @@
         </div>
 
         <script src="~/js/ajaxpager/ajaxpager.js"></script>
+        <script>
+            var ids = '';
+            $('#divitems img[data-imgid]').each(function () {
+                ids += ',' + $(this).data('imgid');
+            });
+            var url = '@Url.Action("GetImg","Home")?Imgs=' + ids.substr(1);
+            var imgPreload = new Image();
+            imgPreload.onload = function () {
+                var index = 0;
+                $('#divitems img[data-imgid]').each(function () {
+                    $(this).css({
+                        'background-image': 'url(' + url + ')',
+                        'background-repeat': 'no-repeat',
+                        'background-attachment': 'scroll',
+                        'background-position': '0px '+(-1)*(index++)*180+'px',
+                        'background-color': 'transparent'
+                    });
+                });
+            }
+            imgPreload.src = url;
+
+        </script>
     }
 </div>
