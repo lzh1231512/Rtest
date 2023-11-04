@@ -12,6 +12,8 @@ using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Configuration;
+using System.Drawing.Imaging;
+using ImageMagick;
 
 namespace DL91Web.Controllers
 {
@@ -240,5 +242,37 @@ namespace DL91Web.Controllers
             }
             return Request.Cookies["key"] == loginkey;
         }
+
+
+        public IActionResult GetImg(string imgs)
+        {
+            if (string.IsNullOrEmpty(imgs))
+            {
+                return null;
+            }
+            var allImg = imgs.Split(',');
+            MagickReadSettings settings = new MagickReadSettings();
+            settings.Width = 320;
+            settings.Height = 180 * allImg.Count();
+            MagickImage canvas = new MagickImage("xc:yellow", settings);
+            canvas.Format = MagickFormat.Jpeg;
+            var index = 0;
+            var nopic = new MagickImage("wwwroot/images/NOPIC.jpg");
+            foreach (var item in allImg)
+            {
+                var imgpath1 = new FileInfo("wwwroot/imgs/" + item.Substring(0, 3) + "/" + item + ".jpg");
+                if (imgpath1.Exists)
+                {
+                    var first = new MagickImage(imgpath1.FullName);
+                    canvas.Composite(first, 0, index++ * 180);
+                }
+                else
+                {
+                    canvas.Composite(nopic, 0, index++ * 180);
+                }
+            }
+            return File(canvas.ToByteArray(MagickFormat.Jpg), "image/Jpeg");
+        }
+
     }
 }
