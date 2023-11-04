@@ -119,24 +119,32 @@
         <script src="~/js/ajaxpager/ajaxpager.js"></script>
         <script>
             var ids = '';
+            var objs = [];
+            function loadImg() {
+                if (objs.length > 0) {
+                    var url = '@Url.Action("GetImg","Home")?Imgs=' + ids.substr(1);
+                    var index = 0;
+                    $(objs).each(function () {
+                        $(this).css({
+                            'background-image': 'url(' + url + ')',
+                            'background-repeat': 'no-repeat',
+                            'background-attachment': 'scroll',
+                            'background-position': '0px ' + (-1) * (index++) * 144 + 'px',
+                            'background-color': 'transparent'
+                        });
+                    });
+                    objs = [];
+                    ids = '';
+                }
+            }
             $('#divitems img[data-imgid]').each(function () {
                 ids += ',' + $(this).data('imgid');
+                objs.push(this);
+                if (objs.length >= 8) {
+                    loadImg();
+                }
             });
-            var url = '@Url.Action("GetImg","Home")?Imgs=' + ids.substr(1);
-            var imgPreload = new Image();
-            imgPreload.onload = function () {
-                var index = 0;
-                $('#divitems img[data-imgid]').each(function () {
-                    $(this).css({
-                        'background-image': 'url(' + url + ')',
-                        'background-repeat': 'no-repeat',
-                        'background-attachment': 'scroll',
-                        'background-position': '0px '+(-1)*(index++)*144+'px',
-                        'background-color': 'transparent'
-                    });
-                });
-            }
-            imgPreload.src = url;
+            loadImg();
 
         </script>
     }
