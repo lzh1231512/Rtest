@@ -18,25 +18,31 @@ namespace DL91
         private const string cachePath = "wwwroot/cache/";
 
         private static bool isRunding = false;
-        public static SearchViewModel GetCache(SearchViewModel model)
+        public static SearchViewModel GetData(SearchViewModel model,out bool isCached)
         {
             var pageKey = model.HashCode;
-            if (File.Exists(cachePath + pageKey))
+            isCached = true;
+            if (!File.Exists(cachePath + pageKey))
             {
-                using (FileStream fs = new FileStream(cachePath + pageKey, FileMode.Open, FileAccess.Read))
+                Cache(model,true);
+                isCached = false;
+            }
+            while (!File.Exists(cachePath + pageKey))
+            {
+                Thread.Sleep(100);
+            }
+            using (FileStream fs = new FileStream(cachePath + pageKey, FileMode.Open, FileAccess.Read))
+            {
+                try
                 {
-                    try
-                    {
-                        BinaryFormatter bf = new BinaryFormatter();
-                        return (SearchViewModel)bf.Deserialize(fs);
-                    }
-                    finally
-                    {
-                        fs.Close();
-                    }
+                    BinaryFormatter bf = new BinaryFormatter();
+                    return (SearchViewModel)bf.Deserialize(fs);
+                }
+                finally
+                {
+                    fs.Close();
                 }
             }
-            return null;
         }
 
         private static void serialize(SearchViewModel model)
@@ -60,13 +66,20 @@ namespace DL91
         }
 
 
-        private static void AddTaks(SearchViewModel model)
+        private static void AddTaks(SearchViewModel model,bool isUrgent)
         {
             lock (cacheTask)
             {
                 if (!cacheTask.Any(f => f.HashCode == model.HashCode))
                 {
-                    cacheTask.Add(model);
+                    if (isUrgent)
+                    {
+                        cacheTask.Insert(0, model);
+                    }
+                    else
+                    {
+                        cacheTask.Add(model);
+                    }
                 }
             }
         }
@@ -84,12 +97,12 @@ namespace DL91
             }
         }
 
-        public static void Cache(SearchViewModel model)
+        public static void Cache(SearchViewModel model,bool isUrgent=false)
         {
             if (model == null)
                 return;
             Console.WriteLine("add cache:"+ model.HashCode);
-            AddTaks(model);
+            AddTaks(model, isUrgent);
             if (!isRunding)
             {
                 Task.Factory.StartNew(() =>

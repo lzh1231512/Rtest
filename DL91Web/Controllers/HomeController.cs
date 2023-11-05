@@ -61,20 +61,11 @@ namespace DL91Web.Controllers
                 });
                 ViewBag.TypeLst = TypeLst;
 
-                var cache = CacheManager.GetCache(model);
-                if (cache != null)
-                {
-                    model.Data = cache.Data;
-                    model.NextPageIDs = cache.NextPageIDs;
-                    model.Page.RecordCount = cache.Page.RecordCount;
-                    ViewBag.fromCache = 1;
-                }
-                else
-                {
-                    IndexSearchFromDB(model, currentPage, db, TypeLst);
-                    CacheManager.Cache(model);
-                    ViewBag.fromCache = 0;
-                }
+                var cache = CacheManager.GetData(model,out bool isCached);
+                model.Data = cache.Data;
+                model.NextPageIDs = cache.NextPageIDs;
+                model.Page.RecordCount = cache.Page.RecordCount;
+                ViewBag.fromCache = isCached ? 1 : 0;
             }
             CacheManager.Cache(model.NextPage);
             CacheManager.Cache(model.LastPage);
@@ -88,40 +79,6 @@ namespace DL91Web.Controllers
             {
                 return View(model);
             }
-        }
-
-        private void IndexSearchFromDB(SearchViewModel model, int currentPage, DB91Context db, List<DBType> TypeLst)
-        {
-            var lst = db.DB91s.AsQueryable();
-            if (!string.IsNullOrEmpty(model.title1))
-            {
-                var c1 = (model.title1 ?? "").Split(' ');
-                lst = lst.Where(f => c1.All(z => f.title.Contains(z)));
-            }
-            if (!string.IsNullOrEmpty(model.title2))
-            {
-                var c2 = (model.title2 ?? "").Split(' ');
-                lst = lst.Where(f => c2.All(z => !f.title.Contains(z)));
-            }
-            if (model.isLike != 2)
-            {
-                lst = lst.Where(f => f.isLike == model.isLike);
-            }
-            if (model.typeId != 0)
-            {
-                lst = lst.Where(f => f.typeId == model.typeId);
-            }
-            var dt3 = lst.OrderByDescending(f => f.createDate);
-            var dbdata = dt3.Skip((currentPage - 1) * model.Page.PageSize).Take(model.Page.PageSize * 2).ToList();
-
-            model.Data = dbdata.Take(model.Page.PageSize)
-                .Select(f => new DataViewModel()
-                {
-                    Id = f.id,
-                    Title = getCreateDateStr(f.createDate) + (f.isHD ? "[HD]" : "") + getTimeString(f.time) + getTypeName(f.typeId, TypeLst) + "</br>" + f.title
-                }).ToList();
-            model.NextPageIDs = string.Join(',', dbdata.Skip(model.Page.PageSize).Select(f => f.id));
-            model.Page.RecordCount = dt3.Count();
         }
 
         public IActionResult IndexForAjax(SearchViewModel model, int currentPage = 1)
