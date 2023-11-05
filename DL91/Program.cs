@@ -29,7 +29,10 @@ namespace DL91
                 {
                     if (SyncFlag <= 0)
                     {
-                        getList();
+                        if (getList())
+                        {
+                            CacheManager.ClearCache();
+                        }
                         DownloadImg();
                         SyncFlag = 60 * 6;
                     }
@@ -293,16 +296,19 @@ namespace DL91
             return null;
         }
 
-        static void getList()
+        static bool getList()
         {
+            var result = false;
             if (getType())
             {
-                getSingleList();
+                result = getSingleList();
                 getDetailType();
             }
+            return result;
         }
-        static void getSingleList()
+        static bool getSingleList()
         {
+            var hasNew = false;
             var pageCount = 1500;
             for (int page = 1, existsflag = 0; page <= pageCount && existsflag < 5; page++)
             {
@@ -345,6 +351,7 @@ namespace DL91
                         if (!db.DB91s.Any(f => f.id == id))
                         {
                             isExists = false;
+                            hasNew = true;
                             db.DB91s.Add(new DB91()
                             {
                                 id = id,
@@ -366,6 +373,7 @@ namespace DL91
                     existsflag++;
                 }
             }
+            return hasNew;
         }
 
         static void getDetailType()

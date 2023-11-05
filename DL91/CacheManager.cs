@@ -131,13 +131,15 @@ namespace DL91
                                         lst = lst.Where(f => f.typeId == model.typeId);
                                     }
                                     var dt3 = lst.OrderByDescending(f => f.createDate);
-                                    model.Data = dt3.Skip((model.Page.CurrentPage - 1) * model.Page.PageSize).Take(model.Page.PageSize)
+                                    var dbdata = dt3.Skip((model.Page.CurrentPage - 1) * model.Page.PageSize).Take(model.Page.PageSize * 2).ToList();
+
+                                    model.Data = dbdata.Take(model.Page.PageSize)
                                         .Select(f => new DataViewModel()
                                         {
                                             Id = f.id,
                                             Title = getCreateDateStr(f.createDate) + (f.isHD ? "[HD]" : "") + getTimeString(f.time) + getTypeName(f.typeId, typeLst) + "</br>" + f.title
                                         }).ToList();
-                                    model.NextPageIDs = string.Join(',', dt3.Skip((model.Page.CurrentPage) * model.Page.PageSize).Take(model.Page.PageSize).Select(f => f.id));
+                                    model.NextPageIDs = string.Join(',', dbdata.Skip(model.Page.PageSize).Select(f => f.id));
                                     model.Page.RecordCount = dt3.Count();
                                 }
                             }
