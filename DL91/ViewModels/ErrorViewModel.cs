@@ -1,6 +1,6 @@
 using System;
 
-namespace DL91Web.Models
+namespace DL91.Models
 {
     public class ErrorViewModel
     {

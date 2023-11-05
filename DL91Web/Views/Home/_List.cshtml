@@ -16,7 +16,7 @@
     string onAjaxBegin = "";
     int index = 0;
     }
-    @model SearchViewModel
+    @model DL91.Models.SearchViewModel
 <div class="table-responsive" style="overflow-x:hidden">
     @if (!Model.Data.Any())
     {
@@ -115,8 +115,6 @@
                 <div class="clearfix"></div>
             </div>
         </div>
-
-        <script src="~/js/ajaxpager/ajaxpager.js?t=2"></script>
         <script>
             var ids = '';
             var objs = [];

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DL91Web.Models
+namespace DL91.Models
 {
     public class Pager
     {
@@ -44,5 +44,23 @@ namespace DL91Web.Models
         public int CurrentPage { get; set; }
         public int RecordCount { get; set; }
         public int PageSize { get; set; }
+
+        public string HashCode
+        {
+            get
+            {
+                return CurrentPage + "_" + PageSize + "_" + Sort;
+            }
+        }
+
+        public int NextPage
+        {
+            get
+            {
+                if (CurrentPage + 1 > PageCount)
+                    return -1;
+                return CurrentPage + 1;
+            }
+        }
     }
 }

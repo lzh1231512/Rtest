@@ -39,6 +39,7 @@ ajaxPager.pager = (function () {
     }
     var pager = {};
     pager.gotopage = function (currentpage, container, isFireByChangePage) {
+        console.log('gotopage')
         if (!currentpage)
             currentpage = parseInt($(selectors.hicurrentPage, container).val());
 
@@ -137,6 +138,7 @@ ajaxPager.pager = (function () {
             var container = $(this).closest("div.pagination-container");
             var currentpage = parseInt($(selectors.hicurrentPage, container).val());
             if (currentpage != 1) {
+                console.log('btnfirst');
                 pager.gotopage(1, container);
             }
         });
@@ -144,6 +146,7 @@ ajaxPager.pager = (function () {
             var container = $(this).closest("div.pagination-container");
             var currentpage = parseInt($(selectors.hicurrentPage, container).val());
             if (currentpage != 1) {
+                console.log('btnprevious');
                 pager.gotopage(currentpage - 1, container);
             }
         });
@@ -152,6 +155,7 @@ ajaxPager.pager = (function () {
             var hipageCount = parseInt($(selectors.hipageCount, container).val());
             var currentpage = parseInt($(selectors.hicurrentPage, container).val());
             if (currentpage < hipageCount) {
+                console.log('btnnext');
                 pager.gotopage(currentpage + 1, container);
             }
         });
@@ -160,11 +164,13 @@ ajaxPager.pager = (function () {
             var hipageCount = parseInt($(selectors.hipageCount, container).val());
             var currentpage = parseInt($(selectors.hicurrentPage, container).val());
             if (currentpage < hipageCount) {
+                console.log('btnlast');
                 pager.gotopage(hipageCount, container);
             }
         });
         $(document).on("click", "div.pagination-container " + selectors.btnrefresh, function () {
             var container = $(this).closest("div.pagination-container");
+            console.log('btnrefresh');
             pager.gotopage(0, container);
         });
         $(document).on("click", ".pagination-sortcolumn", function () {

@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using DL91Web.Models;
+using DL91.Models;
 using DL91Web.Helpers;
 using DL91;
 using System.IO;
@@ -57,36 +57,23 @@ namespace DL91Web.Controllers
                 });
                 ViewBag.TypeLst = TypeLst;
 
-                var lst = db.DB91s.AsQueryable();
-                if (!string.IsNullOrEmpty(model.title1))
+                var cache = CacheManager.GetCache(model);
+                if (cache != null)
                 {
-                    var c1 = (model.title1 ?? "").Split(' ');
-                    lst = lst.Where(f => c1.All(z => f.title.Contains(z)));
+                    model.Data = cache.Data;
+                    model.NextPageIDs = cache.NextPageIDs;
+                    model.Page.RecordCount = cache.Page.RecordCount;
                 }
-                if (!string.IsNullOrEmpty(model.title2))
+                else
                 {
-                    var c2 = (model.title2 ?? "").Split(' ');
-                    lst = lst.Where(f => c2.All(z => !f.title.Contains(z)));
+                    IndexSearchFromDB(model, currentPage, db, TypeLst);
+                    CacheManager.Cache(model);
                 }
-                if (model.isLike != 2)
-                {
-                    lst = lst.Where(f => f.isLike == model.isLike);
-                }
-                if (model.typeId != 0)
-                {
-                    lst = lst.Where(f => f.typeId == model.typeId);
-                }
-                var dt3 = lst.OrderByDescending(f => f.createDate);
-                model.Data = dt3.Skip((currentPage - 1) * model.Page.PageSize).Take(model.Page.PageSize)
-                    .Select(f => new DataViewModel()
-                    {
-                        Id = f.id,
-                        Title = getCreateDateStr(f.createDate) + (f.isHD?"[HD]":"") +   getTimeString(f.time) + getTypeName(f.typeId, TypeLst) + "</br>"+ f.title
-                    }).ToList();
-                model.NextPageIDs = string.Join(',', dt3.Skip((currentPage) * model.Page.PageSize).Take(model.Page.PageSize).Select(f => f.id));
-                model.Page.RecordCount = dt3.Count();
             }
-           
+            if (model.GetNextPage() != null)
+            {
+                CacheManager.Cache(model.GetNextPage());
+            }
             if (isAjax)
             {
                 return PartialView("_List", model);
@@ -95,6 +82,38 @@ namespace DL91Web.Controllers
             {
                 return View(model);
             }
+        }
+
+        private void IndexSearchFromDB(SearchViewModel model, int currentPage, DB91Context db, List<DBType> TypeLst)
+        {
+            var lst = db.DB91s.AsQueryable();
+            if (!string.IsNullOrEmpty(model.title1))
+            {
+                var c1 = (model.title1 ?? "").Split(' ');
+                lst = lst.Where(f => c1.All(z => f.title.Contains(z)));
+            }
+            if (!string.IsNullOrEmpty(model.title2))
+            {
+                var c2 = (model.title2 ?? "").Split(' ');
+                lst = lst.Where(f => c2.All(z => !f.title.Contains(z)));
+            }
+            if (model.isLike != 2)
+            {
+                lst = lst.Where(f => f.isLike == model.isLike);
+            }
+            if (model.typeId != 0)
+            {
+                lst = lst.Where(f => f.typeId == model.typeId);
+            }
+            var dt3 = lst.OrderByDescending(f => f.createDate);
+            model.Data = dt3.Skip((currentPage - 1) * model.Page.PageSize).Take(model.Page.PageSize)
+                .Select(f => new DataViewModel()
+                {
+                    Id = f.id,
+                    Title = getCreateDateStr(f.createDate) + (f.isHD ? "[HD]" : "") + getTimeString(f.time) + getTypeName(f.typeId, TypeLst) + "</br>" + f.title
+                }).ToList();
+            model.NextPageIDs = string.Join(',', dt3.Skip((currentPage) * model.Page.PageSize).Take(model.Page.PageSize).Select(f => f.id));
+            model.Page.RecordCount = dt3.Count();
         }
 
         public IActionResult IndexForAjax(SearchViewModel model, int currentPage = 1)
