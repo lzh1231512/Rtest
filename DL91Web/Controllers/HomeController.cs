@@ -279,7 +279,7 @@ namespace DL91Web.Controllers
             MagickReadSettings settings = new MagickReadSettings();
             settings.Width = 320;
             settings.Height = 180 * allImg.Count();
-            MagickImage canvas = new MagickImage("xc:yellow", settings);
+            MagickImage canvas = new MagickImage("xc:white", settings);
             canvas.Format = MagickFormat.Jpeg;
             var index = 0;
             var nopic = new MagickImage("wwwroot/images/NOPIC.jpg");

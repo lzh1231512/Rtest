@@ -64,6 +64,7 @@ namespace DL91
             lock (cachedData)
             {
                 cachedData.Clear();
+                Cache(new SearchViewModel() { isLike = 2, Page = new Pager() { CurrentPage = 1, PageSize = 24 } });
             }
         }
 

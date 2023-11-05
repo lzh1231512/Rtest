@@ -23,6 +23,7 @@ namespace DL91
         public static void Main(string[] args)
         {
             NEVER_EAT_POISON_Disable_CertificateValidation();
+            CacheManager.ClearCache();
             while (true)
             {
                 try
