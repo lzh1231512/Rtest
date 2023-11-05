@@ -21,32 +21,56 @@ namespace DL91.Models
         {
             get
             {
-                return title1 + ";;" + title2 + ";;" + isLike + ";;" + typeId;
+                return title1 + ";;" + title2 + ";;" + isLike + ";;" + typeId + ";;" + Page?.PageHashCode;
             }
         }
 
         public List<DataViewModel> Data { set; get; }
         public string NextPageIDs { set; get; }
 
-        public SearchViewModel GetNextPage()
+        public SearchViewModel ClonePage(int page)
         {
-            if (Page.NextPage >= 0)
+            if (Page == null || page <= 0 || page > Page.PageCount)
             {
-                return new SearchViewModel()
-                {
-                    title1 = title1,
-                    title2 = title2,
-                    isLike = isLike,
-                    typeId = typeId,
-                    Page = new Pager()
-                    {
-                        CurrentPage = Page.NextPage,
-                        PageSize = Page.PageSize,
-                        Sort = Page.Sort
-                    }
-                };
+                return null;
             }
-            return null;
+            return new SearchViewModel()
+            {
+                title1 = title1,
+                title2 = title2,
+                isLike = isLike,
+                typeId = typeId,
+                Page = new Pager()
+                {
+                    CurrentPage = page,
+                    PageSize = Page.PageSize,
+                    Sort = Page.Sort
+                }
+            };
+        }
+
+        public SearchViewModel NextPage
+        {
+            get
+            {
+                return ClonePage((Page?.CurrentPage ?? 0) + 1);
+            }
+        }
+
+        public SearchViewModel PrevPage
+        {
+            get
+            {
+                return ClonePage((Page?.CurrentPage ?? 0) - 1);
+            }
+        }
+
+        public SearchViewModel LastPage
+        {
+            get
+            {
+                return ClonePage(Page?.PageCount ?? 0);
+            }
         }
     }
 }

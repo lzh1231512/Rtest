@@ -45,21 +45,11 @@ namespace DL91.Models
         public int RecordCount { get; set; }
         public int PageSize { get; set; }
 
-        public string HashCode
+        public string PageHashCode
         {
             get
             {
                 return CurrentPage + "_" + PageSize + "_" + Sort;
-            }
-        }
-
-        public int NextPage
-        {
-            get
-            {
-                if (CurrentPage + 1 > PageCount)
-                    return -1;
-                return CurrentPage + 1;
             }
         }
     }

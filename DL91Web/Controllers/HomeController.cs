@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Configuration;
 using System.Drawing.Imaging;
 using ImageMagick;
+using System.Threading;
 
 namespace DL91Web.Controllers
 {
@@ -72,10 +73,10 @@ namespace DL91Web.Controllers
                     ViewBag.fromCache = 0;
                 }
             }
-            if (model.GetNextPage() != null)
-            {
-                CacheManager.Cache(model.GetNextPage());
-            }
+            CacheManager.Cache(model.NextPage);
+            CacheManager.Cache(model.LastPage);
+            CacheManager.Cache(model.PrevPage);
+
             if (isAjax)
             {
                 return PartialView("_List", model);
@@ -270,7 +271,7 @@ namespace DL91Web.Controllers
         {
             if (string.IsNullOrEmpty(imgs))
             {
-                return null;
+                return Content("NoPIC");
             }
             var allImg = imgs.Split(',');
             MagickReadSettings settings = new MagickReadSettings();
