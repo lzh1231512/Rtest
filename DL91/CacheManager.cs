@@ -33,7 +33,7 @@ namespace DL91
             {
                 Task.Factory.StartNew(() =>
                 {
-                    Run();
+                    Run(false);
                 });
             }
         }
@@ -45,17 +45,23 @@ namespace DL91
             }
         }
 
-        private static void Run()
+        private static void Run(bool isNext)
         {
-            if (isRunding)
+            if (isRunding && !isNext)
                 return;
             isRunding = true;
             var tlst = new List<SearchViewModel>();
             lock (cacheTask)
             {
+                if (cacheTask.Count == 0)
+                {
+                    isRunding = false;
+                    return;
+                }
                 tlst.AddRange(cacheTask);
                 cacheTask.Clear();
             }
+            
             try
             {
                 var typeLst = new List<DBType>();
@@ -122,10 +128,7 @@ namespace DL91
                 }
             }
             catch { }
-            finally
-            {
-                isRunding = false;
-            }
+            Run(true);
         }
         private static string getTimeString(int time)
         {
