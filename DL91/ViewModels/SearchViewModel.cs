@@ -19,7 +19,7 @@ namespace DL91.Models
         public string title2 { set; get; }
         public int isLike { set; get; }
         public int typeId { set; get; }
-
+        public DateTime CachedTime { set; get; }
         public string HashCode
         {
             get
