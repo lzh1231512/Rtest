@@ -18,17 +18,29 @@ namespace DL91
         private const int cacheLength = 30;
 
         //private static Object cacheLocker = new object();
-        //private const string cachePath = "wwwroot/cache/";
+        private const string cachePath = "wwwroot/cache/";
 
         private static bool isRunding = false;
-        public static SearchViewModel GetData(SearchViewModel model,out bool isCached)
+        public static SearchViewModel GetData(SearchViewModel model,out int isCached)
         {
             var pageKey = model.HashCode;
-            isCached = true;
+            isCached = 1;
             if (!cachedData.ContainsKey(pageKey))
             {
-                Cache(model,true);
-                isCached = false;
+                if (File.Exists(cachePath + model.HashCode))
+                {
+                    var result = deSerialize(model);
+                    if (result != null)
+                    {
+                        isCached = 2;
+                        RunAddCache(result);
+                    }
+                }
+                if (isCached != 2)
+                {
+                    Cache(model, true);
+                    isCached = 0;
+                }
             }
             while (!cachedData.ContainsKey(pageKey))
             {
@@ -37,40 +49,49 @@ namespace DL91
             return cachedData[pageKey];
         }
 
-        //private static SearchViewModel deSerialize(SearchViewModel model)
-        //{
-        //    using (FileStream fs = new FileStream(cachePath + model.HashCode, FileMode.Open, FileAccess.Read))
-        //    {
-        //        try
-        //        {
-        //            BinaryFormatter bf = new BinaryFormatter();
-        //            return (SearchViewModel)bf.Deserialize(fs);
-        //        }
-        //        finally
-        //        {
-        //            fs.Close();
-        //        }
-        //    }
-        //}
-        //private static void serialize(SearchViewModel model)
-        //{
-        //    using (FileStream fs = new FileStream(cachePath + model.HashCode, FileMode.Create, FileAccess.ReadWrite))
-        //    {
-        //        try
-        //        {
-        //            BinaryFormatter bf = new BinaryFormatter();
-        //            bf.Serialize(fs,model);
-        //        }
-        //        catch(Exception e)
-        //        {
-        //            Console.WriteLine("serialize Failed:" + e.Message);
-        //        }
-        //        finally
-        //        {
-        //            fs.Close();
-        //        }
-        //    }
-        //}
+        private static SearchViewModel deSerialize(SearchViewModel model)
+        {
+            using (FileStream fs = new FileStream(cachePath + model.HashCode, FileMode.Open, FileAccess.Read))
+            {
+                try
+                {
+                    BinaryFormatter bf = new BinaryFormatter();
+                    return (SearchViewModel)bf.Deserialize(fs);
+                }
+                catch
+                {
+                    return null;
+                }
+                finally
+                {
+                    fs.Close();
+                }
+            }
+        }
+        private static void serialize(SearchViewModel model)
+        {
+            if(File.Exists(cachePath + model.HashCode))
+            {
+                return;
+            }
+
+            using (FileStream fs = new FileStream(cachePath + model.HashCode, FileMode.Create, FileAccess.ReadWrite))
+            {
+                try
+                {
+                    BinaryFormatter bf = new BinaryFormatter();
+                    bf.Serialize(fs, model);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("serialize Failed:" + e.Message);
+                }
+                finally
+                {
+                    fs.Close();
+                }
+            }
+        }
 
         public static void Cache(SearchViewModel model, bool isUrgent = false)
         {
@@ -240,6 +261,7 @@ namespace DL91
                 }
                 model.CachedTime = DateTime.Now;
                 cachedData.Add(model.HashCode, model);
+                serialize(model);
             }
         }
         private static string getTimeString(int time)

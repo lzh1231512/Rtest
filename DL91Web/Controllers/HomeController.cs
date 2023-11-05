@@ -61,11 +61,11 @@ namespace DL91Web.Controllers
                 });
                 ViewBag.TypeLst = TypeLst;
 
-                var cache = CacheManager.GetData(model,out bool isCached);
+                var cache = CacheManager.GetData(model,out int isCached);
                 model.Data = cache.Data;
                 model.NextPageIDs = cache.NextPageIDs;
                 model.Page.RecordCount = cache.Page.RecordCount;
-                ViewBag.fromCache = isCached ? 1 : 0;
+                ViewBag.fromCache = isCached;
             }
             CacheManager.Cache(model.NextPage);
             CacheManager.Cache(model.LastPage);
