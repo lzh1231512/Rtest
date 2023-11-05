@@ -41,7 +41,7 @@ namespace DL91.Models
 
         public SearchViewModel ClonePage(int page)
         {
-            if (Page == null || page <= 0 || page > Page.PageCount)
+            if (Page == null || (page <= 0 || page > Page.PageCount) && page != -1)
             {
                 return null;
             }

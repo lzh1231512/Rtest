@@ -14,6 +14,7 @@ namespace DL91
     {
         private static List<SearchViewModel> cacheTask = new List<SearchViewModel>();
         //private static Dictionary<string, SearchViewModel> cachedData = new Dictionary<string, SearchViewModel>();
+
         private static Object cacheLocker = new object();
         private const string cachePath = "wwwroot/cache/";
 
@@ -31,7 +32,11 @@ namespace DL91
             {
                 Thread.Sleep(100);
             }
-            using (FileStream fs = new FileStream(cachePath + pageKey, FileMode.Open, FileAccess.Read))
+            return deSerialize(model);
+        }
+        private static SearchViewModel deSerialize(SearchViewModel model)
+        {
+            using (FileStream fs = new FileStream(cachePath + model.HashCode, FileMode.Open, FileAccess.Read))
             {
                 try
                 {
@@ -44,7 +49,6 @@ namespace DL91
                 }
             }
         }
-
         private static void serialize(SearchViewModel model)
         {
             using (FileStream fs = new FileStream(cachePath + model.HashCode, FileMode.Create, FileAccess.ReadWrite))
@@ -66,7 +70,7 @@ namespace DL91
         }
 
 
-        private static void AddTaks(SearchViewModel model,bool isUrgent)
+        private static void AddTask(SearchViewModel model,bool isUrgent)
         {
             lock (cacheTask)
             {
@@ -102,7 +106,7 @@ namespace DL91
             if (model == null)
                 return;
             Console.WriteLine("add cache:"+ model.HashCode);
-            AddTaks(model, isUrgent);
+            AddTask(model, isUrgent);
             if (!isRunding)
             {
                 Task.Factory.StartNew(() =>
@@ -157,49 +161,60 @@ namespace DL91
                     {
                         lock (cacheLocker)
                         {
-                            var pageKey = model.HashCode;
                             Console.WriteLine("begin cache:" + model.HashCode);
-                            if (File.Exists(cachePath + pageKey))
+                            if (File.Exists(cachePath + model.HashCode))
                             {
                                 continue;
                             }
-                            if (model.Data == null)
+                            var pageCountModel = model.ClonePage(-1);
+                            var recordCount = -1;
+                            if (File.Exists(cachePath + pageCountModel.HashCode))
                             {
-                                using (var db = new DB91Context())
+                                recordCount = deSerialize(pageCountModel).Page.RecordCount;
+                            }
+                            using (var db = new DB91Context())
+                            {
+                                var lst = db.DB91s.AsQueryable();
+                                if (!string.IsNullOrEmpty(model.title1))
                                 {
-                                    var lst = db.DB91s.AsQueryable();
-                                    if (!string.IsNullOrEmpty(model.title1))
-                                    {
-                                        var c1 = (model.title1 ?? "").Split(' ');
-                                        lst = lst.Where(f => c1.All(z => f.title.Contains(z)));
-                                    }
-                                    if (!string.IsNullOrEmpty(model.title2))
-                                    {
-                                        var c2 = (model.title2 ?? "").Split(' ');
-                                        lst = lst.Where(f => c2.All(z => !f.title.Contains(z)));
-                                    }
-                                    if (model.isLike != 2)
-                                    {
-                                        lst = lst.Where(f => f.isLike == model.isLike);
-                                    }
-                                    if (model.typeId != 0)
-                                    {
-                                        lst = lst.Where(f => f.typeId == model.typeId);
-                                    }
-                                    var dt3 = lst.OrderByDescending(f => f.createDate);
-                                    var dbdata = dt3.Skip((model.Page.CurrentPage - 1) * model.Page.PageSize).Take(model.Page.PageSize * 2).ToList();
-
-                                    model.Data = dbdata.Take(model.Page.PageSize)
-                                        .Select(f => new DataViewModel()
-                                        {
-                                            Id = f.id,
-                                            Title = getCreateDateStr(f.createDate) + (f.isHD ? "[HD]" : "") + getTimeString(f.time) + getTypeName(f.typeId, typeLst) + "</br>" + f.title
-                                        }).ToList();
-                                    model.NextPageIDs = string.Join(',', dbdata.Skip(model.Page.PageSize).Select(f => f.id));
-                                    model.Page.RecordCount = dt3.Count();
+                                    var c1 = (model.title1 ?? "").Split(' ');
+                                    lst = lst.Where(f => c1.All(z => f.title.Contains(z)));
                                 }
+                                if (!string.IsNullOrEmpty(model.title2))
+                                {
+                                    var c2 = (model.title2 ?? "").Split(' ');
+                                    lst = lst.Where(f => c2.All(z => !f.title.Contains(z)));
+                                }
+                                if (model.isLike != 2)
+                                {
+                                    lst = lst.Where(f => f.isLike == model.isLike);
+                                }
+                                if (model.typeId != 0)
+                                {
+                                    lst = lst.Where(f => f.typeId == model.typeId);
+                                }
+                                var dt3 = lst.OrderByDescending(f => f.createDate);
+                                var dbdata = dt3.Skip((model.Page.CurrentPage - 1) * model.Page.PageSize).Take(model.Page.PageSize * 2).ToList();
+
+                                model.Data = dbdata.Take(model.Page.PageSize)
+                                    .Select(f => new DataViewModel()
+                                    {
+                                        Id = f.id,
+                                        Title = getCreateDateStr(f.createDate) + (f.isHD ? "[HD]" : "") + getTimeString(f.time) + getTypeName(f.typeId, typeLst) + "</br>" + f.title
+                                    }).ToList();
+                                model.NextPageIDs = string.Join(',', dbdata.Skip(model.Page.PageSize).Select(f => f.id));
+                                if (recordCount == -1)
+                                {
+                                    recordCount = dt3.Count();
+                                }
+                                model.Page.RecordCount = recordCount;
+                                pageCountModel.Page.RecordCount = recordCount;
                             }
                             serialize(model);
+                            if (!File.Exists(cachePath + pageCountModel.HashCode))
+                            {
+                                serialize(pageCountModel);
+                            }
                             Console.WriteLine("end cache:" + model.HashCode);
                         }
                     }
