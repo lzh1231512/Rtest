@@ -36,6 +36,10 @@ namespace DL91
                         }
                         DownloadImg();
                         SyncFlag = 60 * 6;
+
+                        Thread.Sleep(1000);
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers(); 
                     }
                     SyncFlag--;
 
@@ -45,6 +49,7 @@ namespace DL91
                         DownloadVideoFlag = 10;
                     }
                     DownloadVideoFlag--;
+                    CacheManager.ProcessCache();
                 }
                 catch (Exception e)
                 {
@@ -54,6 +59,24 @@ namespace DL91
                 Thread.Sleep(60000);
             }
         }
+
+        public static void Test(string[] args)
+        {
+            while (true)
+            {
+                Thread.Sleep(60000);
+                try
+                {
+                    CacheManager.ProcessCache();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
+                }
+            }
+        }
+
         static void NEVER_EAT_POISON_Disable_CertificateValidation()
         {
             // Disabling certificate validation can expose you to a man-in-the-middle attack

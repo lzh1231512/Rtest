@@ -15,7 +15,8 @@ namespace DL91
         private static List<SearchViewModel> cacheTask = new List<SearchViewModel>();
 
         private static Dictionary<string, SearchViewModel> cachedData = new Dictionary<string, SearchViewModel>();
-        private const int cacheLength = 30;
+        private const int cacheSizeLimit = 15;
+        private const int cacheTimeLimit = 10;
 
         //private static Object cacheLocker = new object();
         private const string cachePath = "wwwroot/cache/";
@@ -46,6 +47,7 @@ namespace DL91
             {
                 Thread.Sleep(100);
             }
+            cachedData[pageKey].CachedTime = DateTime.Now;
             return cachedData[pageKey];
         }
 
@@ -129,14 +131,40 @@ namespace DL91
         {
             lock (cachedData)
             {
-                //foreach (var item in Directory.GetFiles(cachePath))
-                //{
-                //    File.Delete(item);
-                //} 
+                foreach (var item in Directory.GetFiles(cachePath))
+                {
+                    try
+                    {
+                        File.Delete(item);
+                    }
+                    catch { }
+                }
                 cachedData.Clear();
-                Cache(new SearchViewModel() { isLike = 2, Page = new Pager() { CurrentPage = 1, PageSize = 24 } });
             }
         }
+
+        public static void ProcessCache()
+        {
+            List<SearchViewModel> lst = null;
+            lock (cachedData)
+            {
+                lst = cachedData.Values.ToList();
+            }
+            foreach (var item in lst)
+            {
+                serialize(item);
+            }
+            var keeplst = lst.Where(f=>(DateTime.Now-f.CachedTime).TotalMinutes< cacheTimeLimit)
+                .OrderByDescending(f => f.CachedTime).Take(cacheSizeLimit).Select(f => f.HashCode).ToList();
+            lock (cachedData)
+            {
+                foreach (var item in lst.Where(f => !keeplst.Any(z => f.HashCode == z)))
+                {
+                    cachedData.Remove(item.HashCode);
+                }
+            }
+        }
+
 
         private static void Run()
         {
@@ -251,17 +279,8 @@ namespace DL91
                 {
                     return;
                 }
-                if (cachedData.Count >= cacheLength)
-                {
-                    var dellst = cachedData.OrderByDescending(f => f.Value.CachedTime).Skip(cacheLength).Select(f => f.Key).ToList();
-                    foreach (var item in dellst)
-                    {
-                        cachedData.Remove(item);
-                    }
-                }
                 model.CachedTime = DateTime.Now;
                 cachedData.Add(model.HashCode, model);
-                serialize(model);
             }
         }
         private static string getTimeString(int time)

@@ -15,6 +15,10 @@ namespace DL91Web
         public static void Main(string[] args)
         {
 #if DEBUG
+            Task.Factory.StartNew(() =>
+            {
+                DL91.Job.Test(args);
+            });
 #else
             Task.Factory.StartNew(() =>
             {
