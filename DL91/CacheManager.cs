@@ -21,21 +21,18 @@ namespace DL91
         public static SearchViewModel GetCache(SearchViewModel model)
         {
             var pageKey = model.HashCode;
-            lock (cacheLocker)
+            if (File.Exists(cachePath + pageKey))
             {
-                if (File.Exists(cachePath + pageKey))
+                using (FileStream fs = new FileStream(cachePath + pageKey, FileMode.Open, FileAccess.Read))
                 {
-                    using (FileStream fs = new FileStream(cachePath + pageKey, FileMode.Open, FileAccess.Read))
+                    try
                     {
-                        try
-                        {
-                            BinaryFormatter bf = new BinaryFormatter();
-                            return (SearchViewModel)bf.Deserialize(fs);
-                        }
-                        finally
-                        {
-                            fs.Close();
-                        }
+                        BinaryFormatter bf = new BinaryFormatter();
+                        return (SearchViewModel)bf.Deserialize(fs);
+                    }
+                    finally
+                    {
+                        fs.Close();
                     }
                 }
             }
