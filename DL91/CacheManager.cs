@@ -51,6 +51,10 @@ namespace DL91
                     BinaryFormatter bf = new BinaryFormatter();
                     bf.Serialize(fs,model);
                 }
+                catch(Exception e)
+                {
+                    Console.WriteLine("serialize Failed:" + e.Message);
+                }
                 finally
                 {
                     fs.Close();

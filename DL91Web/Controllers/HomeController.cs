@@ -278,9 +278,10 @@ namespace DL91Web.Controllers
             {
                 return Content("NoPIC");
             }
-            if (System.IO.File.Exists(cachePath+imgs))
+            var fileName = SearchViewModel.MD5Encrypt16(imgs);
+            if (System.IO.File.Exists(cachePath+ fileName))
             {
-                return  File(cacheVirtualPath + imgs, "image/Jpeg");
+                return  File(cacheVirtualPath + fileName, "image/Jpeg");
             }
             var allImg = imgs.Split(',');
             MagickReadSettings settings = new MagickReadSettings();
@@ -304,8 +305,8 @@ namespace DL91Web.Controllers
                 }
             }
             canvas.Resize(256, 144 * allImg.Count());
-            canvas.Write(cachePath + imgs);
-            return File(cacheVirtualPath + imgs, "image/Jpeg");
+            canvas.Write(cachePath + fileName);
+            return File(cacheVirtualPath + fileName, "image/Jpeg");
         }
 
     }
