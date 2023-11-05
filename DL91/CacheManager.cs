@@ -24,6 +24,7 @@ namespace DL91
         private static bool isRunding = false;
         public static SearchViewModel GetData(SearchViewModel model,out int isCached)
         {
+            Job.EnableCacheProcess = true;
             var pageKey = model.HashCode;
             isCached = 1;
             if (!cachedData.ContainsKey(pageKey))
@@ -145,9 +146,14 @@ namespace DL91
 
         public static void ProcessCache()
         {
+            Console.WriteLine("ProcessCache");
             List<SearchViewModel> lst = null;
             lock (cachedData)
             {
+                if (cachedData.Count == 0)
+                {
+                    return;
+                }
                 lst = cachedData.Values.ToList();
             }
             foreach (var item in lst)
@@ -161,6 +167,10 @@ namespace DL91
                 foreach (var item in lst.Where(f => !keeplst.Any(z => f.HashCode == z)))
                 {
                     cachedData.Remove(item.HashCode);
+                }
+                if (cachedData.Count == 0)
+                {
+                    Job.EnableCacheProcess = false;
                 }
             }
         }

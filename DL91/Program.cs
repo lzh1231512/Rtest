@@ -20,6 +20,9 @@ namespace DL91
         public static int DownloadVideoFlag { set; get; } = 0;
         public const int VideoDownloadTiemLimit = -50;
 
+        public static bool EnableCacheProcess { set; get; } = false;
+
+
         public static void Main(string[] args)
         {
             NEVER_EAT_POISON_Disable_CertificateValidation();
@@ -49,7 +52,10 @@ namespace DL91
                         DownloadVideoFlag = 10;
                     }
                     DownloadVideoFlag--;
-                    CacheManager.ProcessCache();
+                    if (EnableCacheProcess)
+                    {
+                        CacheManager.ProcessCache();
+                    }
                 }
                 catch (Exception e)
                 {
