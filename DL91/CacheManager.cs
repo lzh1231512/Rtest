@@ -60,6 +60,7 @@ namespace DL91
                 }
                 tlst.AddRange(cacheTask);
                 cacheTask.Clear();
+                Console.WriteLine("Run :" + string.Join(", ", tlst.Select(f => f.HashCode)));
             }
             
             try
