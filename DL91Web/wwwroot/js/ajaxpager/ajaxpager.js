@@ -105,10 +105,12 @@ ajaxPager.pager = (function () {
         var container = $(this).closest("div.pagination-container");
         var page = $(this).val();
         if (page) {
+            console.log('OnPageChange');
             pager.gotopage(page, container, 1);
         }
     };
     pager.OnPageSizeChange = function () {
+        console.log('OnPageSizeChange');
         var container = $(this).closest("div.pagination-container");
         pager.gotopage(1, container);
     };
@@ -118,7 +120,8 @@ ajaxPager.pager = (function () {
         $(document).on("change", "div.pagination-container " + selectors.inpcurrentpage, pager.OnPageChange);
         $(document).on("keydown", "div.pagination-container " + selectors.inpcurrentpage, function (e) {
             if (event.keyCode == 13) {
-                pager.OnPageChange.apply(this);
+                //pager.OnPageChange.apply(this);
+                $(this).blur();
                 return false;
             }
         });

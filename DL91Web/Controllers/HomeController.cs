@@ -63,11 +63,13 @@ namespace DL91Web.Controllers
                     model.Data = cache.Data;
                     model.NextPageIDs = cache.NextPageIDs;
                     model.Page.RecordCount = cache.Page.RecordCount;
+                    ViewBag.fromCache = 1;
                 }
                 else
                 {
                     IndexSearchFromDB(model, currentPage, db, TypeLst);
                     CacheManager.Cache(model);
+                    ViewBag.fromCache = 0;
                 }
             }
             if (model.GetNextPage() != null)

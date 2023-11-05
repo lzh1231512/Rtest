@@ -18,6 +18,7 @@
     }
     @model DL91.Models.SearchViewModel
 <div class="table-responsive" style="overflow-x:hidden">
+    <input id="fromCache" type="hidden" value="@(ViewBag.fromCache)"/>
     @if (!Model.Data.Any())
     {
         <div class="text-center EmptyList">

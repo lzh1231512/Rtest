@@ -21,6 +21,7 @@ namespace DL91
         }
         public static void Cache(SearchViewModel model)
         {
+            Console.WriteLine("add cache:"+ model.HashCode + "_" + model.Page.HashCode);
             lock (cacheTask)
             {
                 if (!cacheTask.Any(f => f.HashCode == model.HashCode))
@@ -76,6 +77,7 @@ namespace DL91
                     foreach (var model in tlst)
                     {
                         var pageKey = model.HashCode + "_" + model.Page.HashCode;
+                        Console.WriteLine("begin cache:" + model.HashCode + "_" + model.Page.HashCode);
                         if (cachedData.ContainsKey(pageKey))
                         {
                             continue;
@@ -115,6 +117,7 @@ namespace DL91
                             }
                         }
                         cachedData.Add(pageKey, model);
+                        Console.WriteLine("end cache:" + model.HashCode + "_" + model.Page.HashCode);
                     }
                 }
             }
