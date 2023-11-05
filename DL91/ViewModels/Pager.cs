@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace DL91.Models
 {
+    [Serializable]
     public class Pager
     {
         public int PageCount

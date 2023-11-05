@@ -21,6 +21,9 @@ namespace DL91Web.Controllers
     public class HomeController : Controller
     {
 
+        private const string cachePath = "wwwroot/cache/";
+        private const string cacheVirtualPath = "~/cache/";
+
         public HomeController()
         {
         }
@@ -269,11 +272,15 @@ namespace DL91Web.Controllers
         }
 
 
-        public IActionResult GetImg(string imgs,bool notOut=false)
+        public IActionResult GetImg(string imgs)
         {
             if (string.IsNullOrEmpty(imgs))
             {
                 return Content("NoPIC");
+            }
+            if (System.IO.File.Exists(cachePath+imgs))
+            {
+                return  File(cacheVirtualPath + imgs, "image/Jpeg");
             }
             var allImg = imgs.Split(',');
             MagickReadSettings settings = new MagickReadSettings();
@@ -297,15 +304,8 @@ namespace DL91Web.Controllers
                 }
             }
             canvas.Resize(256, 144 * allImg.Count());
-            if (notOut)
-            {
-                canvas.ToByteArray(MagickFormat.Jpg);
-                return Content("test");
-            }
-            else
-            {
-                return File(canvas.ToByteArray(MagickFormat.Jpg), "image/Jpeg");
-            }
+            canvas.Write(cachePath + imgs);
+            return File(cacheVirtualPath + imgs, "image/Jpeg");
         }
 
     }

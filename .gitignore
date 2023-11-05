@@ -12,3 +12,5 @@
 /Release/appsettings.json
 /DL91/db/91db.db
 /Release/db/91db.db
+/Release/wwwroot/cache
+/DL91Web/wwwroot/cache

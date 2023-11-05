@@ -5,21 +5,59 @@ using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace DL91
 {
     public class CacheManager
     {
         private static List<SearchViewModel> cacheTask = new List<SearchViewModel>();
-        private static Dictionary<string, SearchViewModel> cachedData = new Dictionary<string, SearchViewModel>();
+        //private static Dictionary<string, SearchViewModel> cachedData = new Dictionary<string, SearchViewModel>();
+        private static Object cacheLocker = new object();
+        private const string cachePath = "wwwroot/cache/";
+
         private static bool isRunding = false;
         public static SearchViewModel GetCache(SearchViewModel model)
         {
             var pageKey = model.HashCode;
-            if (cachedData.ContainsKey(pageKey))
-                return cachedData[pageKey];
+            lock (cacheLocker)
+            {
+                if (File.Exists(cachePath + pageKey))
+                {
+                    using (FileStream fs = new FileStream(cachePath + pageKey, FileMode.Open, FileAccess.Read))
+                    {
+                        try
+                        {
+                            BinaryFormatter bf = new BinaryFormatter();
+                            return (SearchViewModel)bf.Deserialize(fs);
+                        }
+                        finally
+                        {
+                            fs.Close();
+                        }
+                    }
+                }
+            }
             return null;
         }
+
+        private static void serialize(SearchViewModel model)
+        {
+            using (FileStream fs = new FileStream(cachePath + model.HashCode, FileMode.Create, FileAccess.ReadWrite))
+            {
+                try
+                {
+                    BinaryFormatter bf = new BinaryFormatter();
+                    bf.Serialize(fs,model);
+                }
+                finally
+                {
+                    fs.Close();
+                }
+            }
+        }
+
 
         private static void AddTaks(SearchViewModel model)
         {
@@ -61,9 +99,12 @@ namespace DL91
         }
         public static void ClearCache()
         {
-            lock (cachedData)
+            lock (cacheLocker)
             {
-                cachedData.Clear();
+                foreach (var item in Directory.GetFiles(cachePath))
+                {
+                    File.Delete(item);
+                } 
                 Cache(new SearchViewModel() { isLike = 2, Page = new Pager() { CurrentPage = 1, PageSize = 24 } });
             }
         }
@@ -100,11 +141,11 @@ namespace DL91
                     }
                     try
                     {
-                        lock (cachedData)
+                        lock (cacheLocker)
                         {
                             var pageKey = model.HashCode;
                             Console.WriteLine("begin cache:" + model.HashCode);
-                            if (cachedData.ContainsKey(pageKey))
+                            if (File.Exists(cachePath + pageKey))
                             {
                                 continue;
                             }
@@ -144,11 +185,13 @@ namespace DL91
                                     model.Page.RecordCount = dt3.Count();
                                 }
                             }
-                            cachedData.Add(pageKey, model);
+                            serialize(model);
                             Console.WriteLine("end cache:" + model.HashCode);
                         }
                     }
-                    catch { }
+                    catch(Exception e)
+                    {
+                    }
                 }
             }
             catch { }
