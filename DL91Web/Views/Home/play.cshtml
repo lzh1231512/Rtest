@@ -12,8 +12,8 @@
     <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport">
     <script src="~/js/loadJs.js" asp-append-version="true"></script>
     <script>
-        loadStyle(['@Url.Content("~/js/videojs/video-js.css")']);
-        loadjs(['@Url.Content("~/lib/jquery/dist/jquery.js")', '@Url.Content("~/js/videojs/video.js")', '@Url.Content("~/js/videojs/videojs-landscape-fullscreen.min.js")']);
+        loadStyle(['@Url.Content("~/js/videojs/video-js.min.css")']);
+        loadjs(['@Url.Content("~/lib/jquery/dist/jquery.js")', '@Url.Content("~/js/videojs/video.min.js")', '@Url.Content("~/js/videojs/videojs-landscape-fullscreen.min.js")']);
     </script>
 
 </head>
@@ -77,7 +77,6 @@
     <div>
         <video id="myVideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" data-setup='{}'
                style='width: 100%;height: auto'>
-            <source id="source" src="" type="application/x-mpegURL" />
         </video>
     </div>
 
