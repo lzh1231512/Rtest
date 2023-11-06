@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -42,6 +44,27 @@ namespace DL91Web
             var provider = new FileExtensionContentTypeProvider();
             provider.Mappings[".m3u8"] = "application/x-mpegURL"; //m3u8的MIME
             provider.Mappings[".ts"] = "video/MP2TL"; //.ts的MIME
+
+            app.Use(request =>
+            {
+                return new RequestDelegate(async (httpContext) => {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        var responseStream = httpContext.Response.Body;
+                        httpContext.Response.Body = memoryStream;
+
+                        await request(httpContext);
+
+                        using (var compressedStream = new GZipStream(responseStream, CompressionLevel.Optimal))
+                        {
+                            httpContext.Response.Headers.Remove("Content-Length");
+                            httpContext.Response.Headers.Add("Content-Encoding", new[] { "gzip" });
+                            memoryStream.Seek(0, SeekOrigin.Begin);
+                            await memoryStream.CopyToAsync(compressedStream);
+                        }
+                    }
+                });
+            });
 
             app.UseStaticFiles(new StaticFileOptions
             {
