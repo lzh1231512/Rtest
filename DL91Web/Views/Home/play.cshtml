@@ -131,7 +131,8 @@
             var h = window.innerHeight-20;
             var w = window.innerWidth;
             var nw = h / myVideo.videoHeight() * myVideo.videoWidth();
-            $('#myVideo').width(nw);
+            if (nw < w)
+                $('#myVideo').width(nw);
             if (myVideo.videoWidth() > myVideo.videoHeight()) {
                
 
