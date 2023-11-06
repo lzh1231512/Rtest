@@ -4,13 +4,9 @@
     var TypeLst = ViewBag.TypeLst as List<DBType>;
 }
 @model DL91.Models.SearchViewModel
-<link href="~/css/pager.css" rel="stylesheet" />
-<link href="~/css/font-awesome.css" rel="stylesheet" />
-<script src="~/js/jquery-1.10.2.js"></script>
-<script src="~/js/ajaxpager/ajaxpager.js?t=3"></script>
 <style>
-    body{
-        padding-top:10px;
+    body {
+        padding-top: 10px;
     }
 </style>
 <form>
@@ -20,7 +16,7 @@
                 Search Area
             </h3>
         </div>
-        <div id="SalesOrderSearchArea" data-enter-to-search="#btnSubmitSalesOrderSearch" class="panel-body in searchArea" >
+        <div id="SalesOrderSearchArea" data-enter-to-search="#btnSubmitSalesOrderSearch" class="panel-body in searchArea">
             <div class="row">
                 <div class="col-md-3">
                     @Html.Label("", "Type")
@@ -60,40 +56,42 @@
     <div id="SalesOrderResult">
         @Html.Partial("_List", Model)
     </div>
-    <script>
-        function onPageLoad() {
-            window.scrollTo(0, 0);
-        }
-        function play(obj,id) {
-            var xxurl = window.location.href;
-            if (xxurl.indexOf('/',10) > 0) {
-                xxurl = xxurl.substr(0, xxurl.indexOf('/', 10));
-            }
-            if (xxurl.indexOf('?') > 0) {
-                xxurl = xxurl.substr(0, xxurl.indexOf('?'));
-            }
-            if (xxurl.indexOf('#') > 0) {
-                xxurl = xxurl.substr(0, xxurl.indexOf('#'));
-            }
-            var url = '@Url.Action("play")?id=' + id + '&url=' + encodeURIComponent(xxurl);
-            obj.href = url;
-        }
-        $(function () {
-            $('#btnClear').click(function(){
-                $('#title1,#title2').val('');
-                $('#isLike').val(2);
-            });
-            $('#btnSync').click(function () {
-                $.post('@Url.Action("sync")');
-                alert('OK');
-            });
-        });
-        history.pushState(null, null, location.href);
-        window.addEventListener('popstate', function (event) {
-            if ($('#hicurrentPage').val() != '1') {
-                history.pushState(null, null, location.href);
-                $('span.btnprevious').click();
-            }
-        });
-    </script>
 </form>
+<script>
+    loadStyle(['@Url.Content("~/css/pager.css")', '@Url.Content("~/css/font-awesome.css")']);
+    loadjs(['@Url.Content("~/js/ajaxpager/ajaxpager.js?t=4")']);
+    function onPageLoad() {
+        window.scrollTo(0, 0);
+    }
+    function play(obj,id) {
+        var xxurl = window.location.href;
+        if (xxurl.indexOf('/',10) > 0) {
+            xxurl = xxurl.substr(0, xxurl.indexOf('/', 10));
+        }
+        if (xxurl.indexOf('?') > 0) {
+            xxurl = xxurl.substr(0, xxurl.indexOf('?'));
+        }
+        if (xxurl.indexOf('#') > 0) {
+            xxurl = xxurl.substr(0, xxurl.indexOf('#'));
+        }
+        var url = '@Url.Action("play")?id=' + id + '&url=' + encodeURIComponent(xxurl);
+        obj.href = url;
+    }
+    $(function () {
+        $('#btnClear').click(function(){
+            $('#title1,#title2').val('');
+            $('#isLike').val(2);
+        });
+        $('#btnSync').click(function () {
+            $.post('@Url.Action("sync")');
+            alert('OK');
+        });
+    });
+    history.pushState(null, null, location.href);
+    window.addEventListener('popstate', function (event) {
+        if ($('#hicurrentPage').val() != '1') {
+            history.pushState(null, null, location.href);
+            $('span.btnprevious').click();
+        }
+    });
+</script>

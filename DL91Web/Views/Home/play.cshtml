@@ -9,11 +9,13 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta content ="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport">
-    <link href="~/js/videojs/video-js.css" rel="stylesheet" />
-    <script src="~/js/videojs/video.js"></script>
-    <script src="~/js/videojs/videojs-landscape-fullscreen.min.js"></script>
-    <script src="~/js/jquery-1.10.2.js"></script>
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport">
+    <script src="~/js/loadJs.js" asp-append-version="true"></script>
+    <script>
+        loadStyle(['@Url.Content("~/js/videojs/video-js.css")']);
+        loadjs(['@Url.Content("~/lib/jquery/dist/jquery.js")', '@Url.Content("~/js/videojs/video.js")', '@Url.Content("~/js/videojs/videojs-landscape-fullscreen.min.js")']);
+    </script>
+
 </head>
 <body>
     <style>

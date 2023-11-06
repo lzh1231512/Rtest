@@ -3,16 +3,11 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=0">
-
-    <environment include="Development">
-        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-        <link rel="stylesheet" href="~/css/site.css" />
-    </environment>
-    <environment exclude="Development">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
-    </environment>
-
+    <script src="~/js/loadJs.js" asp-append-version="true"></script>
+    <script>
+        loadStyle(['@Url.Content("~/lib/bootstrap/dist/css/bootstrap.css")', '@Url.Content("~/css/site.css")']);
+        loadjs(['@Url.Content("~/lib/jquery/dist/jquery.js")', '@Url.Content("~/lib/bootstrap/dist/js/bootstrap.js")']);
+    </script>
     <style>
         @@media (min-width: 1596px) {
             #div-body-content {
@@ -22,24 +17,9 @@
     </style>
 </head>
 <body>
-
     <div id="div-body-content" class="container body-content">
         @RenderBody()
     </div>
-
-    <environment include="Development">
-        <script src="~/lib/jquery/dist/jquery.js"></script>
-        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
-        <script src="~/js/site.js" asp-append-version="true"></script>
-    </environment>
-    <environment exclude="Development">
-        <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.3.1/jquery.min.js" >
-        </script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js">
-        </script>
-        <script src="~/js/site.min.js" asp-append-version="true"></script>
-    </environment>
-
     @RenderSection("Scripts", required: false)
 </body>
 </html>
