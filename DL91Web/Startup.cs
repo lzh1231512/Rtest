@@ -45,7 +45,7 @@ namespace DL91Web
             provider.Mappings[".m3u8"] = "application/x-mpegURL"; //m3u8的MIME
             provider.Mappings[".ts"] = "video/MP2TL"; //.ts的MIME
 
-            app.Use(request =>
+            app.Use(next =>
             {
                 return new RequestDelegate(async (httpContext) => {
                     using (var memoryStream = new MemoryStream())
@@ -53,7 +53,7 @@ namespace DL91Web
                         var responseStream = httpContext.Response.Body;
                         httpContext.Response.Body = memoryStream;
 
-                        await request(httpContext);
+                        await next(httpContext);
 
                         using (var compressedStream = new GZipStream(responseStream, CompressionLevel.Optimal))
                         {

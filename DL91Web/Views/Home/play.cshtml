@@ -128,7 +128,13 @@
             fill: true
         });
         myVideo.on('loadedmetadata', function () {
+            var h = window.innerHeight-20;
+            var w = window.innerWidth;
+            var nw = h / myVideo.videoHeight() * myVideo.videoWidth();
+            $('#myVideo').width(nw);
             if (myVideo.videoWidth() > myVideo.videoHeight()) {
+               
+
                 myVideo.landscapeFullscreen({
                     fullscreen: {
                         enterOnRotate: true,
