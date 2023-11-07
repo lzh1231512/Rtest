@@ -51,6 +51,7 @@ namespace DL91Web
                     var url = httpContext.Request.Path.Value;
                     if (!string.IsNullOrEmpty(url) && url.EndsWith(".ts"))
                     {
+                        await next(httpContext);
                         return;
                     }
                     using (var memoryStream = new MemoryStream())
