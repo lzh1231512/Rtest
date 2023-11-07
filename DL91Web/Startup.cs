@@ -49,7 +49,7 @@ namespace DL91Web
             {
                 return new RequestDelegate(async (httpContext) => {
                     var url = httpContext.Request.Path.Value;
-                    if (!string.IsNullOrEmpty(url) && url.EndsWith(".ts"))
+                    if (!string.IsNullOrEmpty(url) && (url.EndsWith(".ts")|| url.EndsWith("GetImg")))
                     {
                         await next(httpContext);
                         return;
