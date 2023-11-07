@@ -45,17 +45,17 @@ namespace DL91
                         GC.WaitForPendingFinalizers(); 
                     }
                     SyncFlag--;
-
+                    if (EnableCacheProcess)
+                    {
+                        CacheManager.ProcessCache();
+                    }
                     if (DownloadVideoFlag <= 0)
                     {
                         DownloadVideo();
                         DownloadVideoFlag = 10;
                     }
                     DownloadVideoFlag--;
-                    if (EnableCacheProcess)
-                    {
-                        CacheManager.ProcessCache();
-                    }
+                    
                 }
                 catch (Exception e)
                 {
