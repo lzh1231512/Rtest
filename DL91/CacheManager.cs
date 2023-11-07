@@ -143,7 +143,25 @@ namespace DL91
                 cachedData.Clear();
             }
         }
-
+        private static void ClearLikeCache()
+        {
+            lock (cachedData)
+            {
+                foreach (var item in Directory.GetFiles(cachePath, "1*"))
+                {
+                    try
+                    {
+                        File.Delete(item);
+                    }
+                    catch { }
+                }
+                cachedData.Where(f => f.Value.isLike == 1).Select(f => f.Key).ToList().ForEach((item) =>
+                      {
+                          cachedData.Remove(item);
+                      });
+            }
+        }
+        public static bool NeedClearLikeCache { set; get; } = false;
         public static void ProcessCache()
         {
             Console.WriteLine("ProcessCache");
@@ -172,6 +190,11 @@ namespace DL91
                 {
                     Job.EnableCacheProcess = false;
                 }
+            }
+            if (NeedClearLikeCache)
+            {
+                ClearLikeCache();
+                NeedClearLikeCache = false;
             }
         }
 

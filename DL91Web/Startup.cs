@@ -48,6 +48,11 @@ namespace DL91Web
             app.Use(next =>
             {
                 return new RequestDelegate(async (httpContext) => {
+                    var url = httpContext.Request.Path.Value;
+                    if (!string.IsNullOrEmpty(url) && url.EndsWith(".ts"))
+                    {
+                        return;
+                    }
                     using (var memoryStream = new MemoryStream())
                     {
                         var responseStream = httpContext.Response.Body;

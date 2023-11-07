@@ -162,6 +162,7 @@ namespace DL91Web.Controllers
             {
                 DL91.Job.DownloadVideoFlag = 0;
             }
+            CacheManager.NeedClearLikeCache = true;
             return Json(1);
         }
 
@@ -235,7 +236,7 @@ namespace DL91Web.Controllers
             {
                 return Content("NoPIC");
             }
-            var fileName = SearchViewModel.MD5Encrypt16(imgs);
+            var fileName = "img" + SearchViewModel.MD5Encrypt16(imgs);
             if (System.IO.File.Exists(cachePath+ fileName))
             {
                 return  File(cacheVirtualPath + fileName, "image/Jpeg");

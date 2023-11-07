@@ -24,7 +24,7 @@ namespace DL91.Models
         {
             get
             {
-                return MD5Encrypt16(title1 + ";;" + title2 + ";;" + isLike + ";;" + typeId + ";;" + Page?.PageHashCode);
+                return isLike + MD5Encrypt16(title1 + ";;" + title2 + ";;" + typeId + ";;" + Page?.PageHashCode);
             }
         }
 
