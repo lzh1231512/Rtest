@@ -145,7 +145,7 @@
             nextImg.src = '@Url.Action("GetImg","Home")?Imgs=@Model.NextPageIDs';
             $('div.title').each(function () {
                 var time = parseInt($(this).data('time'));
-                var hour = (new Date().getTime() - 631123200000 - time * 60000) / 1000 / 3600;
+                var hour = parseInt((new Date().getTime() - 631123200000 - time * 60000) / 1000 / 3600);
                 var day = parseInt(hour / 24);
                 var res = '';
                 if (day > 365) {
