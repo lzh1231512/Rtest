@@ -35,7 +35,7 @@
                     <a href="#" onclick="play(this,@item.Id)" target="_blank">
                         <img data-imgid="@item.Id" style="width:256px;height:144px;" />
                     </a>
-                    <div style="min-height:36px;">@Html.Raw(item.Title)</div>
+                    <div class="title" data-time="@item.CreateDate" style="min-height:36px;">@Html.Raw(item.Title)</div>
                 </div>
                 if (index % 6 == 5)
                 {
@@ -142,8 +142,26 @@
             });
             loadImg();
             var nextImg = new Image();
-            nextImg.src='@Url.Action("GetImg","Home")?Imgs=@Model.NextPageIDs';
-
+            nextImg.src = '@Url.Action("GetImg","Home")?Imgs=@Model.NextPageIDs';
+            $('div.title').each(function () {
+                var time = parseInt($(this).data('time'));
+                var hour = (new Date().getTime() - 631123200000 - time * 60000) / 1000 / 3600;
+                var day = parseInt(hour / 24);
+                var res = '';
+                if (day > 365) {
+                    res = '[1年前]';
+                }
+                else if (day > 7) {
+                    res = "[" + parseInt(day / 7) + "周前]"
+                }
+                else if (hour > 24) {
+                    res = "[" + day + "天前]"
+                }
+                else {
+                    res = '[' + hour+'小时前]';
+                }
+                $(this).html(res + $(this).html());
+            })
         </script>
     }
 </div>

@@ -270,7 +270,8 @@ namespace DL91
                                 .Select(f => new DataViewModel()
                                 {
                                     Id = f.id,
-                                    Title = getCreateDateStr(f.createDate) + (f.isHD ? "[HD]" : "") + getTimeString(f.time) + getTypeName(f.typeId, typeLst) + "</br>" + f.title
+                                    CreateDate = f.createDate,
+                                    Title = (f.isHD ? "[HD]" : "") + getTimeString(f.time) + getTypeName(f.typeId, typeLst) + "</br>" + f.title
                                 }).ToList();
                             model.NextPageIDs = string.Join(',', dbdata.Skip(model.Page.PageSize).Select(f => f.id));
                             if (recordCount == -1)

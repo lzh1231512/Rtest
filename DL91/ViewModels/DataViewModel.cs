@@ -9,6 +9,7 @@ namespace DL91.Models
     public class DataViewModel
     {
         public int Id { set; get; }
+        public int CreateDate { set; get; }
         public string Title { set; get; }
     }
 }
