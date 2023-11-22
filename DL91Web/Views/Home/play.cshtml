@@ -11,6 +11,8 @@
     <meta charset="UTF-8">
     <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport">
     <script src="~/js/loadJs.js" asp-append-version="true"></script>
+    <script src="~/js/IndexDB.js"></script>
+    <script src="~/js/cacheM3u8.js"></script>
     <script>
         loadStyle(['@Url.Content("~/js/videojs/video-js.min.css")']);
         loadjs(['@Url.Content("~/lib/jquery/dist/jquery.js")', '@Url.Content("~/js/videojs/video.min.js")', '@Url.Content("~/js/videojs/videojs-landscape-fullscreen.min.js")']);
@@ -47,6 +49,9 @@
         &nbsp;&nbsp;
         <input type="checkbox" id="isLike" @(ViewBag.isLike == 1 ? "checked=\"checked\"" : "") />
         Like
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="checkbox" id="isCached" />
+        Cached
     </div>
     <div>
         &nbsp;&nbsp;
@@ -56,9 +61,10 @@
             <option value="https://cdn3.163cdn.net">163cdn3</option>
             <option value="https://cdn163.lzhsb.cc">Proxy</option>
             @if (localurl != null)
-    {
-        <option data-local="1" value="@Html.Raw(localurl)">Local(@fileSize)</option>
-}
+            {
+                <option data-local="1" value="@Html.Raw(localurl)">Local(@fileSize)</option>
+            }
+            <option value="cache">Cache</option>
         </select>
         &nbsp;
         @if (hdurl != null)
@@ -76,15 +82,28 @@
     </div>
     <div>
         <video id="myVideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" data-setup='{}'
-               style='width: 100%;height: auto'>
-        </video>
+               style='width: 100%;height: auto'></video>
     </div>
 
 
     <script>
     $(function () {
+        m3u8.initXMLHttpRequest();
         $('#isLike').change(function () {
             $.post('@Url.Action("like")?id=' + @(ViewBag.id) +'&&isLike=' + (this.checked ? 1 : 0));
+        });
+
+
+        $('#isCached').change(function () {
+            $('#isHD').prop('checked', true);
+            m3u8.downloadM3u8('@(ViewBag.id)', getUrl()).then(function (data) {
+                if (data.success) {
+                    alert(123);
+                }
+                else {
+                    alert(data.msg);
+                }
+            });
         });
         function getUrl() {
             var $op = $('#domain option:selected');
@@ -118,7 +137,13 @@
             copy(getUrl());
         })
         $('#btnPlay').click(function () {
-            playVideo(getUrl());
+            if ($('#domain').val() == 'cache') {
+                m3u8.getM3u8Url('@(ViewBag.id)').then(function (url) {
+                    playVideo(url);
+                });
+            } else {
+                playVideo(getUrl());
+            }
         })
         var myVideo = videojs('myVideo', {
             bigPlayButton: true,
@@ -134,7 +159,7 @@
             if (nw < w)
                 $('#myVideo').width(nw);
             if (myVideo.videoWidth() > myVideo.videoHeight()) {
-               
+
 
                 myVideo.landscapeFullscreen({
                     fullscreen: {
@@ -149,7 +174,7 @@
         initUrl();
         loadVideo(getUrl());
         function loadVideo(vdoSrc) {
-            if (/\.m3u8$/.test(vdoSrc)) {
+            if (/\.m3u8$/.test(vdoSrc) || vdoSrc.indexOf('blob') == 0) {
                 myVideo.src({
                     src: vdoSrc,
                     type: 'application/x-mpegURL'

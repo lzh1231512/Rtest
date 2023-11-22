@@ -9,11 +9,13 @@
         padding-top: 10px;
     }
 </style>
+<script src="~/js/IndexDB.js"></script>
+<script src="~/js/cacheM3u8.js"></script>
 <form>
     <div class="panel panel-info">
         <div class="panel-heading" id="TelescopicHead" data-toggle="collapse" data-target="#SalesOrderSearchArea">
             <h3 class="panel-title" id="displaySearchConfig">
-                Search Area
+                Search Area <span id="displayDowntask"></span>
             </h3>
         </div>
         <div id="SalesOrderSearchArea" data-enter-to-search="#btnSubmitSalesOrderSearch" class="panel-body in searchArea">
@@ -85,6 +87,9 @@
         $('#btnSync').click(function () {
             $.post('@Url.Action("sync")');
             alert('OK');
+        });
+        m3u8.initDownload(function (taskCount) {
+            $('#displayDowntask').html('('+taskCount+')');
         });
     });
     history.pushState(null, null, location.href);
