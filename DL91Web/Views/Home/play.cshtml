@@ -64,7 +64,6 @@
             {
                 <option data-local="1" value="@Html.Raw(localurl)">Local(@fileSize)</option>
             }
-            <option value="cache">Cache</option>
         </select>
         &nbsp;
         @if (hdurl != null)
@@ -88,7 +87,6 @@
 
     <script>
     $(function () {
-        m3u8.initXMLHttpRequest();
         $('#isLike').change(function () {
             $.post('@Url.Action("like")?id=' + @(ViewBag.id) +'&&isLike=' + (this.checked ? 1 : 0));
         });
@@ -96,14 +94,25 @@
 
         $('#isCached').change(function () {
             $('#isHD').prop('checked', true);
-            m3u8.downloadM3u8('@(ViewBag.id)', getUrl()).then(function (data) {
-                if (data.success) {
-                    alert(123);
-                }
-                else {
-                    alert(data.msg);
-                }
-            });
+            if (this.checked) {
+                m3u8.downloadM3u8('@(ViewBag.id)', getUrl()).then(function (data) {
+                    if (data.success) {
+                        alert('start cache');
+                    }
+                    else {
+                        alert(data.msg);
+                        $('#isCached').prop('checked', false);
+                    }
+                });
+            }
+            else if (confirm('确定删除缓存?')) {
+                m3u8.deleteM3u8('@(ViewBag.id)').then(function () { 
+                    initM3u8();
+                });
+            }
+            else {
+                $('#isCached').prop('checked', true);
+            }
         });
         function getUrl() {
             var $op = $('#domain option:selected');
@@ -115,15 +124,6 @@
             localStorage.setItem("isHD", $('#isHD:checked').length > 0 ? "1" : "0");
             return $op.val() + ($('#isHD:checked').length > 0 ?
                 '@Html.Raw(hdurl)' : '@Html.Raw(url)');
-        }
-        function initUrl() {
-            $('#isHD').prop('checked', localStorage.getItem("isHD") == 1);
-            if (localStorage.getItem("isLocal") == 1 && $('#domain option[data-local="1"]').length > 0) {
-                $('#domain').val($('#domain option[data-local="1"]')[0].value);
-            }
-            else {
-                $('#domain').val(localStorage.getItem("domain"));
-            }
         }
         function copy(text) {
             const el = document.createElement('input');
@@ -171,8 +171,29 @@
                 });
             }
         });
-        initUrl();
-        loadVideo(getUrl());
+        async function initM3u8() {
+            var url = await m3u8.getM3u8Url('@(ViewBag.id)');
+            if (url) {
+                $('#domain').append('<option value="cache">Cache</option>');
+                $('#domain').val('cache');
+                $('#isCached').prop('checked', true);
+                loadVideo(url);
+            }
+            else {
+                $('#domain option[value=cache]').remove();
+                $('#isHD').prop('checked', localStorage.getItem("isHD") == 1);
+                if (localStorage.getItem("isLocal") == 1 && $('#domain option[data-local="1"]').length > 0) {
+                    $('#domain').val($('#domain option[data-local="1"]')[0].value);
+                }
+                else {
+                    $('#domain').val(localStorage.getItem("domain"));
+                }
+                loadVideo(getUrl());
+            }
+        }
+        m3u8.initXMLHttpRequest();
+        initM3u8();
+
         function loadVideo(vdoSrc) {
             if (/\.m3u8$/.test(vdoSrc) || vdoSrc.indexOf('blob') == 0) {
                 myVideo.src({
@@ -190,6 +211,5 @@
         }
     });
     </script>
-
 </body>
 </html>

@@ -18,7 +18,22 @@ var m3u8 = (function () {
             }
         }
     }
-
+    const deleteM3u8 = async function (id) {
+        await openDb();
+        await Idb.deleteData(db, mainTable, id);
+        var tasks = (await Idb.getAllData(db, taskTable)).data;
+        for (var i in tasks) {
+            if (tasks[i].id.indexOf(id + '#') == 0) {
+                await Idb.deleteData(db, taskTable, tasks[i].id);
+            }
+        }
+        var tasks = (await Idb.getAllData(db, dataTable)).data;
+        for (var i in tasks) {
+            if (tasks[i].id.indexOf(id + '#') == 0) {
+                await Idb.deleteData(db, dataTable, tasks[i].id);
+            }
+        }
+    }
     const downloadM3u8 = async function (id, url) {
         await openDb();
         var exists = await Idb.getData(db, mainTable, id);
@@ -72,8 +87,13 @@ var m3u8 = (function () {
     const getM3u8Url = async function (id) {
         await openDb();
         var exists = await Idb.getData(db, mainTable, id);
-        var m3u8blob = new Blob([exists.data.m3u8], { type: 'application/x-mpegURL' })
-        return URL.createObjectURL(m3u8blob);
+        if (exists.data) {
+            var m3u8blob = new Blob([exists.data.m3u8], { type: 'application/x-mpegURL' })
+            return URL.createObjectURL(m3u8blob);
+        }
+        else {
+            return null;
+        }
     }
 
     const initDownloadVideo = async function () {
@@ -196,6 +216,7 @@ var m3u8 = (function () {
 
     return {
         downloadM3u8: downloadM3u8,
+        deleteM3u8: deleteM3u8,
         initXMLHttpRequest: initXMLHttpRequest,
         getM3u8Url: getM3u8Url,
         initDownload: initDownload

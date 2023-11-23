@@ -158,10 +158,7 @@ namespace DL91Web.Controllers
                     obj.isVideoDownloaded = 0;
                 db.SaveChanges();
             }
-            if (isLike == 1)
-            {
-                DL91.Job.DownloadVideoFlag = 0;
-            }
+            DL91.Job.DownloadVideoFlag = 0;
             CacheManager.NeedClearLikeCache = true;
             return Json(1);
         }
