@@ -9,16 +9,20 @@
         padding-top: 10px;
     }
 </style>
+<script>
+    var GetImgURL = '@Url.Action("GetImg", "Home")';
+    var IndexForAjaxUrl = '@Url.Action("IndexForAjax", "Home")';
+</script>
 <script src="~/js/IndexDB.js" asp-append-version="true"></script>
 <script src="~/js/cacheM3u8.js" asp-append-version="true"></script>
-<form>
+<div>
     <div class="panel panel-info">
         <div class="panel-heading" id="TelescopicHead" data-toggle="collapse" data-target="#SalesOrderSearchArea">
             <h3 class="panel-title" id="displaySearchConfig">
                 Search Area <span id="displayDowntask"></span>
             </h3>
         </div>
-        <div id="SalesOrderSearchArea" data-enter-to-search="#btnSubmitSalesOrderSearch" class="panel-body in searchArea">
+        <div id="SalesOrderSearchArea" class="panel-body in searchArea">
             <div class="row">
                 <div class="col-md-3">
                     @Html.Label("", "Type")
@@ -56,12 +60,12 @@
         </div>
     </div>
     <div id="SalesOrderResult">
-        @Html.Partial("_List", Model)
+
     </div>
-</form>
+</div>
+<script src="~/js/ajaxpager/ajaxpager.js" asp-append-version="true"></script>
 <script>
     loadStyle(['@Url.Content("~/css/pager.css")', '@Url.Content("~/css/font-awesome.css")']);
-    loadjs(['@Url.Content("~/js/ajaxpager/ajaxpager.js?t=4")']);
     function onPageLoad() {
         window.scrollTo(0, 0);
     }
@@ -91,6 +95,13 @@
         m3u8.initDownload(function (taskCount) {
             $('#displayDowntask').html('('+taskCount+')');
         });
+        $('#btnSubmitSalesOrderSearch').click(function () {
+            var baseurl = IndexForAjaxUrl + "?currentPage=0&&title1=" + ($('#title1').val() || '') + "&&title2=" + ($('#title2').val() || '') + "&&isLike=" + $('#isLike').val() + "&&typeId=" + $('#typeId').val();
+            $('input[name=hipagebaseurl]').val(baseurl);
+            ajaxPager.pager.gotopage(1, $("div.pagination-container"));
+            return false;
+        });
+        $('#btnSubmitSalesOrderSearch').click();
     });
     history.pushState(null, null, location.href);
     window.addEventListener('popstate', function (event) {

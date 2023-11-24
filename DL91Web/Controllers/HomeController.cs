@@ -33,19 +33,18 @@ namespace DL91Web.Controllers
             return View();
         }
 
-        public IActionResult Index(SearchViewModel model, int currentPage = 1, bool isAjax = false)
+        public IActionResult Index()
         {
             if (!checkLogin())
             {
                 return Redirect("~/Home/Login");
             }
-
+            var model = new SearchViewModel();
             model.Page = new Pager()
             {
-                CurrentPage = currentPage,
+                CurrentPage = 1,
                 PageSize = new CookiesHelper().GetPageSize(HttpContext)
             };
-
             using (var db = new DB91Context())
             {
                 var TypeLst = db.DBTypes.Select(f => new DBType()
@@ -60,8 +59,26 @@ namespace DL91Web.Controllers
                     name = "ALL"
                 });
                 ViewBag.TypeLst = TypeLst;
+            }
+            return View(model);
+        }
 
-                var cache = CacheManager.GetData(model,out int isCached);
+        public IActionResult IndexForAjax(SearchViewModel model, int currentPage = 1)
+        {
+            if (!checkLogin())
+            {
+                return Redirect("~/Home/Login");
+            }
+
+            model.Page = new Pager()
+            {
+                CurrentPage = currentPage,
+                PageSize = new CookiesHelper().GetPageSize(HttpContext)
+            };
+
+            using (var db = new DB91Context())
+            {
+                var cache = CacheManager.GetData(model, out int isCached);
                 model.Data = cache.Data;
                 model.NextPageIDs = cache.NextPageIDs;
                 model.Page.RecordCount = cache.Page.RecordCount;
@@ -71,19 +88,7 @@ namespace DL91Web.Controllers
             CacheManager.Cache(model.LastPage);
             CacheManager.Cache(model.PrevPage);
 
-            if (isAjax)
-            {
-                return PartialView("_List", model);
-            }
-            else
-            {
-                return View(model);
-            }
-        }
-
-        public IActionResult IndexForAjax(SearchViewModel model, int currentPage = 1)
-        {
-            return Index(model, currentPage, true);
+            return Json(model);
         }
 
         public IActionResult play(int id,string url)

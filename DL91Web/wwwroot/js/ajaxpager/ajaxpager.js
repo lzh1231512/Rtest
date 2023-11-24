@@ -81,10 +81,10 @@ ajaxPager.pager = (function () {
             type: requestFun,
             data: getDataInUrl(baseurl),
             url: baseurl.split('?')[0],
-            dataType: 'html',
+            dataType: 'json',
             success: function (data) {
                 var updateTargetID = $(selectors.hiupdateTargetID, container).val();
-                $(container).closest("#" + updateTargetID).html(data);
+                $(container).closest("#" + updateTargetID).html(data2html(data));
                 var onSuccess = $(selectors.hiOnSuccess, container).val();
                 if (onSuccess) {
                     var lastchar = onSuccess[onSuccess.length - 1];
@@ -93,14 +93,149 @@ ajaxPager.pager = (function () {
                     } else {
                         eval(onSuccess);
                     }
-
                 }
+                afterRunder(data);
             },
             error: function () {
                 $(selectors.labTotalInfo, container).html('Data loading failed');
             }
         });
     };
+
+    function data2html(data) {
+        var result = `<div class="table-responsive" style="overflow-x:hidden">`;
+        if (data.data.length > 0) {
+            result += `<div id="divitems" class="row">`;
+            for (var i = 0; i < data.data.length; i++) {
+                var dt = data.data[i];
+                result += `<div class="col-md-2">`;
+                result += `<a href="#" onclick="play(this,${dt.id})" target="_blank"><img data-imgid="${dt.id}" style="width:256px;height:144px;" /></a>`;
+                result += `<div class="title" data-time="${dt.createDate}" style="min-height:36px;">${dt.title}</div>`;
+                result += `</div>`;
+                if (i % 6 == 5) {
+                    result += `<div class="clearfix"></div>`;
+                }
+            }
+            result += `<div class="clearfix"></div>`;
+            result += `</div>`;
+            var url = IndexForAjaxUrl + "?currentPage=0&&title1=" + (data.title1||'') + "&&title2=" + (data.title2||'') + "&&isLike=" + data.isLike + "&&typeId=" + data.typeId;
+            result += `<div class="pagination-sm">
+            <div class="pagination-container">
+                <input type="hidden" name="hipagebaseurl" value="${url}" />
+                <input id="hicurrentPage" type="hidden" name="hicurrentPage" value="${data.page.currentPage}" />
+                <input type="hidden" name="hipageCount" value="${data.page.pageCount}" />
+                <input type="hidden" name="hiupdateTargetID" value="SalesOrderResult" />
+                <input type="hidden" name="hirecordCount" value="${data.page.recordCount}" />
+                <input type="hidden" name="hipageSize" value="${data.page.pageSize}" />
+                <input type="hidden" name="hiOnSuccess" value="onPageLoad" />
+                <input type="hidden" name="hiRequestFun" value="Post" />
+                <input type="hidden" name="hionAjaxBegin" value="" />
+                <ul class="pagination">
+                    <li>
+                        <span>
+                            <select name="selpagesize">`;
+            for (var i = 12; i <= 84; i += 6) {
+                result += `<option ${i == data.page.pageSize ?'selected="selected"':''}>${i}</option>`;
+            }
+            var pageInfo = `Displaying ${((data.page.currentPage - 1) * data.page.pageSize) + 1} to ${(data.page.currentPage * data.page.pageSize) > data.page.recordCount ? data.page.recordCount : (data.page.currentPage * data.page.pageSize)} of ${data.page.recordCount} items`;
+            result += `</select>
+                        </span>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <span title="Go to the frist page" class="btnfirst pagebutton">
+                            <i class="fa fa-step-backward"></i>
+                        </span>
+                    </li>
+                    <li>
+                        <span title="Go to previous page" class="btnprevious pagebutton">
+                            <i class="fa fa-arrow-left"></i>
+                        </span>
+                    </li>
+                    <li>
+                        <span>
+                            <input name="inpcurrentpage" type="number" style="width:60px;color: #333 !important;" value="${data.page.currentPage}" />&nbsp;/&nbsp;${data.page.pageCount}
+                        </span>
+                    </li>
+                    <li>
+                        <span title="Go to next page" class="btnnext pagebutton">
+                            <i class="fa fa-arrow-right"></i>
+                        </span>
+                    </li>
+                    <li>
+                        <span title="Go to the last page" class="btnlast pagebutton">
+                            <i class="fa fa-step-forward"></i>
+                        </span>
+                    </li>
+                    <li>
+                        <span title="Refresh" class="btnrefresh pagebutton">
+                            <i class="fa fa-refresh"></i>
+                        </span>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <span class="labTotalInfo" title="${pageInfo}"><span>${pageInfo}</span></span>
+                    </li>
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+        </div>`;
+
+            
+        }
+        else {
+            result += `<div class="text-center EmptyList"><span class="text-danger">No Result</span></div>`;
+        }
+        result += `</div>`;
+        return result;
+    }
+    function afterRunder(data) {
+        var ids = '';
+        var objs = [];
+        function loadImg() {
+            if (objs.length > 0) {
+                var url = GetImgURL + '?Imgs=' + ids.substr(1);
+                var index = 0;
+                $(objs).each(function () {
+                    $(this).css({
+                        'background-image': 'url(' + url + ')',
+                        'background-repeat': 'no-repeat',
+                        'background-attachment': 'scroll',
+                        'background-position': '0px ' + (-1) * (index++) * 144 + 'px',
+                        'background-color': 'transparent'
+                    });
+                });
+                objs = [];
+                ids = '';
+            }
+        }
+        $('#divitems img[data-imgid]').each(function () {
+            ids += ',' + $(this).data('imgid');
+            objs.push(this);
+        });
+        loadImg();
+        var nextImg = new Image();
+        nextImg.src = GetImgURL + '?Imgs=' + data.nextPageIDs;
+        $('div.title').each(function () {
+            var time = parseInt($(this).data('time'));
+            var hour = parseInt((new Date().getTime() - 631123200000 - time * 60000) / 1000 / 3600);
+            var day = parseInt(hour / 24);
+            var res = '';
+            if (day > 365) {
+                res = '[1年前]';
+            }
+            else if (day > 7) {
+                res = "[" + parseInt(day / 7) + "周前]"
+            }
+            else if (hour > 24) {
+                res = "[" + day + "天前]"
+            }
+            else {
+                res = '[' + hour + '小时前]';
+            }
+            $(this).html(res + $(this).html());
+        })
+    }
     pager.OnPageChange = function () {
         var container = $(this).closest("div.pagination-container");
         var page = $(this).val();
@@ -204,6 +339,11 @@ ajaxPager.pager = (function () {
         pager.bindPageChange();
         pager.bindPageSizeChange();
         pager.bindbtnevent();
+        var pageSize = document.cookie.match(/(?:^|;)\s*PageSize=([^;]+)/)[1];
+        $('#SalesOrderResult').html(data2html({
+            data: [{}],
+            page: { pageSize: (pageSize||24)}
+        }));
     };
     pager.init();
     return pager;
