@@ -18,23 +18,45 @@ var m3u8 = (function () {
             }
         }
     }
-    const deleteM3u8 = async function (id) {
+    const deleteM3u8 = async function (id, progressCallback) {
         await openDb();
         await Idb.deleteData(db, mainTable, id);
         var tasks = (await Idb.getAllData(db, taskTable)).data;
+        var taskids = [];
         for (var i in tasks) {
             if (tasks[i].id.indexOf(id + '#') == 0) {
-                await Idb.deleteData(db, taskTable, tasks[i].id);
+                taskids.push(tasks[i].id);
             }
         }
         var tasks = (await Idb.getAllData(db, dataTable)).data;
+        var dataids = [];
         for (var i in tasks) {
             if (tasks[i].id.indexOf(id + '#') == 0) {
-                await Idb.deleteData(db, dataTable, tasks[i].id);
+                dataids.push(tasks[i].id);
             }
         }
+
+        var count = 0;
+        var tt = taskids.length + dataids.length;
+        for (var i in taskids) {
+            await Idb.deleteData(db, taskTable, taskids[i]);
+            count++;
+            if (progressCallback) {
+                progressCallback(count + "/" + tt);
+            }
+        }
+        for (var i in dataids) {
+            await Idb.deleteData(db, dataTable, dataids[i]);
+            count++;
+            if (progressCallback) {
+                progressCallback(count + "/" + tt);
+            }
+        }
+        if (progressCallback) {
+            progressCallback(0);
+        }
     }
-    const downloadM3u8 = async function (id, url) {
+    const downloadM3u8 = async function (id, url,progressCallback) {
         await openDb();
         var exists = await Idb.getData(db, mainTable, id);
         if (exists.data != null) {
@@ -74,8 +96,16 @@ var m3u8 = (function () {
                 downloaded: 0,
                 m3u8: newInfo.join('\n')
             });
+            var count = 0;
             for (var item in tasks) {
                 await Idb.addData(db, taskTable, tasks[item]);
+                count++;
+                if (progressCallback) {
+                    progressCallback(count + "/" + tasks.length);
+                }
+            }
+            if (progressCallback) {
+                progressCallback(0);
             }
             return { code: 0, success: true, data: null, msg: '' };
         }

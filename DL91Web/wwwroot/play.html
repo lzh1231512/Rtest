@@ -61,7 +61,8 @@
         Like
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <input type="checkbox" id="isCached" />
-        Cached
+        Cached&nbsp;&nbsp;
+        <span id="spanP"></span>
     </div>
     <div>
         &nbsp;&nbsp;
@@ -103,7 +104,9 @@
         $('#isCached').change(function () {
             $('#isHD').prop('checked', true);
             if (this.checked) {
-                m3u8.downloadM3u8(vid + '', getUrl()).then(function (data) {
+                m3u8.downloadM3u8(vid + '', getUrl(), function (p) {
+                    $('#spanP').html(p === 0 ? '' : p);
+                }).then(function (data) {
                     if (data.success) {
                         alert('start cache');
                     }
@@ -114,7 +117,9 @@
                 });
             }
             else if (confirm('确定删除缓存?')) {
-                m3u8.deleteM3u8(vid + '').then(function () {
+                m3u8.deleteM3u8(vid + '', function (p) {
+                    $('#spanP').html(p === 0 ? '' : p);
+                }).then(function () {
                     initM3u8();
                     alert('删除成功');
                 });
