@@ -104,19 +104,23 @@ var m3u8 = (function () {
             await Idb.updateData(db, taskTable, tasks[i]);
         }
     }
-
+    var dcount = 0;
+    var isDownloadIng = 0;
     const downloadVideo = async function () {
+        if (isDownloadIng != 0)
+            return;
+        isDownloadIng = 1;
         await openDb();
         var tasks = (await Idb.getAllData(db, taskTable)).data;
         if (taskChangeEvent) {
             taskChangeEvent(tasks.length);
         }
-        var dindex = 0;
+        var downloaded = 0;
         for (var i in tasks) {
             if (tasks[i].status == 0) {
                 tasks[i].status = 1;
                 await Idb.updateData(db, taskTable, tasks[i]);
-
+                dcount++;
                 download(tasks[i].url, 'video/MP2T', tasks[i]).then(async function (result) {
                     if (result.success) {
                         result.task.status = 2;
@@ -128,14 +132,29 @@ var m3u8 = (function () {
                         result.task.status = -1;
                         await Idb.updateData(db, taskTable, result.task);
                     }
-                    downloadVideo();
+                    dcount--;
+                    downloaded++;
                 });
             }
-            dindex++;
-            if (dindex >= 4) {
-                break;
+            if (dcount >= 4) {
+                await waitdownload();
+                if (taskChangeEvent) {
+                    taskChangeEvent(tasks.length - downloaded);
+                }
             }
         }
+        isDownloadIng = 0;
+    }
+
+    const waitdownload = function () {
+        return new Promise((resolve, reject) => {
+            var intervalId = setInterval(function () {
+                if (dcount < 4) {
+                    clearInterval(intervalId);
+                    resolve();
+                }
+            }, 100);
+        })
     }
 
     const initDownload = async function (taskChangeEventCallback) {
