@@ -137,19 +137,23 @@ var m3u8 = (function () {
                 });
             }
             if (dcount >= 4) {
-                await waitdownload();
+                await waitdownload(4);
                 if (taskChangeEvent) {
                     taskChangeEvent(tasks.length - downloaded);
                 }
             }
         }
+        await waitdownload(1);
+        if (taskChangeEvent) {
+            taskChangeEvent(tasks.length - downloaded);
+        }
         isDownloadIng = 0;
     }
 
-    const waitdownload = function () {
+    const waitdownload = function (wcount) {
         return new Promise((resolve, reject) => {
             var intervalId = setInterval(function () {
-                if (dcount < 4) {
+                if (dcount < wcount) {
                     clearInterval(intervalId);
                     resolve();
                 }
