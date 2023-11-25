@@ -66,12 +66,13 @@
 <script src="~/js/ajaxpager/ajaxpager.js" asp-append-version="true"></script>
 <script>
     loadStyle(['@Url.Content("~/css/pager.css")', '@Url.Content("~/css/font-awesome.css")']);
+    var playHtml = '';
     function onPageLoad() {
         window.scrollTo(0, 0);
     }
-    function play(obj,id) {
+    function play(obj) {
         var xxurl = window.location.href;
-        if (xxurl.indexOf('/',10) > 0) {
+        if (xxurl.indexOf('/', 10) > 0) {
             xxurl = xxurl.substr(0, xxurl.indexOf('/', 10));
         }
         if (xxurl.indexOf('?') > 0) {
@@ -80,10 +81,29 @@
         if (xxurl.indexOf('#') > 0) {
             xxurl = xxurl.substr(0, xxurl.indexOf('#'));
         }
-        var url = '@Url.Action("play")?id=' + id + '&url=' + encodeURIComponent(xxurl);
-        obj.href = url;
+
+
+        var id = $(obj).data('id');
+        var title = $(obj).data('title');
+        var filesize = $(obj).data('filesize');
+        var ishd = $(obj).data('ishd');
+        var islike = $(obj).data('islike');
+
+        var newHtml = playHtml.replace('{id}', id).replace('{title}', title).replace('{filesize}', filesize).replace('{isHD}', ishd).replace('{isLike}', islike).replace(/{site}/g, xxurl);
+
+        var blob = new Blob([newHtml], { type: 'text/html' })
+        obj.href = URL.createObjectURL(blob);
     }
     $(function () {
+        $.ajax({
+            type: 'Get',
+            url: '../play.html',
+            dataType: 'html',
+            success: function (data) {
+                playHtml = data;
+            }
+        });
+
         $('#btnClear').click(function(){
             $('#title1,#title2').val('');
             $('#isLike').val(2);

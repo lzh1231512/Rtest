@@ -271,6 +271,9 @@ namespace DL91
                                 {
                                     Id = f.id,
                                     CreateDate = f.createDate,
+                                    IsHD = f.isHD ? 1 : 0,
+                                    IsLike = f.isLike,
+                                    FileSize = GetFileSize(f.videoFileSize),
                                     Title = (f.isHD ? "[HD]" : "") + getTimeString(f.time) + getTypeName(f.typeId, typeLst) + "</br>" + f.title
                                 }).ToList();
                             model.NextPageIDs = string.Join(',', dbdata.Skip(model.Page.PageSize).Select(f => f.id));
@@ -292,6 +295,29 @@ namespace DL91
             }
             catch { }
             isRunding = false;
+        }
+        private static string GetFileSize(long filesize)
+        {
+            if (filesize <= 0)
+            {
+                return "";
+            }
+            else if (filesize >= 1024 * 1024 * 1024) //文件大小大于或等于1024MB
+            {
+                return string.Format("{0:0.00} GB", (double)filesize / (1024 * 1024 * 1024));
+            }
+            else if (filesize >= 1024 * 1024) //文件大小大于或等于1024KB
+            {
+                return string.Format("{0:0.00} MB", (double)filesize / (1024 * 1024));
+            }
+            else if (filesize >= 1024) //文件大小大于等于1024bytes
+            {
+                return string.Format("{0:0.00} KB", (double)filesize / 1024);
+            }
+            else
+            {
+                return string.Format("{0:0.00} bytes", filesize);
+            }
         }
         private static SearchViewModel RunPopTaks()
         {
