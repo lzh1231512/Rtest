@@ -50,7 +50,7 @@ ajaxPager.pager = (function () {
         }
 
         var pageCount = parseInt($(selectors.hipageCount, container).val());
-        if (pageCount < currentpage || currentpage <= 0) {
+        if ((pageCount < currentpage || currentpage <= 0) && currentpage!=1) {
             if (isFireByChangePage == 1) {
                 alert('invalid page number');
             }
@@ -109,7 +109,7 @@ ajaxPager.pager = (function () {
             for (var i = 0; i < data.data.length; i++) {
                 var dt = data.data[i];
                 result += `<div class="col-md-2">`;
-                result += `<a href="#" onclick="play(this)" data-id="${dt.id}" data-title="${dt.title}" data-filesize="${dt.fileSize}" data-ishd="${dt.isHD}" data-islike="${dt.isLike}" target="_blank"><img data-imgid="${dt.id}" style="width:256px;height:144px;" /></a>`;
+                result += `<a href="#" onclick="play(this)" data-id="${dt.id}" data-url="${dt.url}" data-title="${dt.title}" data-filesize="${dt.fileSize}" data-ishd="${dt.isHD}" data-islike="${dt.isLike}" target="_blank"><img data-imgid="${dt.id}" style="width:256px;height:144px;" /></a>`;
                 result += `<div class="title" data-time="${dt.createDate}" style="min-height:36px;">${dt.title}</div>`;
                 result += `</div>`;
                 if (i % 6 == 5) {
@@ -118,8 +118,12 @@ ajaxPager.pager = (function () {
             }
             result += `<div class="clearfix"></div>`;
             result += `</div>`;
-            var url = IndexForAjaxUrl + "?currentPage=0&&title1=" + (data.title1||'') + "&&title2=" + (data.title2||'') + "&&isLike=" + data.isLike + "&&typeId=" + data.typeId;
-            result += `<div class="pagination-sm">
+        }
+        else {
+            result += `<div class="text-center EmptyList"><span class="text-danger">No Result</span></div>`;
+        }
+        var url = IndexForAjaxUrl + "?currentPage=0&&title1=" + (data.title1 || '') + "&&title2=" + (data.title2 || '') + "&&isLike=" + data.isLike + "&&typeId=" + data.typeId;
+        result += `<div class="pagination-sm">
             <div class="pagination-container">
                 <input type="hidden" name="hipagebaseurl" value="${url}" />
                 <input id="hicurrentPage" type="hidden" name="hicurrentPage" value="${data.page.currentPage}" />
@@ -134,11 +138,11 @@ ajaxPager.pager = (function () {
                     <li>
                         <span>
                             <select name="selpagesize">`;
-            for (var i = 12; i <= 84; i += 6) {
-                result += `<option ${i == data.page.pageSize ?'selected="selected"':''}>${i}</option>`;
-            }
-            var pageInfo = `Displaying ${((data.page.currentPage - 1) * data.page.pageSize) + 1} to ${(data.page.currentPage * data.page.pageSize) > data.page.recordCount ? data.page.recordCount : (data.page.currentPage * data.page.pageSize)} of ${data.page.recordCount} items`;
-            result += `</select>
+        for (var i = 12; i <= 84; i += 6) {
+            result += `<option ${i == data.page.pageSize ? 'selected="selected"' : ''}>${i}</option>`;
+        }
+        var pageInfo = `Displaying ${((data.page.currentPage - 1) * data.page.pageSize) + 1} to ${(data.page.currentPage * data.page.pageSize) > data.page.recordCount ? data.page.recordCount : (data.page.currentPage * data.page.pageSize)} of ${data.page.recordCount} items`;
+        result += `</select>
                         </span>
                     </li>
                     <li class="divider"></li>
@@ -180,12 +184,6 @@ ajaxPager.pager = (function () {
                 <div class="clearfix"></div>
             </div>
         </div>`;
-
-            
-        }
-        else {
-            result += `<div class="text-center EmptyList"><span class="text-danger">No Result</span></div>`;
-        }
         result += `</div>`;
         return result;
     }
@@ -217,7 +215,7 @@ ajaxPager.pager = (function () {
         var nextImg = new Image();
         nextImg.src = GetImgURL + '?Imgs=' + data.nextPageIDs;
         $('div.title').each(function () {
-            var time = parseInt($(this).data('time'));
+            var time = parseInt($(this).data('time'))+480;
             var hour = parseInt((new Date().getTime() - 631123200000 - time * 60000) / 1000 / 3600);
             var day = parseInt(hour / 24);
             var res = '';

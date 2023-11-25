@@ -15,7 +15,7 @@ namespace DL91.Models
         public int IsLike { set; get; }
         public int IsHD { set; get; }
         public string FileSize { set; get; }
-
+        public string Url { set; get; }
 
     }
 }

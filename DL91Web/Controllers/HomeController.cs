@@ -15,6 +15,9 @@ using Microsoft.Extensions.Configuration;
 using System.Drawing.Imaging;
 using ImageMagick;
 using System.Threading;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DL91Web.Controllers
 {
@@ -253,7 +256,7 @@ namespace DL91Web.Controllers
             var nopic = new MagickImage("wwwroot/images/NOPIC.jpg");
             foreach (var item in allImg.Select(f => int.TryParse(f, out int res) ? res : 0))
             {
-                var imgpath1 = new FileInfo("wwwroot/imgs/" + (item / 1000) + "/" + item + ".jpg");
+                var imgpath1 = new FileInfo("wwwroot/imgs/" + (item < 0 ? "-1" : (item / 1000).ToString()) + "/" + item + ".jpg");
                 if (imgpath1.Exists)
                 {
                     var first = new MagickImage(imgpath1.FullName);
@@ -267,6 +270,112 @@ namespace DL91Web.Controllers
             canvas.Resize(256, 144 * allImg.Count());
             canvas.Write(cachePath + fileName);
             return File(cacheVirtualPath + fileName, "image/Jpeg");
+        }
+
+        public IActionResult Add(string title,string url,List<IFormFile> files)
+        {
+            var message = "";
+            if (!string.IsNullOrEmpty(title))
+            {
+                if (string.IsNullOrEmpty(url))
+                {
+                    message = "need url";
+                }
+                else if (files == null || files.Count == 0)
+                {
+                    message = "need cover";
+                }
+                else if (files.Any(f => !f.FileName.ToLower().EndsWith(".jpg")))
+                {
+                    message = "cover must be .jpg";
+                }
+                else
+                {
+                    var id = -1;
+                    using (var db = new DB91Context())
+                    {
+                        var theType = db.DBTypes.Where(f => f.id == -2).Select(f => new DBType()
+                        {
+                            id = f.id,
+                            name = f.name
+                        }).FirstOrDefault();
+                        if (theType == null)
+                        {
+                            db.DBTypes.Add(new DBType()
+                            {
+                                id = -2,
+                                name = "Upload"
+                            });
+                            db.SaveChanges();
+                        }
+                        var min = db.DB91s.OrderBy(f => f.id).FirstOrDefault()?.id;
+                        if (min.HasValue && min <= id)
+                        {
+                            id = min.Value - 1;
+                        }
+                    }
+                    string path = MyServiceProvider.ServiceProvider.GetRequiredService<IHostingEnvironment>().WebRootPath;
+                    var folder = path.TrimEnd('/', '\\') + "/imgs/-1/";
+                    if (!System.IO.Directory.Exists(folder))
+                    {
+                        System.IO.Directory.CreateDirectory(folder);
+                    }
+                    MagickReadSettings settings = new MagickReadSettings();
+                    settings.Width = 320;
+                    settings.Height = 180;
+                    foreach (var file in files)
+                    {
+                        var fileName = file.FileName.Replace(".jpg","");
+                        string fullPath = path.TrimEnd('/', '\\') + "/imgs/-1/" + id + ".jpg";
+                        using (var stream = new FileStream(fullPath, FileMode.Create))
+                        {
+                            file.CopyTo(stream);
+                            stream.Close();
+                        }
+                        
+                        MagickImage canvas = new MagickImage("xc:white", settings);
+                        canvas.Format = MagickFormat.Jpeg;
+
+                        var first = new MagickImage(fullPath);
+                        var h = (int)(320 * first.Height / first.Width);
+                        if (h < 180)
+                        {
+                            first.Resize(320, h);
+                            canvas.Composite(first, 0, (180 - h) / 2);
+                        }
+                        else
+                        {
+                            var w = (int)(180 * first.Width / first.Height);
+                            first.Resize(w, 180);
+                            canvas.Composite(first, (320 - w) / 2, 0);
+                        }
+                        first.Dispose();
+                        canvas.Write(fullPath);
+
+                        var dt91 = new DateTime(1990, 1, 1);
+                        using (var db = new DB91Context())
+                        {
+                            db.DB91s.Add(new DB91()
+                            {
+                                id = id,
+                                title = title + (files.Count > 1 ? "(" + fileName + ")" : ""),
+                                url = url.TrimEnd('/') + "/" + fileName + ".m3u8",
+                                typeId = -2,
+                                IsImgDownload = 1,
+                                createDate = (int)(DateTime.UtcNow - dt91).TotalMinutes
+                            });
+                            db.SaveChanges();
+                        }
+                        id -= 1;
+                    }
+                    
+                    CacheManager.ClearCache();
+                    message = "add successful:" + id;
+                }
+
+            }
+            ViewBag.msg = message;
+            return View();
         }
 
     }

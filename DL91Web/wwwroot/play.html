@@ -12,6 +12,7 @@
         var isHD = '{isHD}';
         var fileSize = '{filesize}';
         var title = '{title}';
+        var vurl = '{url}';
 
         var baseUrl = `/hls/contents/videos/${vid - (vid % 1000)}/${vid}/${vid}.mp4/index.m3u8`;
         var localUrl = '';
@@ -122,6 +123,9 @@
             }
         });
         function getUrl() {
+            if (vid < 0) {
+                return vurl;
+            }
             var $op = $('#domain option:selected');
             localStorage.setItem("isLocal", $op.data('local') == 1 ? "1" : "0");
             if ($op.data('local') == 1) {

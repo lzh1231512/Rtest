@@ -88,8 +88,15 @@
         var filesize = $(obj).data('filesize');
         var ishd = $(obj).data('ishd');
         var islike = $(obj).data('islike');
+        var url = $(obj).data('url');
 
-        var newHtml = playHtml.replace('{id}', id).replace('{title}', title).replace('{filesize}', filesize).replace('{isHD}', ishd).replace('{isLike}', islike).replace(/{site}/g, xxurl);
+        var newHtml = playHtml.replace('{id}', id)
+            .replace('{title}', title)
+            .replace('{filesize}', filesize)
+            .replace('{isHD}', ishd)
+            .replace('{isLike}', islike)
+            .replace('{url}', url)
+            .replace(/{site}/g, xxurl);
 
         var blob = new Blob([newHtml], { type: 'text/html' })
         obj.href = URL.createObjectURL(blob);

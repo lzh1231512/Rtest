@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
+using DL91Web.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -11,7 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
 namespace DL91Web
 {
     public class Startup
@@ -95,6 +95,7 @@ namespace DL91Web
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+            MyServiceProvider.ServiceProvider = app.ApplicationServices;
         }
     }
 }

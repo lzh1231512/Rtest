@@ -195,7 +195,7 @@ namespace DL91
             }
             using (var db = new DB91Context())
             {
-                foreach (var item in db.DB91s.Where(f => f.isLike == 1 
+                foreach (var item in db.DB91s.Where(f => f.isLike == 1 && f.id > 0
                     && f.isVideoDownloaded > VideoDownloadTiemLimit))
                 {
                     if (item.isVideoDownloaded == 1)
