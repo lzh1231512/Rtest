@@ -116,6 +116,7 @@
             else if (confirm('确定删除缓存?')) {
                 m3u8.deleteM3u8(vid + '').then(function () {
                     initM3u8();
+                    alert('删除成功');
                 });
             }
             else {
