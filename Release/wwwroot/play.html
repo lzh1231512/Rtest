@@ -23,7 +23,8 @@
         if (isHD == 1) {
             hdurl = `/hls/contents/videos/${vid - (vid % 1000)}/${vid}/${vid}_720p.mp4/index.m3u8`;
         }
-        var likeUrl = 'Home/like';
+        var likeUrl = '{site}/Home/like';
+        var deleteUrl = '{site}/Home/Delete';
         loadStyle(['{site}/js/videojs/video-js.min.css']);
         loadjs(['{site}/lib/jquery/dist/jquery.js', '{site}/js/videojs/video.min.js', '{site}/js/videojs/videojs-landscape-fullscreen.min.js']);
     </script>
@@ -63,6 +64,8 @@
         <input type="checkbox" id="isCached" />
         Cached&nbsp;&nbsp;
         <span id="spanP"></span>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button id="btnDelete">Delete</button>
     </div>
     <div>
         &nbsp;&nbsp;
@@ -93,6 +96,26 @@
         $('#isLike').prop('checked', isLike == 1);
         $('#isLike').change(function () {
             $.post(likeUrl+'?id=' + vid +'&&isLike=' + (this.checked ? 1 : 0));
+        });
+        $('#btnDelete').click(function () {
+            if (confirm('确定删除?')) {
+                m3u8.deleteM3u8(vid + '', function (p) {
+                    $('#spanP').html(p === 0 ? '' : p);
+                }).then(function () {
+                    $.ajax({
+                        type: 'POST',
+                        data: { id: vid },
+                        url: deleteUrl,
+                        dataType: 'json',
+                        success: function (data) {
+                            alert('删除成功');
+                        },
+                        error: function () {
+                            alert('删除失败');
+                        }
+                    });
+                });
+            }
         });
         $('#divTitle').html(title);
         if (localUrl) {

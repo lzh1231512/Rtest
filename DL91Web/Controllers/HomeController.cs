@@ -94,44 +94,6 @@ namespace DL91Web.Controllers
             return Json(model);
         }
 
-        public IActionResult play(int id,string url)
-        {
-            if (!checkLogin())
-            {
-                return Redirect("~/Home/Login");
-            }
-            ViewBag.url = getM3u8(id,false,false);
-            
-            using (var db = new DB91Context())
-            {
-                var TypeLst = db.DBTypes.Select(f => new DBType()
-                {
-                    id = f.id,
-                    name = f.name
-                }).ToList();
-                var obj = db.DB91s.Where(f => f.id == id).FirstOrDefault();
-                if (obj != null)
-                {
-                    ViewBag.title = (obj.isHD ? "[HD]" : "") + getTypeName(obj.typeId, TypeLst) + obj?.title;
-                    ViewBag.isLike = obj?.isLike;
-                    if (obj.isHD)
-                    {
-                        ViewBag.hdurl = getM3u8(id, true, false);
-                    }
-                    if (obj.isVideoDownloaded == 1)
-                    {
-                        ViewBag.fileSize = GetFileSize(obj.videoFileSize);
-                        ViewBag.localurl = url + getM3u8(id, true, true);
-                    }
-                }
-                else
-                {
-                    ViewBag.hdurl = getM3u8(id, true, false);
-                }
-            }
-            ViewBag.id = id;
-            return View();
-        }
         private static string GetFileSize(long filesize)
         {
             if (filesize < 0)
@@ -376,6 +338,26 @@ namespace DL91Web.Controllers
             }
             ViewBag.msg = message;
             return View();
+        }
+
+        public IActionResult Delete(int id)
+        {
+            using (var db = new DB91Context())
+            {
+                string path = MyServiceProvider.ServiceProvider.GetRequiredService<IHostingEnvironment>().WebRootPath;
+                var img = path.TrimEnd('/', '\\') + "/imgs/"+ (id < 0 ? "-1" : (id / 1000).ToString()) + "/"+ id+".jpg";
+                if (System.IO.File.Exists(img))
+                    System.IO.File.Delete(img);
+
+                var obj = db.DB91s.FirstOrDefault(f => f.id == id);
+                if (obj != null)
+                {
+                    db.DB91s.Remove(obj);
+                }
+                db.SaveChanges();
+            }
+            CacheManager.ClearCache();
+            return Json(1);
         }
 
     }
