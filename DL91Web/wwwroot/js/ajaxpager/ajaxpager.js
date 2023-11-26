@@ -110,7 +110,7 @@ ajaxPager.pager = (function () {
                 var dt = data.data[i];
                 result += `<div class="col-md-2">`;
                 result += `<a href="#" onclick="play(this)" data-id="${dt.id}" data-url="${dt.url}" data-title="${dt.title}" data-filesize="${dt.fileSize}" data-ishd="${dt.isHD}" data-islike="${dt.isLike}" target="_blank"><img data-imgid="${dt.id}" style="width:256px;height:144px;" /></a>`;
-                result += `<div class="title" data-time="${dt.createDate}" style="min-height:36px;">${dt.title}</div>`;
+                result += `<div class="title" data-id="${dt.id}" data-time="${dt.createDate}" style="min-height:36px;">${dt.title}</div>`;
                 result += `</div>`;
                 if (i % 6 == 5) {
                     result += `<div class="clearfix"></div>`;
@@ -231,7 +231,17 @@ ajaxPager.pager = (function () {
             else {
                 res = '[' + hour + '小时前]';
             }
-            $(this).html(res + $(this).html());
+
+            var ntitle = $(this).html();
+            var _this = this;
+            m3u8.getM3u8Url($(this).data('id')+'').then(function (murl) {
+                if (murl) {
+                    ntitle = '[Cached]' + ntitle;
+                }
+                ntitle = res + ntitle;
+                ntitle = ntitle.replace('[00:00]', '');
+                $(_this).html(ntitle);
+            })
         })
     }
     pager.OnPageChange = function () {
