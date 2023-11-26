@@ -336,6 +336,7 @@ namespace DL91Web.Controllers
                 }
 
             }
+            ViewBag.url = url;
             ViewBag.msg = message;
             return View();
         }

@@ -14,7 +14,7 @@
 <body>
     <form method="post" enctype="multipart/form-data">
         <div>title:<input type="text" name="title" value="" /></div>
-        <div>url:<input type="text" name="url" value="" /></div>
+        <div>url:<input type="text" name="url" value="@ViewBag.url" style="width:400px"/></div>
         <div>cover:<input type="file" name="files" value="" multiple/></div>
         <input type="submit" name="name" value="submit" />
     </form>
