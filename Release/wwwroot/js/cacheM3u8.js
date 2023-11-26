@@ -8,6 +8,23 @@ var m3u8 = (function () {
     var dataTable = "m3u8_data";
     var db = null;
     var taskChangeEvent = null;
+    var opflagAdd = function () {
+        var opflag = parseInt(localStorage.getItem('m3u8.opflag') || 0);
+        localStorage.setItem('m3u8.opflag', opflag + 1);
+        localStorage.setItem('m3u8.opflagTime', (new Date()).getTime());
+    };
+    var opflagSub = function () {
+        var opflag = parseInt(localStorage.getItem('m3u8.opflag') || 0);
+        localStorage.setItem('m3u8.opflag', opflag - 1);
+        localStorage.setItem('m3u8.opflagTime', (new Date()).getTime());
+    };
+    var opflagGet = function () {
+        var time = localStorage.getItem('m3u8.opflagTime');
+        if (time && (new Date()).getTime() - parseInt(time) > 30000) {
+            localStorage.setItem('m3u8.opflag', 0);
+        }
+        return parseInt(localStorage.getItem('m3u8.opflag') || 0);
+    };
     const openDb = async function () {
         if (!db) {
             db = (await Idb.openDB(dbName, 1, [{ name: mainTable, keyPath: 'id', autoIncrement: false },
@@ -19,8 +36,10 @@ var m3u8 = (function () {
         }
     }
     const deleteM3u8 = async function (id, progressCallback) {
+        opflagAdd();
         await openDb();
         await Idb.deleteData(db, mainTable, id);
+        var dt = new Date();
         var tasks = (await Idb.getAllData(db, taskTable)).data;
         var taskids = [];
         for (var i in tasks) {
@@ -55,6 +74,8 @@ var m3u8 = (function () {
         if (progressCallback) {
             progressCallback(0);
         }
+        console.log('delete ' + ((new Date()).getTime() - dt.getTime()));
+        opflagSub();
     }
     const downloadM3u8 = async function (id, url,progressCallback) {
         await openDb();
@@ -62,6 +83,7 @@ var m3u8 = (function () {
         if (exists.data != null) {
             return { code: -1, success: false, data: null, msg: '任务已存在!' };
         }
+        var dt = new Date();
         var data = await download(url);
         if (data.data) {
             var info = data.data.split(/\n/g);
@@ -89,6 +111,7 @@ var m3u8 = (function () {
                     vIndex++;
                 }
             }
+            opflagAdd();
             await Idb.addData(db, mainTable, {
                 id: id,
                 url: url,
@@ -107,6 +130,8 @@ var m3u8 = (function () {
             if (progressCallback) {
                 progressCallback(0);
             }
+            console.log('add ' + ((new Date()).getTime() - dt.getTime()));
+            opflagSub();
             return { code: 0, success: true, data: null, msg: '' };
         }
         else {
@@ -137,7 +162,8 @@ var m3u8 = (function () {
     var dcount = 0;
     var isDownloadIng = 0;
     const downloadVideo = async function () {
-        if (isDownloadIng != 0)
+        console.log('opflag:' + opflagGet());
+        if (isDownloadIng != 0 || opflagGet() > 0)
             return;
         isDownloadIng = 1;
         await openDb();

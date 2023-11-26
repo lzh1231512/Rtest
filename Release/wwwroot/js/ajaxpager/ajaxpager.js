@@ -337,10 +337,14 @@ ajaxPager.pager = (function () {
         pager.bindPageChange();
         pager.bindPageSizeChange();
         pager.bindbtnevent();
-        var pageSize = document.cookie.match(/(?:^|;)\s*PageSize=([^;]+)/)[1];
+        var pageSize = document.cookie.match(/(?:^|;)\s*PageSize=([^;]+)/);
+        var p = 24;
+        if (pageSize && pageSize.length > 1) {
+            p = pageSize[1];
+        }
         $('#SalesOrderResult').html(data2html({
             data: [{}],
-            page: { pageSize: (pageSize||24)}
+            page: { pageSize: p}
         }));
     };
     pager.init();
