@@ -234,16 +234,12 @@ namespace DL91Web.Controllers
             return File(cacheVirtualPath + fileName, "image/Jpeg");
         }
 
-        public IActionResult Add(string title,string url,List<IFormFile> files)
+        public IActionResult Add(string url,List<IFormFile> files)
         {
             var message = "";
-            if (!string.IsNullOrEmpty(title))
+            if (!string.IsNullOrEmpty(url))
             {
-                if (string.IsNullOrEmpty(url))
-                {
-                    message = "need url";
-                }
-                else if (files == null || files.Count == 0)
+                if (files == null || files.Count == 0)
                 {
                     message = "need cover";
                 }
@@ -320,7 +316,7 @@ namespace DL91Web.Controllers
                             db.DB91s.Add(new DB91()
                             {
                                 id = id,
-                                title = title + (files.Count > 1 ? "(" + fileName + ")" : ""),
+                                title = fileName,
                                 url = url.TrimEnd('/') + "/" + fileName + ".m3u8",
                                 typeId = -2,
                                 IsImgDownload = 1,
