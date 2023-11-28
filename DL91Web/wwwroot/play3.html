@@ -12,7 +12,8 @@
         var isHD = '1';
         var fileSize = '';
         var title = 'test';
-        var vurl = 'https://bjb.lzhsb.cc/m3u8/14_out/1.m3u8';
+        var vurl = 'https://bjb.lzhsb.cc/m3u8/19_out/o橘猫o3o奶牛装.m3u8';
+        //var vurl = 'https://bjb.lzhsb.cc/m3u8/14_out/1.m3u8';
         
         var baseUrl = `/hls/contents/videos/${vid - (vid % 1000)}/${vid}/${vid}.mp4/index.m3u8`;
         var localUrl = '';
@@ -75,6 +76,9 @@
             video:focus,
             video:active {
                 outline: none;
+            }
+            video.fixtop {
+                margin-top:8px;
             }
     </style>
     <div>
@@ -212,33 +216,14 @@
             wrapper: '#wrapper',
             src:'https://bjb.lzhsb.cc2/1.m3u8',
             controls: true,
-            autoplay: false,
+            autoplay: true,
             kernels: { hls: ChimeeKernelHls },
             x5VideoPlayerType: 'h5',
             x5VideoPlayerFullscreen: false,
             x5VideoOrientation:'landscape',
             plugin: isMobile()?[
                 chimeePluginMobileState.name,
-                {
-                    name: chimeePluginMobileControlbar.name,
-                    hideBarTime: 2000,
-                    children: {
-                        play: {},
-                        currentTime: {},
-                        progressBar: {},
-                        totalTime: {},
-                        screen: {},
-                        ok: {
-                            tag: 'chimee-control-ok',
-                            html: `ok`,
-                            event: {
-                                tap() {
-                                    console.log(this)
-                                }
-                            }
-                        }
-                    }
-                }
+                chimeePluginMobileControlbar.name
             ]:[]
         });
         var isW = false;
@@ -253,6 +238,10 @@
         myVideo.on('fullscreenchange', e => {
             if (isW) {
                 screen.lockOrientationUniversal('landscape');
+                $('video').removeClass('fixtop');
+            }
+            else{
+                $('video').addClass('fixtop');
             }
         });
         async function initM3u8() {

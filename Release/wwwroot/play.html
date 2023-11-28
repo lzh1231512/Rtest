@@ -76,6 +76,9 @@
             video:active {
                 outline: none;
             }
+            video.fixtop {
+                margin-top: 8px;
+            }
     </style>
     <div>
         &nbsp;&nbsp;
@@ -253,6 +256,10 @@
         myVideo.on('fullscreenchange', e => {
             if (isW) {
                 screen.lockOrientationUniversal('landscape');
+                $('video').removeClass('fixtop');
+            }
+            else {
+                $('video').addClass('fixtop');
             }
         });
         async function initM3u8() {
