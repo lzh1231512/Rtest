@@ -19,7 +19,7 @@
     <div class="panel panel-info">
         <div class="panel-heading" id="TelescopicHead" data-toggle="collapse" data-target="#SalesOrderSearchArea">
             <h3 class="panel-title" id="displaySearchConfig">
-                Search Area <span id="displayDowntask"></span>
+                Search Area <span id="displayDowntask"></span>&nbsp;&nbsp;
             </h3>
         </div>
         <div id="SalesOrderSearchArea" class="panel-body in searchArea">
@@ -28,25 +28,32 @@
                     @Html.Label("", "Type")
                     <select id="typeId" name="typeId" class="form-control">
                         @foreach (var item in TypeLst)
-                        {
-                            @Html.Raw("<option " + (Model.typeId == item.id ? "selected=\"selected\"" : "") + "  value='" + item.id + "'>" + item.name + "</option>");
-                        }
+            {
+                @Html.Raw("<option " + (Model.typeId == item.id ? "selected=\"selected\"" : "") + "  value='" + item.id + "'>" + item.name + "</option>");
+}
                     </select>
                 </div>
                 <div class="col-md-3">
                     @Html.Label("", "Contains")
                     @Html.EditorFor(m => m.title1, new { htmlAttributes = new { @class = "form-control" } })
                 </div>
-                <div class="col-md-3">
+                @*<div class="col-md-3">
                     @Html.Label("", "Not Contains")
                     @Html.EditorFor(m => m.title2, new { htmlAttributes = new { @class = "form-control" } })
-                </div>
+                </div>*@
                 <div class="col-md-3">
                     @Html.Label("", "Is Like")
                     <select id="isLike" name="isLike" class="form-control">
                         @Html.Raw("<option " + (Model.isLike == 2 ? "selected=\"selected\"" : "") + "  value='2'>ALL</option>");
                         @Html.Raw("<option " + (Model.isLike == 1 ? "selected=\"selected\"" : "") + "  value='1'>Like</option>");
                         @Html.Raw("<option " + (Model.isLike == 0 ? "selected=\"selected\"" : "") + "  value='0'>No Like</option>");
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("", "player")
+                    <select id="selPlayer" class="form-control">
+                        <option value="1">ChimeeJS</option>
+                        <option value="2">VideoJS</option>
                     </select>
                 </div>
             </div>
@@ -76,9 +83,12 @@
         baseUrl + 'js/cacheM3u8.js',
         baseUrl + 'js/ajaxpager/ajaxpager.js']);
 
-    var playHtml = '';
+    var playHtml1 = '', playHtml2 = '';
+    loadHTML(baseUrl + 'play.html', BuildTime, function (ht) {
+        playHtml1 = ht;
+    });
     loadHTML(baseUrl + 'play2.html', BuildTime, function (ht) {
-        playHtml = ht;
+        playHtml2 = ht;
     });
     function onPageLoad() {
         window.scrollTo(0, 0);
@@ -90,19 +100,27 @@
         var ishd = $(obj).data('ishd');
         var islike = $(obj).data('islike');
         var url = $(obj).data('url');
-
-        var newHtml = playHtml.replace('{id}', id)
+        var newHtml = $('#selPlayer').val() == 1 ? playHtml1 : playHtml2;
+        newHtml = newHtml.replace('{id}', id)
             .replace('{title}', title)
             .replace('{filesize}', filesize)
             .replace('{isHD}', ishd)
             .replace('{isLike}', islike)
             .replace('{url}', url)
+            .replace('{version}', BuildTime)
             .replace(/{site}/g, baseUrl);
 
         var blob = new Blob([newHtml], { type: 'text/html' })
         obj.href = URL.createObjectURL(blob);
     }
     $(function () {
+        $('#selPlayer').change(function () {
+            localStorage.setItem('selPlayer', $(this).val());
+        });
+        var pl = localStorage.getItem('selPlayer');
+        if (pl) {
+            $('#selPlayer').val(pl);
+        }
         $('#btnClear').click(function(){
             $('#title1,#title2').val('');
             $('#isLike').val(2);
