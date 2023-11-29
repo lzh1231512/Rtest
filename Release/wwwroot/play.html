@@ -255,12 +255,17 @@
             isW = $('video')[0].videoHeight < $('video')[0].videoWidth;
         });
         myVideo.on('fullscreenchange', e => {
-            if (isW) {
-                screen.lockOrientationUniversal('landscape');
-                $('video').removeClass('fixtop');
+            if (document.fullscreenElement) {
+                if (isW) {
+                    screen.lockOrientationUniversal('landscape');
+                    $('video').removeClass('fixtop');
+                }
+                else {
+                    $('video').addClass('fixtop');
+                }
             }
             else {
-                $('video').addClass('fixtop');
+                $('video').removeClass('fixtop');
             }
         });
         async function initM3u8() {

@@ -13,6 +13,7 @@
         var fileSize = '';
         var title = 'test';
         var vurl = 'https://bjb.lzhsb.cc/m3u8/19_out/o橘猫o3o奶牛装.m3u8';
+        //var vurl = 'https://bjb.lzhsb.cc/m3u8/14_out/1.m3u8';
 
         var baseUrl = `/hls/contents/videos/${vid - (vid % 1000)}/${vid}/${vid}.mp4/index.m3u8`;
         var localUrl = '';
@@ -55,6 +56,11 @@
         .video-js .vjs-tech {
             position: relative !important;
         }
+        video {
+        }
+            video.fixtop {
+                padding-top: 48px;
+            }
     </style>
     <div>
         &nbsp;&nbsp;
@@ -191,6 +197,7 @@
                 errorDisplay: false,
                 fill: true
             });
+            var isW = false;
             myVideo.on('loadedmetadata', function () {
                 var h = window.innerHeight - 20;
                 var w = window.innerWidth;
@@ -198,8 +205,6 @@
                 if (nw < w)
                     $('#myVideo').width(nw);
                 if (myVideo.videoWidth() > myVideo.videoHeight()) {
-
-
                     myVideo.landscapeFullscreen({
                         fullscreen: {
                             enterOnRotate: true,
@@ -209,7 +214,36 @@
                         }
                     });
                 }
+                isW = $('video')[0].videoHeight < $('video')[0].videoWidth;
             });
+            myVideo.on('fullscreenchange', e => {
+                if (document.fullscreenElement) {
+                    if (isW) {
+                        $('video').removeClass('fixtop');
+                        var nw = screen.availWidth * $('video')[0].videoWidth / $('video')[0].videoHeight;
+                        var fixw = (parseInt(screen.availHeight - nw) / 2) - 20;
+                        $('video').css({
+                            'padding-left': fixw + 'px',
+                            'padding-right': fixw + 'px'
+                        });
+                    }
+                    else {
+                        $('video').addClass('fixtop');
+                        $('video').css({
+                            'padding-left': '',
+                            'padding-right': ''
+                        });
+                    }
+                }
+                else {
+                    $('video').removeClass('fixtop');
+                    $('video').css({
+                        'padding-left': '',
+                        'padding-right': ''
+                    });
+                }
+            });
+
             async function initM3u8() {
                 var url = await m3u8.getM3u8Url(vid + '');
                 if (url) {
@@ -248,6 +282,10 @@
                 loadVideo(vdoSrc);
                 myVideo.play();
             }
+
+            $('body').on('resize', function () {
+                alert(screen.availWidth + ',' + screen.availHeight);
+            });
         });
     </script>
 </body>
