@@ -7,7 +7,8 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-
+using System.Reflection;
+[assembly: AssemblyVersion("1.0.*")]
 namespace DL91Web
 {
     public class Program
