@@ -2,80 +2,90 @@
 @{
     ViewData["Title"] = "Home Page";
     var TypeLst = ViewBag.TypeLst as List<DBType>;
+    Layout = null;
 }
 @model DL91.Models.SearchViewModel
-<style>
-    body {
-        padding-top: 10px;
-    }
-    input[type=checkbox].form-control{
-        width:24px;
-    }
-</style>
-<script>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=0">
+    <style>
+        @@media (min-width: 1596px) {
+            #div-body-content {
+                width: 1596px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="div-body-content" class="container body-content">
+
+        <style>
+            body {
+                padding-top: 10px;
+            }
+
+            input[type=checkbox].form-control {
+                width: 24px;
+            }
+        </style>
+        <script src="~/js/loadJs.js"></script>
+        <script>
     var GetImgURL = '@Url.Action("GetImg", "Home")';
     var IndexForAjaxUrl = '@Url.Action("IndexForAjax", "Home")';
     var BuildTime = '@DL91Web.Helpers.Common.CompileTime';
     var baseUrl = window.location.origin + '@Url.Content("~/")';
-</script>
-<div>
-    <div class="panel panel-info">
-        <div class="panel-heading" id="TelescopicHead" data-toggle="collapse" data-target="#SalesOrderSearchArea">
-            <h3 class="panel-title" id="displaySearchConfig">
-                Search Area <span id="displayDowntask"></span>&nbsp;&nbsp;
-            </h3>
-        </div>
-        <div id="SalesOrderSearchArea" class="panel-body in searchArea">
-            <div class="row">
-                <div class="col-md-2">
-                    @Html.Label("", "Type")
-                    <select id="typeId" name="typeId" class="form-control">
-                        @foreach (var item in TypeLst)
-            {
-                @Html.Raw("<option " + (Model.typeId == item.id ? "selected=\"selected\"" : "") + "  value='" + item.id + "'>" + item.name + "</option>");
-}
-                    </select>
+        </script>
+        <div>
+            <div class="panel panel-info">
+                <div class="panel-heading" id="TelescopicHead" data-toggle="collapse" data-target="#SalesOrderSearchArea">
+                    <h3 class="panel-title" id="displaySearchConfig">
+                        Search Area <span id="displayDowntask"></span>&nbsp;&nbsp;
+                    </h3>
                 </div>
-                <div class="col-md-2">
-                    @Html.Label("", "Contains")
-                    @Html.EditorFor(m => m.title1, new { htmlAttributes = new { @class = "form-control" } })
-                </div>
-                @*<div class="col-md-3">
-            @Html.Label("", "Not Contains")
-            @Html.EditorFor(m => m.title2, new { htmlAttributes = new { @class = "form-control" } })
-        </div>*@
-                <div class="col-md-2" style="line-height:40px;">
-                    <label style="float:left">Is Like: &nbsp;&nbsp;</label>
-                    <input id="isLike" style="float:left" type="checkbox" class="form-control" value="" />
-                    <div class="clearfix"></div>
-                </div>
-                <div class="col-md-2" style="line-height:40px;">
-                    <label style="float:left">From Cache: &nbsp;&nbsp;</label>
-                    <input id="isFromCache" style="float:left" type="checkbox" class="form-control" value="" />
-                    <div class="clearfix"></div>
-                </div>
-                <div class="col-md-2">
-                    @Html.Label("", "player")
-                    <select id="selPlayer" class="form-control">
-                        <option value="1">ChimeeJS</option>
-                        <option value="2">VideoJS</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row" style="margin-top:10px;">
-                <div class="col-md-12 form-button-Lines">
-                    <button id="btnSubmitSalesOrderSearch" class="btn btn-info CommonBtn"><i class='fa fa-search'></i> Search</button>
-                    <input id="btnClear" type="button" class="btn btn-default CommonBtn" value="Clear All" />
-                    <input id="btnSync" type="button" class="btn btn-default CommonBtn" value="Sync Now" />
+                <div id="SalesOrderSearchArea" class="panel-body in searchArea">
+                    <div class="row">
+                        <div class="col-md-2">
+                            @Html.Label("", "Type")
+                            <select id="typeId" name="typeId" class="form-control"></select>
+                        </div>
+                        <div class="col-md-2">
+                            @Html.Label("", "Contains")
+                            @Html.EditorFor(m => m.title1, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                        <div class="col-md-2" style="line-height:40px;">
+                            <label style="float:left">Is Like: &nbsp;&nbsp;</label>
+                            <input id="isLike" style="float:left" type="checkbox" class="form-control" value="" />
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="col-md-2" style="line-height:40px;">
+                            <label style="float:left">From Cache: &nbsp;&nbsp;</label>
+                            <input id="isFromCache" style="float:left" type="checkbox" class="form-control" value="" />
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="col-md-2">
+                            @Html.Label("", "player")
+                            <select id="selPlayer" class="form-control">
+                                <option value="1">ChimeeJS</option>
+                                <option value="2">VideoJS</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-12 form-button-Lines">
+                            <button id="btnSubmitSalesOrderSearch" class="btn btn-info CommonBtn"><i class='fa fa-search'></i> Search</button>
+                            <input id="btnClear" type="button" class="btn btn-default CommonBtn" value="Clear All" />
+                            <input id="btnSync" type="button" class="btn btn-default CommonBtn" value="Sync Now" />
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div id="SalesOrderResult">
+            <div id="SalesOrderResult">
 
-    </div>
-</div>
-<script>
+            </div>
+        </div>
+        <script>
     loadStyle([
         baseUrl + 'lib/bootstrap/dist/css/bootstrap.css',
         baseUrl + 'css/site.css',
@@ -161,6 +171,29 @@
         }
     }
 
+    async function getTypes() {
+        $('#typeId').empty();
+        var dt = localStorage.getItem('getTypes');
+        if (dt) {
+            var data = JSON.parse(dt);
+            for (var i = 0; i < data.length; i++) {
+                $('#typeId').append("<option   value='" + data[i].id + "'>" + data[i].name + "</option>");
+            }
+        }
+        $.ajax({
+            method: "post",
+            type: 'json',
+            url: "@Url.Action("GetTypes")",
+            success: function (data) {
+                $('#typeId').empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#typeId').append("<option   value='" + data[i].id + "'>" + data[i].name + "</option>");
+                }
+                localStorage.setItem('getTypes', JSON.stringify(data))
+            }
+        });
+    }
+
     $(function () {
         $('#selPlayer').change(function () {
             localStorage.setItem('selPlayer', $(this).val());
@@ -195,6 +228,7 @@
         });
         $('#btnSubmitSalesOrderSearch').click();
         //fixOldData();
+        getTypes();
     });
     history.pushState(null, null, location.href);
     window.addEventListener('popstate', function (event) {
@@ -203,4 +237,7 @@
             $('span.btnprevious').click();
         }
     });
-</script>
+        </script>
+    </div>
+</body>
+</html>

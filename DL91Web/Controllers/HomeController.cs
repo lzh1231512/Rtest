@@ -48,21 +48,6 @@ namespace DL91Web.Controllers
                 CurrentPage = 1,
                 PageSize = new CookiesHelper().GetPageSize(HttpContext)
             };
-            using (var db = new DB91Context())
-            {
-                var TypeLst = db.DBTypes.Select(f => new DBType()
-                {
-                    id = f.id,
-                    name = f.name
-                }).ToList();
-
-                TypeLst.Insert(0, new DBType()
-                {
-                    id = 0,
-                    name = "ALL"
-                });
-                ViewBag.TypeLst = TypeLst;
-            }
             return View(model);
         }
 
@@ -387,6 +372,25 @@ namespace DL91Web.Controllers
                         Title = (f.isHD ? "[HD]" : "") + getTimeString(f.time) + getTypeName(f.typeId, typeLst) + "</br>" + f.title
                     }).ToList()
                     );
+            }
+        }
+
+        public IActionResult GetTypes()
+        {
+            var typeLst = new List<DBType>();
+            using (var db = new DB91Context())
+            {
+                typeLst = db.DBTypes.Select(f => new DBType()
+                {
+                    id = f.id,
+                    name = f.name
+                }).ToList();
+                typeLst.Insert(0, new DBType()
+                {
+                    id = 0,
+                    name = "ALL"
+                });
+                return Json(typeLst.ToList());
             }
         }
     }
