@@ -30,7 +30,8 @@ ajaxPager.pager = (function () {
         return result;
     }
     var pager = {};
-    pager.gotopage = function (currentpage, container, isFireByChangePage) {
+    var cachedData = null;
+    pager.gotopage = function (currentpage, container, isFireByChangePage,cached) {
         console.log('gotopage')
         if (!currentpage)
             currentpage = parseInt($(selectors.hicurrentPage, container).val());
@@ -68,40 +69,66 @@ ajaxPager.pager = (function () {
         if (requestFun != 'Get' && requestFun != 'Post') {
             requestFun = 'Get';
         }
-        $.ajax({
-            cache: false,
-            type: requestFun,
-            data: getDataInUrl(baseurl),
-            url: baseurl.split('?')[0],
-            dataType: 'json',
-            success: function (data) {
-                var updateTargetID = $(selectors.hiupdateTargetID, container).val();
-                $(container).closest("#" + updateTargetID).html(data2html(data));
-                var onSuccess = $(selectors.hiOnSuccess, container).val();
-                if (onSuccess) {
-                    var lastchar = onSuccess[onSuccess.length - 1];
-                    if (lastchar != ')' && lastchar != ';') {
-                        eval(onSuccess + "();");
-                    } else {
-                        eval(onSuccess);
-                    }
-                }
-                afterRunder(data);
-            },
-            error: function () {
-                $(selectors.labTotalInfo, container).html('Data loading failed');
+
+        if (cached) {
+            cachedData = cached;
+        }
+        if (cached || baseurl.indexOf('cache:') == 0) {
+            var pageSize = parseInt($(selectors.selpagesize, container).val());
+            var _data = [];
+            for (var i = (currentpage - 1) * pageSize, k = 0; i < cachedData.length && k < pageSize; i++ , k++) {
+                _data.push(cachedData[i]);
             }
-        });
+            var tData = {
+                data: _data,
+                page: {
+                    pageCount: ((cachedData.length - cachedData.length % pageSize) / pageSize + (cachedData.length % pageSize == 0 ? 0 : 1)),
+                    sort: null,
+                    currentPage: currentpage,
+                    recordCount: cachedData.length,
+                    pageSize: pageSize
+                }
+            }
+            var updateTargetID = $(selectors.hiupdateTargetID, container).val();
+            $(container).closest("#" + updateTargetID).html(data2html(tData, 'cache:'));
+            afterRunder(tData);
+        }
+        else {
+            $.ajax({
+                cache: false,
+                type: requestFun,
+                data: getDataInUrl(baseurl),
+                url: baseurl.split('?')[0],
+                dataType: 'json',
+                success: function (data) {
+                    var updateTargetID = $(selectors.hiupdateTargetID, container).val();
+                    $(container).closest("#" + updateTargetID).html(data2html(data));
+                    var onSuccess = $(selectors.hiOnSuccess, container).val();
+                    if (onSuccess) {
+                        var lastchar = onSuccess[onSuccess.length - 1];
+                        if (lastchar != ')' && lastchar != ';') {
+                            eval(onSuccess + "();");
+                        } else {
+                            eval(onSuccess);
+                        }
+                    }
+                    afterRunder(data);
+                },
+                error: function () {
+                    $(selectors.labTotalInfo, container).html('Data loading failed');
+                }
+            });
+        }
     };
 
-    function data2html(data) {
+    function data2html(data,bUrl) {
         var result = `<div class="table-responsive" style="overflow-x:hidden">`;
         if (data.data.length > 0) {
             result += `<div id="divitems" class="row">`;
             for (var i = 0; i < data.data.length; i++) {
                 var dt = data.data[i];
                 result += `<div class="col-md-2">`;
-                result += `<a href="#" onclick="play(this)" data-id="${dt.id}" data-url="${dt.url}" data-title="${dt.title}" data-filesize="${dt.fileSize}" data-ishd="${dt.isHD}" data-islike="${dt.isLike}" target="_blank"><img data-imgid="${dt.id}" style="width:256px;height:144px;" /></a>`;
+                result += `<a href="#" onclick="play(this)" data-id="${dt.id}" data-createdate="${dt.createDate}" data-url="${dt.url}" data-title="${dt.title}" data-filesize="${dt.fileSize}" data-ishd="${dt.isHD}" data-islike="${dt.isLike}" target="_blank"><img data-imgid="${dt.id}" style="width:256px;height:144px;" /></a>`;
                 result += `<div class="title" data-id="${dt.id}" data-time="${dt.createDate}" style="min-height:36px;">${dt.title}</div>`;
                 result += `</div>`;
                 if (i % 6 == 5) {
@@ -115,6 +142,9 @@ ajaxPager.pager = (function () {
             result += `<div class="text-center EmptyList"><span class="text-danger">No Result</span></div>`;
         }
         var url = IndexForAjaxUrl + "?currentPage=0&&title1=" + (data.title1 || '') + "&&title2=" + (data.title2 || '') + "&&isLike=" + data.isLike + "&&typeId=" + data.typeId;
+        if (bUrl) {
+            url = bUrl;
+        }
         result += `<div class="pagination-sm">
             <div class="pagination-container">
                 <input type="hidden" name="hipagebaseurl" value="${url}" />
@@ -204,8 +234,10 @@ ajaxPager.pager = (function () {
             objs.push(this);
         });
         loadImg();
-        var nextImg = new Image();
-        nextImg.src = GetImgURL + '?Imgs=' + data.nextPageIDs;
+        if (data.nextPageIDs) {
+            var nextImg = new Image();
+            nextImg.src = GetImgURL + '?Imgs=' + data.nextPageIDs;
+        }
         $('div.title').each(function () {
             var time = parseInt($(this).data('time'))+480;
             var hour = parseInt((new Date().getTime() - 631123200000 - time * 60000) / 1000 / 3600);

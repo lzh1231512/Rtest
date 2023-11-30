@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport">
-    <script src="{site}js/loadJs.js"></script>
+    <script src="{loadJsUrl}"></script>
     <script>
         var vid = parseInt('{id}');
+        var createDate = parseInt('{createdate}');
         var isLike = '{isLike}'
         var isHD = '{isHD}';
         var fileSize = '{filesize}';
@@ -132,7 +133,14 @@
             $('#isCached').change(function () {
                 $('#isHD').prop('checked', true);
                 if (this.checked) {
-                    m3u8.downloadM3u8(vid + '', getUrl(), function (p) {
+                    m3u8.downloadM3u8({
+                        id: vid + '',
+                        createDate: createDate,
+                        isLike: isLike,
+                        isHD: isHD,
+                        fileSize: fileSize,
+                        title: title
+                    }, getUrl(), function (p) {
                         $('#spanP').html(p === 0 ? '' : p);
                     }).then(function (data) {
                         if (data.success) {

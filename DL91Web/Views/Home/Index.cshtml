@@ -8,6 +8,9 @@
     body {
         padding-top: 10px;
     }
+    input[type=checkbox].form-control{
+        width:24px;
+    }
 </style>
 <script>
     var GetImgURL = '@Url.Action("GetImg", "Home")';
@@ -24,7 +27,7 @@
         </div>
         <div id="SalesOrderSearchArea" class="panel-body in searchArea">
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     @Html.Label("", "Type")
                     <select id="typeId" name="typeId" class="form-control">
                         @foreach (var item in TypeLst)
@@ -33,23 +36,28 @@
 }
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     @Html.Label("", "Contains")
                     @Html.EditorFor(m => m.title1, new { htmlAttributes = new { @class = "form-control" } })
                 </div>
                 @*<div class="col-md-3">
-                    @Html.Label("", "Not Contains")
-                    @Html.EditorFor(m => m.title2, new { htmlAttributes = new { @class = "form-control" } })
-                </div>*@
-                <div class="col-md-3">
+            @Html.Label("", "Not Contains")
+            @Html.EditorFor(m => m.title2, new { htmlAttributes = new { @class = "form-control" } })
+        </div>*@
+                <div class="col-md-2">
                     @Html.Label("", "Is Like")
-                    <select id="isLike" name="isLike" class="form-control">
+                    @*<select id="isLike" name="isLike" class="form-control">
                         @Html.Raw("<option " + (Model.isLike == 2 ? "selected=\"selected\"" : "") + "  value='2'>ALL</option>");
                         @Html.Raw("<option " + (Model.isLike == 1 ? "selected=\"selected\"" : "") + "  value='1'>Like</option>");
                         @Html.Raw("<option " + (Model.isLike == 0 ? "selected=\"selected\"" : "") + "  value='0'>No Like</option>");
-                    </select>
+                    </select>*@
+                    <input id="isLike" type="checkbox" class="form-control" value="" />
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
+                    @Html.Label("", "From Cache")
+                    <input id="isFromCache" type="checkbox" class="form-control" value="" />
+                </div>
+                <div class="col-md-2">
                     @Html.Label("", "player")
                     <select id="selPlayer" class="form-control">
                         <option value="1">ChimeeJS</option>
@@ -83,12 +91,16 @@
         baseUrl + 'js/cacheM3u8.js',
         baseUrl + 'js/ajaxpager/ajaxpager.js']);
 
-    var playHtml1 = '', playHtml2 = '';
+    var playHtml1 = '', playHtml2 = '', loadjsUrl = '';
     loadHTML(baseUrl + 'play.html', BuildTime, function (ht) {
         playHtml1 = ht;
     });
     loadHTML(baseUrl + 'play2.html', BuildTime, function (ht) {
         playHtml2 = ht;
+    });
+    loadHTML(baseUrl + 'js/loadJs.js', BuildTime, function (ht) {
+        var blob = new Blob([ht], { type: 'application/javascript' });
+        loadjsUrl = URL.createObjectURL(blob);
     });
     function onPageLoad() {
         window.scrollTo(0, 0);
@@ -100,6 +112,7 @@
         var ishd = $(obj).data('ishd');
         var islike = $(obj).data('islike');
         var url = $(obj).data('url');
+        var createdate = $(obj).data('createdate');
         var newHtml = $('#selPlayer').val() == 1 ? playHtml1 : playHtml2;
         newHtml = newHtml.replace('{id}', id)
             .replace('{title}', title)
@@ -107,12 +120,50 @@
             .replace('{isHD}', ishd)
             .replace('{isLike}', islike)
             .replace('{url}', url)
-            .replace('{version}', BuildTime)
+            .replace('{createdate}', createdate)
+            .replace('{loadJsUrl}', loadjsUrl)
             .replace(/{site}/g, baseUrl);
 
         var blob = new Blob([newHtml], { type: 'text/html' })
         obj.href = URL.createObjectURL(blob);
     }
+
+    async function fixOldData() {
+        var list = await m3u8.getCachedList();
+        var ids = [];
+        for (var i = 0; i < list.length; i++) {
+            if (!list[i].createDate) {
+                ids.push(list[i].id);
+            }
+        }
+        if (ids.length > 0) {
+            $.ajax({
+                method: "post",
+                type:'json',
+                url: "@Url.Action("GetByIDs")",
+                data: { ids: ids.join(',') },
+                success: function (data) {
+                    for (var i = 0; i < list.length; i++) {
+                        if (!list[i].createDate) {
+                            for (var j = 0; j < data.length; j++) {
+                                if (list[i].id == data[j].id) {
+                                    list[i].createDate = data[j].createDate;
+                                    list[i].fileSize = data[j].fileSize;
+                                    list[i].isHD = data[j].isHD;
+                                    list[i].isLike = data[j].isLike;
+                                    list[i].title = data[j].title;
+                                    m3u8.updateCache(list[i]);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    alert('fixed');
+                }
+            });
+        }
+    }
+
     $(function () {
         $('#selPlayer').change(function () {
             localStorage.setItem('selPlayer', $(this).val());
@@ -123,7 +174,7 @@
         }
         $('#btnClear').click(function(){
             $('#title1,#title2').val('');
-            $('#isLike').val(2);
+            $('#isLike').prop('checked',false);
         });
         $('#btnSync').click(function () {
             $.post('@Url.Action("sync")');
@@ -132,13 +183,21 @@
         m3u8.initDownload(function (taskCount) {
             $('#displayDowntask').html('('+taskCount+')');
         });
-        $('#btnSubmitSalesOrderSearch').click(function () {
-            var baseurl = IndexForAjaxUrl + "?currentPage=0&&title1=" + ($('#title1').val() || '') + "&&title2=" + ($('#title2').val() || '') + "&&isLike=" + $('#isLike').val() + "&&typeId=" + $('#typeId').val();
-            $('input[name=hipagebaseurl]').val(baseurl);
-            ajaxPager.pager.gotopage(1, $("div.pagination-container"));
+        $('#btnSubmitSalesOrderSearch').click(async function () {
+            if ($('#isFromCache').is(':checked')) {
+                var list = await m3u8.getCachedList();
+                ajaxPager.pager.gotopage(1, $("div.pagination-container"), false, list);
+            }
+            else {
+                var baseurl = IndexForAjaxUrl + "?currentPage=0&&title1=" + ($('#title1').val() || '') + "&&title2=" + ($('#title2').val() || '') + "&&isLike=" + ($('#isLike').is(':checked')?1:2) + "&&typeId=" + $('#typeId').val();
+                $('input[name=hipagebaseurl]').val(baseurl);
+                ajaxPager.pager.gotopage(1, $("div.pagination-container"));
+            }
+
             return false;
         });
         $('#btnSubmitSalesOrderSearch').click();
+        fixOldData();
     });
     history.pushState(null, null, location.href);
     window.addEventListener('popstate', function (event) {

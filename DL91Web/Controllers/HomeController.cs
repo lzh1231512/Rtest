@@ -78,15 +78,11 @@ namespace DL91Web.Controllers
                 CurrentPage = currentPage,
                 PageSize = new CookiesHelper().GetPageSize(HttpContext)
             };
-
-            using (var db = new DB91Context())
-            {
-                var cache = CacheManager.GetData(model, out int isCached);
-                model.Data = cache.Data;
-                model.NextPageIDs = cache.NextPageIDs;
-                model.Page.RecordCount = cache.Page.RecordCount;
-                ViewBag.fromCache = isCached;
-            }
+            var cache = CacheManager.GetData(model, out int isCached);
+            model.Data = cache.Data;
+            model.NextPageIDs = cache.NextPageIDs;
+            model.Page.RecordCount = cache.Page.RecordCount;
+            ViewBag.fromCache = isCached;
             CacheManager.Cache(model.NextPage);
             CacheManager.Cache(model.LastPage);
             CacheManager.Cache(model.PrevPage);
@@ -96,7 +92,7 @@ namespace DL91Web.Controllers
 
         private static string GetFileSize(long filesize)
         {
-            if (filesize < 0)
+            if (filesize <= 0)
             {
                 return "0";
             }
@@ -357,5 +353,41 @@ namespace DL91Web.Controllers
             return Json(1);
         }
 
+
+        public IActionResult GetByIDs(string ids)
+        {
+            if (!checkLogin())
+            {
+                return Redirect("~/Home/Login");
+            }
+            var typeLst = new List<DBType>();
+            var idList = ids.Split(',').Select(f=>int.Parse(f)).ToArray();
+            using (var db = new DB91Context())
+            {
+                typeLst = db.DBTypes.Select(f => new DBType()
+                {
+                    id = f.id,
+                    name = f.name
+                }).ToList();
+                typeLst.Insert(0, new DBType()
+                {
+                    id = 0,
+                    name = "ALL"
+                });
+                var lst = db.DB91s.AsQueryable().Where(f => idList.Contains(f.id));
+                return Json(lst
+                    .Select(f => new DataViewModel()
+                    {
+                        Id = f.id,
+                        CreateDate = f.createDate,
+                        IsHD = f.isHD ? 1 : 0,
+                        IsLike = f.isLike,
+                        FileSize = GetFileSize(f.videoFileSize),
+                        Url = f.url,
+                        Title = (f.isHD ? "[HD]" : "") + getTimeString(f.time) + getTypeName(f.typeId, typeLst) + "</br>" + f.title
+                    }).ToList()
+                    );
+            }
+        }
     }
 }

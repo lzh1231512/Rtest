@@ -77,7 +77,8 @@ var m3u8 = (function () {
         console.log('delete ' + ((new Date()).getTime() - dt.getTime()));
         opflagSub();
     }
-    const downloadM3u8 = async function (id, url,progressCallback) {
+    const downloadM3u8 = async function (mdt, url, progressCallback) {
+        var id = mdt.id;
         await openDb();
         var exists = await Idb.getData(db, mainTable, id);
         if (exists.data != null) {
@@ -112,13 +113,11 @@ var m3u8 = (function () {
                 }
             }
             opflagAdd();
-            await Idb.addData(db, mainTable, {
-                id: id,
-                url: url,
-                count: tasks.length,
-                downloaded: 0,
-                m3u8: newInfo.join('\n')
-            });
+            mdt.url = url;
+            mdt.count = tasks.length;
+            mdt.downloaded = 0;
+            mdt.m3u8 = newInfo.join('\n');
+            await Idb.addData(db, mainTable, mdt);
             var count = 0;
             for (var item in tasks) {
                 await Idb.addData(db, taskTable, tasks[item]);
@@ -293,11 +292,24 @@ var m3u8 = (function () {
         };
     }
 
+    const getCachedList = async function () {
+        await openDb();
+        return (await Idb.getAllData(db, mainTable)).data;
+    }
+
+    const updateCache = async function (data) {
+        await openDb();
+        await Idb.updateData(db, mainTable, data);
+    }
+
+
     return {
         downloadM3u8: downloadM3u8,
         deleteM3u8: deleteM3u8,
         initXMLHttpRequest: initXMLHttpRequest,
         getM3u8Url: getM3u8Url,
-        initDownload: initDownload
+        initDownload: initDownload,
+        getCachedList: getCachedList,
+        updateCache: updateCache
     }
 })();
