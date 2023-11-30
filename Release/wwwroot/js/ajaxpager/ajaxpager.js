@@ -91,6 +91,15 @@ ajaxPager.pager = (function () {
             }
             var updateTargetID = $(selectors.hiupdateTargetID, container).val();
             $(container).closest("#" + updateTargetID).html(data2html(tData, 'cache:'));
+            var onSuccess = $(selectors.hiOnSuccess, container).val();
+            if (onSuccess) {
+                var lastchar = onSuccess[onSuccess.length - 1];
+                if (lastchar != ')' && lastchar != ';') {
+                    eval(onSuccess + "();");
+                } else {
+                    eval(onSuccess);
+                }
+            }
             afterRunder(tData);
         }
         else {
