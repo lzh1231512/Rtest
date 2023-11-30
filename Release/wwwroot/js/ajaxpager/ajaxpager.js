@@ -218,10 +218,10 @@ ajaxPager.pager = (function () {
         result += `</div>`;
         return result;
     }
-    function afterRunder(data) {
+    async function afterRunder(data) {
         var ids = '';
         var objs = [];
-        function loadImg() {
+        async function loadImg() {
             if (objs.length > 0) {
                 var url = GetImgURL + '?Imgs=' + ids.substr(1);
                 var index = 0;
@@ -238,11 +238,27 @@ ajaxPager.pager = (function () {
                 ids = '';
             }
         }
-        $('#divitems img[data-imgid]').each(function () {
-            ids += ',' + $(this).data('imgid');
-            objs.push(this);
-        });
-        loadImg();
+        var items = $('#divitems img[data-imgid]');
+        for (var i = 0; i < items.length; i++) {
+            var obj = items[i];
+            var id = $(obj).data('imgid') + '';
+            var iscached = await m3u8.getM3u8Url(id);
+            if (iscached) {
+                var imgUrl = await m3u8.getImgUrl(id, GetImgURL + '?Imgs=' + id);
+                $(obj).css({
+                    'background-image': 'url(' + imgUrl + ')',
+                    'background-repeat': 'no-repeat',
+                    'background-attachment': 'scroll',
+                    'background-position': '0px 0px',
+                    'background-color': 'transparent'
+                });
+            }
+            else {
+                ids += ',' + id;
+                objs.push(obj);
+            }
+        }
+        await loadImg();
         if (data.nextPageIDs) {
             var nextImg = new Image();
             nextImg.src = GetImgURL + '?Imgs=' + data.nextPageIDs;

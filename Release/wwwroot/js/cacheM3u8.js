@@ -138,6 +138,24 @@ var m3u8 = (function () {
         }
     }
 
+
+    const getImgUrl = async function (id, url) {
+        var exists = (await Idb.getData(db, dataTable, id + '#img')).data;
+        if (exists) {
+            var m3u8blob = new Blob([exists.data], { type: 'image/Jpeg' })
+            return URL.createObjectURL(m3u8blob);
+        }
+        var imgdata = await download(url,'video/MP2T');
+        if (imgdata.data) {
+            await Idb.addData(db, dataTable, {
+                id: id + '#img',
+                data: imgdata.data
+            });
+            var m3u8blob = new Blob([imgdata.data], { type: 'image/Jpeg' })
+            return URL.createObjectURL(m3u8blob);
+        }
+    }
+
     const getM3u8Url = async function (id) {
         await openDb();
         var exists = await Idb.getData(db, mainTable, id);
@@ -310,6 +328,7 @@ var m3u8 = (function () {
         getM3u8Url: getM3u8Url,
         initDownload: initDownload,
         getCachedList: getCachedList,
+        getImgUrl: getImgUrl,
         updateCache: updateCache
     }
 })();
