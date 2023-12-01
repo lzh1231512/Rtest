@@ -5,35 +5,47 @@
     <title></title>
     <script src="js/jquery-1.10.2.js"></script>
     <script>
+        async function persist() {
+            return await navigator.storage && navigator.storage.persist &&
+                navigator.storage.persist();
+        }
+        async function isStoragePersisted() {
+            return await navigator.storage && navigator.storage.persisted &&
+                navigator.storage.persisted();
+        }
+        async function showEstimatedQuota() {
+            if (navigator.storage && navigator.storage.estimate) {
+                const estimation = await navigator.storage.estimate();
+                $('#spanused').html(`Quota: ${estimation.quota}`);
+                $('#spanleft').html(`Usage: ${estimation.usage}`);
+            } else {
+                console.error("StorageManager not found");
+            }
+        }
         $(function () {
-            navigator.webkitTemporaryStorage.queryUsageAndQuota(
-                function (used, left) {
-                    $('#spanused').html(used);
-                    $('#spanleft').html(left);
-                    debugger
-                },
-                function () {
-
-                });
+            showEstimatedQuota();
             $('#btn').click(function () {
-                var more = parseInt($('#more').val());
-                if (more) {
-                    navigator.webkitPersistentStorage.requestQuota(
-                        more*1024*1024*1024,
-                        function (a, b) {
-                            alert(a);
-                        },
-                        function () {
-                        });
-                }
+                isStoragePersisted().then(async isPersisted => {
+                    if (isPersisted) {
+                        alert(":) Storage is successfully persisted.");
+                    } else {
+                        alert(":( Storage is not persisted. Trying to persist..:");
+                        if (await persist()) {
+                            alert(":) We successfully turned the storage to be persisted.");
+                            showEstimatedQuota();
+                        } else {
+                            alert(":( Failed to make storage persisted");
+                        }
+                    }
+                })
             });
         });
     </script>
 </head>
 <body>
-    <div>used:<span id="spanused"></span></div>
-    <div>left:<span id="spanleft"></span></div>
-    <div>more:<input id="more" type="text" name="name" value="" />GB</div>
+    <div><span id="spanused"></span></div>
+    <div><span id="spanleft"></span></div>
+    <!--<div>more:<input id="more" type="text" name="name" value="" />GB</div>-->
     <div><input id="btn" type="button" name="name" value="more" /></div>
 </body>
 </html>
