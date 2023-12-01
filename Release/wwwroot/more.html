@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="js/jquery-1.10.2.js"></script>
+    <script>
+        $(function () {
+            navigator.webkitTemporaryStorage.queryUsageAndQuota(
+                function (used, left) {
+                    $('#spanused').html(used);
+                    $('#spanleft').html(left);
+                    debugger
+                },
+                function () {
+
+                });
+            $('#btn').click(function () {
+                var more = parseInt($('#more').val());
+                if (more) {
+                    navigator.webkitPersistentStorage.requestQuota(
+                        more*1024*1024*1024,
+                        function (a, b) {
+                            alert(a);
+                        },
+                        function () {
+                        });
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <div>used:<span id="spanused"></span></div>
+    <div>left:<span id="spanleft"></span></div>
+    <div>more:<input id="more" type="text" name="name" value="" />GB</div>
+    <div><input id="btn" type="button" name="name" value="more" /></div>
+</body>
+</html>
