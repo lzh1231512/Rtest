@@ -216,6 +216,9 @@
                 $('#btnSubmitSalesOrderSearch').click(async function () {
                     if ($('#isFromCache').is(':checked')) {
                         var list = await m3u8.getCachedList();
+                        list.sort(function (a,b) {
+                            return a.title > b.title ? 1 : -1;
+                        });
                         ajaxPager.pager.gotopage(1, $("div.pagination-container"), false, list);
                     }
                     else {
