@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="js/FileAPI.js"></script>
+    <script src="js/jquery-1.10.2.js"></script>
+    <script>
+        const download = function (url) {
+            return new Promise((resolve, reject) => {
+                let xhr = new XMLHttpRequest();
+                xhr.open('get', url, true);
+                xhr.responseType = "blob";
+                xhr.onload = function () {
+                    if (this.status == 200) {
+                        const blob = new Blob([this.response], { type: 'application/video/MP2T' });
+                        resolve(blob)
+                    }
+                    else {
+                        resolve()
+                    }
+                }
+                xhr.onerror = function () {
+                    resolve()
+                }
+                xhr.send();
+            })
+        } 
+        $(function () {
+            var urls = [];
+            urls.push('https://bjb.lzhsb.cc/m3u8/21_out/ts_1_000.ts');
+            urls.push('https://bjb.lzhsb.cc/m3u8/21_out/ts_1_001.ts');
+            urls.push('https://bjb.lzhsb.cc/m3u8/21_out/ts_1_002.ts');
+
+            $('#btntest').click(async function () {
+                await ifile.init();
+                var dir = await ifile.createDic('123');
+                for (var i = 0; i < urls.length; i++) {
+                    var url = urls[i];
+                    var blob = await download(url);
+                    await ifile.saveBlob(dir, i + '', blob);
+                }
+
+            });
+            $('#btntest2').click(async function () {
+                await ifile.init();
+                var dir = await ifile.createDic('123');
+                var test1 = await ifile.readBlob(dir, "1");
+                var test2 = await ifile.readBlob(dir, "2");
+                var test3 = await ifile.readBlob(dir, "4");
+
+            });
+            $('#btntest3').click(async function () {
+                await ifile.init();
+                var dir = await ifile.createDic('123');
+                await ifile.deleteDic(dir);
+            });
+        });
+    </script>
+</head>
+<body>
+    <input id="btntest" type="button" name="name" value="test" />
+    <input id="btntest2" type="button" name="name" value="test2" />
+    <input id="btntest3" type="button" name="name" value="test3" />
+</body>
+</html>

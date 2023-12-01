@@ -1,7 +1,8 @@
 ﻿/// <reference path="indexdb.js" />
+/// <reference path="fileapi.js" />
+
 
 var m3u8 = (function () {
-
     var dbName = "m3u8";
     var mainTable = "m3u8";
     var taskTable = "m3u8_task";
@@ -47,25 +48,11 @@ var m3u8 = (function () {
                 taskids.push(tasks[i].id);
             }
         }
-        var tasks = (await Idb.getAllData(db, dataTable)).data;
-        var dataids = [];
-        for (var i in tasks) {
-            if (tasks[i].id.indexOf(id + '#') == 0) {
-                dataids.push(tasks[i].id);
-            }
-        }
 
         var count = 0;
-        var tt = taskids.length + dataids.length;
+        var tt = taskids.length;
         for (var i in taskids) {
             await Idb.deleteData(db, taskTable, taskids[i]);
-            count++;
-            if (progressCallback) {
-                progressCallback(count + "/" + tt);
-            }
-        }
-        for (var i in dataids) {
-            await Idb.deleteData(db, dataTable, dataids[i]);
             count++;
             if (progressCallback) {
                 progressCallback(count + "/" + tt);
@@ -74,6 +61,8 @@ var m3u8 = (function () {
         if (progressCallback) {
             progressCallback(0);
         }
+        var dir = await ifile.createDic(id + '');
+        await ifile.deleteDic(dir);
         console.log('delete ' + ((new Date()).getTime() - dt.getTime()));
         opflagSub();
     }
@@ -140,17 +129,19 @@ var m3u8 = (function () {
 
 
     const getImgUrl = async function (id, url) {
-        var exists = (await Idb.getData(db, dataTable, id + '#img')).data;
+        var dir = await ifile.createDic(id + '');
+        var exists = await ifile.readBlob(dir, id + '#img'); //(await Idb.getData(db, dataTable, id + '#img')).data;
         if (exists) {
-            var m3u8blob = new Blob([exists.data], { type: 'image/Jpeg' })
+            var m3u8blob = new Blob([exists], { type: 'image/Jpeg' })
             return URL.createObjectURL(m3u8blob);
         }
         var imgdata = await download(url,'video/MP2T');
         if (imgdata.data) {
-            await Idb.addData(db, dataTable, {
-                id: id + '#img',
-                data: imgdata.data
-            });
+            //await Idb.addData(db, dataTable, {
+            //    id: id + '#img',
+            //    data: imgdata.data
+            //});
+            ifile.saveBlob(dir, id + '#img', imgdata.data);
             var m3u8blob = new Blob([imgdata.data], { type: 'image/Jpeg' })
             return URL.createObjectURL(m3u8blob);
         }
@@ -199,7 +190,10 @@ var m3u8 = (function () {
                         result.task.status = 2;
                         result.task.data = result.data;
                         await Idb.deleteData(db, taskTable, result.task.id);
-                        await Idb.addData(db, dataTable, result.task);
+                        var id = result.task.id.substr(0, result.task.id.indexOf('#'));
+                        var dir = await ifile.createDic(id);
+                        //await Idb.addData(db, dataTable, result.task);
+                        await ifile.saveBlob(dir, result.task.id, result.data);
                     }
                     else {
                         result.task.status = -1;
@@ -291,9 +285,10 @@ var m3u8 = (function () {
             var ind = info.indexOf('/');
             var oriUrl = info.substr(ind + 1);
             var inf = info.substr(0, ind).split('.');
-            var data = (await Idb.getData(db, dataTable, inf[0] + '#' + inf[1])).data;
+            var dir = await ifile.createDic(inf[0]);
+            var data = await ifile.readBlob(dir, inf[0] + '#' + inf[1]);
             if (data) {
-                const blob = new Blob([data.data], { type: 'application/video/MP2T' });
+                const blob = new Blob([data], { type: 'application/video/MP2T' });
                 oriUrl = URL.createObjectURL(blob);
             }
             oriXOpen.call(_request, 'get', oriUrl, true);
