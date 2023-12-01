@@ -23,8 +23,29 @@
             }
         }
         $(function () {
-            showEstimatedQuota();
+            navigator.webkitPersistentStorage.queryUsageAndQuota(
+                function (used, left) {
+                    $('#spanused').html(used);
+                    $('#spanleft').html(left);
+                    debugger
+                },
+                function () {
+
+                });
             $('#btn').click(function () {
+                var more = parseInt($('#more').val());
+                if (more) {
+                    alert(more * 1024 * 1024 * 1024);
+                    navigator.webkitPersistentStorage.requestQuota(
+                        more*1024*1024*1024,
+                        function (a, b) {
+                            alert(a);
+                        },
+                        function () {
+                        });
+                }
+            });
+            $('#btn2').click(function () {
                 isStoragePersisted().then(async isPersisted => {
                     if (isPersisted) {
                         alert(":) Storage is successfully persisted.");
@@ -43,9 +64,10 @@
     </script>
 </head>
 <body>
-    <div><span id="spanused"></span></div>
-    <div><span id="spanleft"></span></div>
-    <!--<div>more:<input id="more" type="text" name="name" value="" />GB</div>-->
+    <div>used:<span id="spanused"></span></div>
+    <div>left:<span id="spanleft"></span></div>
+    <div>more:<input id="more" type="text" name="name" value="" />GB</div>
     <div><input id="btn" type="button" name="name" value="more" /></div>
+    <div><input id="btn2" type="button" name="name" value="StoragePersiste" /></div>
 </body>
 </html>
