@@ -125,28 +125,19 @@
                 var url = $(obj).data('url');
                 var createdate = $(obj).data('createdate');
 
-                localStorage.setItem('p.id', id);
-                localStorage.setItem('p.title', title);
-                localStorage.setItem('p.filesize', filesize);
-                localStorage.setItem('p.ishd', ishd);
-                localStorage.setItem('p.islike', islike);
-                localStorage.setItem('p.url', url);
-                localStorage.setItem('p.createdate', createdate);
+                var newHtml = $('#selPlayer').val() == 1 ? playHtml1 : playHtml2;
+                newHtml = newHtml.replace('{id}', id)
+                    .replace('{title}', title)
+                    .replace('{filesize}', filesize)
+                    .replace('{isHD}', ishd)
+                    .replace('{isLike}', islike)
+                    .replace('{url}', url)
+                    .replace('{createdate}', createdate)
+                    .replace('{loadJsUrl}', loadjsUrl)
+                    .replace(/{site}/g, baseUrl);
 
-
-                //var newHtml = $('#selPlayer').val() == 1 ? playHtml1 : playHtml2;
-                //newHtml = newHtml.replace('{id}', id)
-                //    .replace('{title}', title)
-                //    .replace('{filesize}', filesize)
-                //    .replace('{isHD}', ishd)
-                //    .replace('{isLike}', islike)
-                //    .replace('{url}', url)
-                //    .replace('{createdate}', createdate)
-                //    .replace('{loadJsUrl}', loadjsUrl)
-                //    .replace(/{site}/g, baseUrl);
-
-                //var blob = new Blob([newHtml], { type: 'text/html' })
-                obj.href = $('#selPlayer').val() == 1 ? 'play.html' : 'play2.html';
+                var blob = new Blob([newHtml], { type: 'text/html' });
+                obj.href = URL.createObjectURL(blob);
             }
 
             async function fixOldData() {

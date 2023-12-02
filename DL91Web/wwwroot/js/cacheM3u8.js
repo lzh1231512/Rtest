@@ -91,7 +91,7 @@ var m3u8 = (function () {
                 }
                 else {
                     var vurl = inf.indexOf('http') == 0 ? inf : (path + inf);
-                    newInfo.push('cachedx.' + id + '.' + vIndex + '/' + vurl);
+                    newInfo.push('https://cachedx.' + id + '.' + vIndex + '/' + vurl);
                     tasks.push({
                         id: id + '#' + vIndex,
                         data: null,
@@ -135,7 +135,7 @@ var m3u8 = (function () {
             var m3u8blob = new Blob([exists], { type: 'image/Jpeg' })
             return URL.createObjectURL(m3u8blob);
         }
-        var imgdata = await download(url,'video/MP2T');
+        var imgdata = await download(url, 'video/MP2T');
         if (imgdata.data) {
             //await Idb.addData(db, dataTable, {
             //    id: id + '#img',
@@ -243,8 +243,8 @@ var m3u8 = (function () {
             }
         }, 3000);
     }
-    
-    const download = function (url,type,task) {
+
+    const download = function (url, type, task) {
         return new Promise((resolve, reject) => {
             let xhr = new XMLHttpRequest();
             xhr.open('get', url, true);  //url为地址链接
@@ -258,7 +258,7 @@ var m3u8 = (function () {
                     resolve(data)
                 }
                 else {
-                    let data = { code: -1, success: false, data: null, task: task}
+                    let data = { code: -1, success: false, data: null, task: task }
                     resolve(data)
                 }
             }
@@ -276,13 +276,12 @@ var m3u8 = (function () {
         var oriXsend = XMLHttpRequest.prototype.send;
         XMLHttpRequest.prototype.open = function (method, url, asncFlag, user, password) {
             this.xurl = url;
-            if (url.indexOf('cachedx.') < 0) {
+            if (url.indexOf('https://cachedx.') != 0) {
                 oriXOpen.call(this, method, url, asncFlag, user, password);
             }
         };
-        async function process(_request,url) {
-            var x = url.indexOf('cachedx.');
-            var info = url.substr(x + 8);
+        async function process(_request, url) {
+            var info = url.substr(16);
             var ind = info.indexOf('/');
             var oriUrl = info.substr(ind + 1);
             var inf = info.substr(0, ind).split('.');
@@ -297,7 +296,7 @@ var m3u8 = (function () {
         }
         XMLHttpRequest.prototype.send = function (params) {
             var url = this.xurl;
-            if (url.indexOf('cachedx.') > 0) {
+            if (url.indexOf('https://cachedx.') == 0) {
                 process(this, url);
             }
             else {
