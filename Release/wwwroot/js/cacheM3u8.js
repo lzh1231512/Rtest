@@ -276,7 +276,7 @@ var m3u8 = (function () {
         var oriXsend = XMLHttpRequest.prototype.send;
         XMLHttpRequest.prototype.open = function (method, url, asncFlag, user, password) {
             this.xurl = url;
-            if (url.indexOf('cachedx.') != 0) {
+            if (url.indexOf('cachedx.') < 0) {
                 oriXOpen.call(this, method, url, asncFlag, user, password);
             }
         };
@@ -297,7 +297,7 @@ var m3u8 = (function () {
         }
         XMLHttpRequest.prototype.send = function (params) {
             var url = this.xurl;
-            if (url.indexOf('cachedx.') == 0) {
+            if (url.indexOf('cachedx.') > 0) {
                 process(this, url);
             }
             else {
