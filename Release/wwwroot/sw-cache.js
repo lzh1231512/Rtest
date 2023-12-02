@@ -31,18 +31,18 @@ self.addEventListener('activate', function (event) {
 
 // 捕获请求并返回缓存数据
 self.addEventListener('fetch', function (event) {
-    event.respondWith(
-        caches.open(VERSION).then(function (cache) {
-            return cache.match(event.request).then(function (response) {
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request).then(function (response) {
-                    return response;
+    if (event.request.url.indexOf('.ts') < 0) {
+        event.respondWith(
+            caches.open(VERSION).then(function (cache) {
+                return cache.match(event.request).then(function (response) {
+                    if (response) {
+                        return response;
+                    }
+                    return fetch(event.request).then(function (response) {
+                        return response;
+                    });
                 });
-            });
-        })
-
-    );
-
+            })
+        );
+    }
 });

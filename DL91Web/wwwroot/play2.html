@@ -3,31 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport">
-    <script src="{loadJsUrl}"></script>
+    <script src="js/loadJs.js"></script>
     <script>
-        var vid = parseInt('{id}');
-        var createDate = parseInt('{createdate}');
-        var isLike = '{isLike}'
-        var isHD = '{isHD}';
-        var fileSize = '{filesize}';
-        var title = '{title}';
-        var vurl = '{url}';
+        var vid = parseInt(localStorage.getItem('p.id'));
+        var createDate = parseInt(localStorage.getItem('p.createdate'));
+        var isLike = localStorage.getItem('p.islike');
+        var isHD = localStorage.getItem('p.ishd');
+        var fileSize = localStorage.getItem('p.filesize');
+        var title = localStorage.getItem('p.title');
+        var vurl = localStorage.getItem('p.url');
 
         var baseUrl = `/hls/contents/videos/${vid - (vid % 1000)}/${vid}/${vid}.mp4/index.m3u8`;
         var localUrl = '';
         if (fileSize) {
-            localUrl = `{site}video/${(vid - (vid % 1000)) / 1000}/${vid}/index.m3u8`;
+            localUrl = `./video/${(vid - (vid % 1000)) / 1000}/${vid}/index.m3u8`;
         }
         var hdurl = '';
         if (isHD == 1) {
             hdurl = `/hls/contents/videos/${vid - (vid % 1000)}/${vid}/${vid}_720p.mp4/index.m3u8`;
         }
-        var likeUrl = '{site}Home/like';
-        var deleteUrl = '{site}Home/Delete';
-        loadjs(['{site}lib/jquery/dist/jquery.js',
-            '{site}js/IndexDB.js',
-            '{site}js/FileAPI.js',
-            '{site}js/cacheM3u8.js']);
+        var likeUrl = './Home/like';
+        var deleteUrl = './Home/Delete';
+        loadjs(['./lib/jquery/dist/jquery.js',
+            './js/IndexDB.js',
+            './js/FileAPI.js',
+            './js/cacheM3u8.js']);
     </script>
 
 </head>
@@ -223,7 +223,7 @@
                     loadVideo(getUrl());
                 }
             }
-            m3u8.initXMLHttpRequest();
+            //m3u8.initXMLHttpRequest();
             initM3u8();
 
             function loadVideo(vdoSrc) {
@@ -233,6 +233,9 @@
             function playVideo(vdoSrc) {
                 loadVideo(vdoSrc);
                 myVideo[0].play();
+            }
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./fwts.js');
             }
         });
     </script>
