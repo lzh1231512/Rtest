@@ -27,7 +27,10 @@
         loadjs(['./lib/jquery/dist/jquery.js',
             './js/IndexDB.js',
             './js/FileAPI.js',
+            './js/videojs/video.min.js',
+            './js/videojs/videojs-landscape-fullscreen.min.js',
             './js/cacheM3u8.js']);
+        loadStyle(['./js/videojs/video-js.min.css']);
     </script>
 
 </head>
@@ -195,14 +198,59 @@
                     playVideo(getUrl());
                 }
             })
-            var myVideo = $('#myVideo');
-            //myVideo.on('loadedmetadata', function () {
-            //    var h = window.innerHeight - 20;
-            //    var w = window.innerWidth;
-            //    var nw = h / myVideo.videoHeight() * myVideo.videoWidth();
-            //    if (nw < w)
-            //        $('#myVideo').width(nw);
-            //});
+            var myVideo = videojs('myVideo', {
+                bigPlayButton: true,
+                textTrackDisplay: true,
+                posterImage: false,
+                errorDisplay: false,
+                fill: true
+            });
+            var isW = false;
+            myVideo.on('loadedmetadata', function () {
+                var h = window.innerHeight - 20;
+                var w = window.innerWidth;
+                var nw = h / myVideo.videoHeight() * myVideo.videoWidth();
+                if (nw < w)
+                    $('#myVideo').width(nw);
+                if (myVideo.videoWidth() > myVideo.videoHeight()) {
+                    myVideo.landscapeFullscreen({
+                        fullscreen: {
+                            enterOnRotate: true,
+                            exitOnRotate: true,
+                            alwaysInLandscapeMode: true,
+                            iOS: true
+                        }
+                    });
+                }
+                isW = $('video')[0].videoHeight < $('video')[0].videoWidth;
+            });
+            myVideo.on('fullscreenchange', e => {
+                if (document.fullscreenElement) {
+                    if (isW) {
+                        $('video').removeClass('fixtop');
+                        var nw = screen.availWidth * $('video')[0].videoWidth / $('video')[0].videoHeight;
+                        var fixw = (parseInt(screen.availHeight - nw) / 2) - 20;
+                        $('video').css({
+                            'padding-left': fixw + 'px',
+                            'padding-right': fixw + 'px'
+                        });
+                    }
+                    else {
+                        $('video').addClass('fixtop');
+                        $('video').css({
+                            'padding-left': '',
+                            'padding-right': ''
+                        });
+                    }
+                }
+                else {
+                    $('video').removeClass('fixtop');
+                    $('video').css({
+                        'padding-left': '',
+                        'padding-right': ''
+                    });
+                }
+            });
             async function initM3u8() {
                 var url = await m3u8.getM3u8Url(vid + '');
                 if (url) {
@@ -223,19 +271,23 @@
                     loadVideo(getUrl());
                 }
             }
-            //m3u8.initXMLHttpRequest();
+            m3u8.initXMLHttpRequest();
             initM3u8();
 
             function loadVideo(vdoSrc) {
-                myVideo[0].src = vdoSrc;
-                myVideo[0].load();
+                if (/\.m3u8$/.test(vdoSrc) || vdoSrc.indexOf('blob') == 0) {
+                    myVideo.src({
+                        src: vdoSrc,
+                        type: 'application/x-mpegURL'
+                    })
+                } else {
+                    myVideo.src(vdoSrc)
+                }
+                myVideo.load();
             }
             function playVideo(vdoSrc) {
                 loadVideo(vdoSrc);
-                myVideo[0].play();
-            }
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./fwts.js');
+                myVideo.play();
             }
         });
     </script>
