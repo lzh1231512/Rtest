@@ -1,4 +1,4 @@
-﻿var VERSION = 'v7';
+﻿var VERSION = 'v8';
 
 // 缓存
 self.addEventListener('install', function (event) {
@@ -6,6 +6,8 @@ self.addEventListener('install', function (event) {
         caches.open(VERSION).then(function (cache) {
             return cache.addAll([
                 './',
+                './play.html',
+                './play2.html',
                 './js/loadJs.js',
                 './fonts/fontawesome-webfont.woff?v=4.2.0'
             ]);
