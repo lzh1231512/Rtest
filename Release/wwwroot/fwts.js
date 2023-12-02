@@ -6,7 +6,8 @@ self.addEventListener('install', function (event) {
 self.addEventListener('activate', function (event) {
 });
 async function _process(url) {
-    var info = url.substr(16);
+    var x = url.indexOf('cachedx.');
+    var info = url.substr(x+8);
     var ind = info.indexOf('/');
     var oriUrl = info.substr(ind + 1);
     var inf = info.substr(0, ind).split('.');
@@ -20,7 +21,7 @@ async function _process(url) {
 }
 self.addEventListener('fetch', function (event) {
     var url = event.request.url;
-    if (url.indexOf('https://cachedx.') == 0) {
+    if (url.indexOf('cachedx.') > 0) {
         event.respondWith(
             process(url).then(function (oriUrl) {
                 return fetch(oriUrl).then(function (response) {
