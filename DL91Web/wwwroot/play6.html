@@ -3,31 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport">
-    <script src="{loadJsUrl}"></script>
+    <script src="js/loadJs.js"></script>
+    <script src="js/IndexDB.js"></script>
+    <script src="js/cacheM3u8.js?t=3"></script>
     <script>
-        var vid = parseInt('{id}');
-        var createDate = parseInt('{createdate}');
-        var isLike = '{isLike}'
-        var isHD = '{isHD}';
-        var fileSize = '{filesize}';
-        var title = '{title}';
-        var vurl = '{url}';
+        var vid = parseInt('-1');
+        var isLike = '1'
+        var isHD = '1';
+        var fileSize = '';
+        var title = 'test';
+        //var vurl = 'https://bjb.lzhsb.cc/m3u8/19_out/o橘猫o3o奶牛装.m3u8';
+        var vurl = 'https://bjb.lzhsb.cc/m3u8/23_out/1.m3u8';
 
         var baseUrl = `/hls/contents/videos/${vid - (vid % 1000)}/${vid}/${vid}.mp4/index.m3u8`;
         var localUrl = '';
         if (fileSize) {
-            localUrl = `{site}video/${(vid - (vid % 1000)) / 1000}/${vid}/index.m3u8`;
+            localUrl = `{site}/video/${(vid - (vid % 1000)) / 1000}/${vid}/index.m3u8`;
         }
         var hdurl = '';
         if (isHD == 1) {
             hdurl = `/hls/contents/videos/${vid - (vid % 1000)}/${vid}/${vid}_720p.mp4/index.m3u8`;
         }
-        var likeUrl = '{site}Home/like';
-        var deleteUrl = '{site}Home/Delete';
-        loadjs(['{site}lib/jquery/dist/jquery.js',
-            '{site}js/IndexDB.js',
-            '{site}js/FileAPI.js',
-            '{site}js/cacheM3u8.js']);
+        var likeUrl = '{site}/Home/like';
+        var deleteUrl = '{site}/Home/Delete';
+        loadjs(['lib/jquery/dist/jquery.js']);
     </script>
 
 </head>
@@ -56,9 +55,11 @@
         .video-js .vjs-tech {
             position: relative !important;
         }
-        video.fixtop {
-            padding-top: 48px;
+        video {
         }
+            video.fixtop {
+                padding-top: 48px;
+            }
     </style>
     <div>
         &nbsp;&nbsp;
@@ -90,8 +91,9 @@
         <input id="btnCopy" type="button" name="name" value="copy url" />
     </div>
     <div>
-        <video id="myVideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" data-setup='{}'
-               style='width: 100%;height: auto'></video>
+        <video id="myVideo" class="video-js vjs-default-skin vjs-big-play-centered" controls
+               style='width: 100%;height: auto'>
+        </video>
     </div>
 
 
@@ -131,14 +133,7 @@
             $('#isCached').change(function () {
                 $('#isHD').prop('checked', true);
                 if (this.checked) {
-                    m3u8.downloadM3u8({
-                        id: vid + '',
-                        createDate: createDate,
-                        isLike: isLike,
-                        isHD: isHD,
-                        fileSize: fileSize,
-                        title: title
-                    }, getUrl(), function (p) {
+                    m3u8.downloadM3u8(vid + '', getUrl(), function (p) {
                         $('#spanP').html(p === 0 ? '' : p);
                     }).then(function (data) {
                         if (data.success) {
@@ -196,13 +191,14 @@
                 }
             })
             var myVideo = $('#myVideo');
-            //myVideo.on('loadedmetadata', function () {
-            //    var h = window.innerHeight - 20;
-            //    var w = window.innerWidth;
-            //    var nw = h / myVideo.videoHeight() * myVideo.videoWidth();
-            //    if (nw < w)
-            //        $('#myVideo').width(nw);
-            //});
+            myVideo.on('loadedmetadata', function () {
+                var h = window.innerHeight - 20;
+                var w = window.innerWidth;
+                var nw = h / myVideo.videoHeight() * myVideo.videoWidth();
+                if (nw < w)
+                    $('#myVideo').width(nw);
+            });
+
             async function initM3u8() {
                 var url = await m3u8.getM3u8Url(vid + '');
                 if (url) {
@@ -234,6 +230,10 @@
                 loadVideo(vdoSrc);
                 myVideo[0].play();
             }
+
+            $('body').on('resize', function () {
+                alert(screen.availWidth + ',' + screen.availHeight);
+            });
         });
     </script>
 </body>
