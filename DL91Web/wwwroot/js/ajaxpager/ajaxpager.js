@@ -138,7 +138,7 @@ ajaxPager.pager = (function () {
                 var dt = data.data[i];
                 result += `<div class="col-md-2">`;
                 result += `<a href="#" onclick="play(this)" data-id="${dt.id}" data-createdate="${dt.createDate}" data-url="${dt.url}" data-title="${dt.title}" data-filesize="${dt.fileSize}" data-ishd="${dt.isHD}" data-islike="${dt.isLike}" target="_blank"><img data-imgid="${dt.id}" style="width:256px;height:144px;" /></a>`;
-                result += `<div class="title" data-id="${dt.id}" data-time="${dt.createDate}" style="min-height:36px;">${dt.title}</div>`;
+                result += `<div style="min-height:36px;"><a data-id="${dt.id}" class="edit" href="#" style="display:none" onclick="edit(this)" target="_blank">[Edit]</a><span class="title" data-id="${dt.id}" data-time="${dt.createDate}">${dt.title}</span></div>`;
                 result += `</div>`;
                 if (i % 6 == 5) {
                     result += `<div class="clearfix"></div>`;
@@ -218,6 +218,8 @@ ajaxPager.pager = (function () {
         result += `</div>`;
         return result;
     }
+    const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+
     async function afterRunder(data) {
         var ids = '';
         var objs = [];
@@ -263,8 +265,8 @@ ajaxPager.pager = (function () {
             var nextImg = new Image();
             nextImg.src = GetImgURL + '?Imgs=' + data.nextPageIDs;
         }
-        $('div.title').each(function () {
-            var time = parseInt($(this).data('time'))+480;
+        $('span.title').each(function () {
+            var time = parseInt($(this).data('time')) + 480;
             var hour = parseInt((new Date().getTime() - 631123200000 - time * 60000) / 1000 / 3600);
             var day = parseInt(hour / 24);
             var res = '';
@@ -283,7 +285,7 @@ ajaxPager.pager = (function () {
 
             var ntitle = $(this).html();
             var _this = this;
-            m3u8.getM3u8Url($(this).data('id')+'').then(function (murl) {
+            m3u8.getM3u8Url($(this).data('id') + '').then(function (murl) {
                 if (murl) {
                     ntitle = '[Cached]' + ntitle;
                 }
@@ -291,7 +293,10 @@ ajaxPager.pager = (function () {
                 ntitle = ntitle.replace('[00:00]', '');
                 $(_this).html(ntitle);
             })
-        })
+        });
+        if (!isMobile) {
+            $('a.edit').show();
+        }
     }
     pager.OnPageChange = function () {
         var container = $(this).closest("div.pagination-container");

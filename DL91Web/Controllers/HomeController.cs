@@ -318,6 +318,86 @@ namespace DL91Web.Controllers
             return View();
         }
 
+        public IActionResult Edit(int id,string title, IFormFile files)
+        {
+            DB91 obj = null;
+            string message = "";
+            if (!string.IsNullOrEmpty(title))
+            {
+                if (files != null && !files.FileName.ToLower().EndsWith(".jpg"))
+                {
+                    message = "cover must be .jpg";
+                }
+                else
+                {
+                    using (var db = new DB91Context())
+                    {
+                        obj = db.DB91s.FirstOrDefault(f => f.id == id);
+                        if (obj == null)
+                        {
+                            message = "not fount";
+                        }
+                        obj.title = title;
+                        db.SaveChanges();
+                    }
+                    if (files != null)
+                    {
+                        string path = MyServiceProvider.ServiceProvider.GetRequiredService<IHostingEnvironment>().WebRootPath;
+                        var folder = path.TrimEnd('/', '\\') + "/imgs/-1/";
+                        if (!System.IO.Directory.Exists(folder))
+                        {
+                            System.IO.Directory.CreateDirectory(folder);
+                        }
+                        MagickReadSettings settings = new MagickReadSettings();
+                        settings.Width = 320;
+                        settings.Height = 180;
+
+                        string fullPath = path.TrimEnd('/', '\\') + "/imgs/" + (id < 0 ? -1 : (((id / 1000) * 1000))) + "/" + id + ".jpg";
+                        using (var stream = new FileStream(fullPath, FileMode.Create))
+                        {
+                            files.CopyTo(stream);
+                            stream.Close();
+                        }
+                        MagickImage canvas = new MagickImage("xc:white", settings);
+                        canvas.Format = MagickFormat.Jpeg;
+                        var first = new MagickImage(fullPath);
+                        var h = (int)(320 * first.Height / first.Width);
+                        if (h < 180)
+                        {
+                            first.Resize(320, h);
+                            canvas.Composite(first, 0, (180 - h) / 2);
+                        }
+                        else
+                        {
+                            var w = (int)(180 * first.Width / first.Height);
+                            first.Resize(w, 180);
+                            canvas.Composite(first, (320 - w) / 2, 0);
+                        }
+                        first.Dispose();
+                        canvas.Write(fullPath);
+                    }
+                    message = "update successful";
+                }
+                CacheManager.ClearCache();
+            }
+            else
+            {
+                using (var db = new DB91Context())
+                {
+                    obj = db.DB91s.FirstOrDefault(f => f.id == id);
+                    if (obj == null)
+                    {
+                        message = "not fount";
+                    }
+                }
+            }
+
+            ViewBag.msg = message;
+
+            return View(obj);
+        }
+
+
         public IActionResult Delete(int id)
         {
             using (var db = new DB91Context())
@@ -392,6 +472,20 @@ namespace DL91Web.Controllers
                 });
                 return Json(typeLst.ToList());
             }
+        }
+
+        private static string _swcache = "";
+        public IActionResult SwCache()
+        {
+            if (string.IsNullOrEmpty(_swcache))
+            {
+                string path = MyServiceProvider.ServiceProvider.GetRequiredService<IHostingEnvironment>().WebRootPath;
+                path = path.TrimEnd('/', '\\') + "/_sw-cache.js";
+                _swcache = System.IO.File.ReadAllText(path);
+                _swcache = _swcache.Replace("{version}", Common.CompileTime.ToString());
+            }
+
+            return Content(_swcache, "application/javascript");
         }
     }
 }

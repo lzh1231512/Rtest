@@ -137,10 +137,6 @@ var m3u8 = (function () {
         }
         var imgdata = await download(url, 'video/MP2T');
         if (imgdata.data) {
-            //await Idb.addData(db, dataTable, {
-            //    id: id + '#img',
-            //    data: imgdata.data
-            //});
             ifile.saveBlob(dir, id + '#img', imgdata.data);
             var m3u8blob = new Blob([imgdata.data], { type: 'image/Jpeg' })
             return URL.createObjectURL(m3u8blob);

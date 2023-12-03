@@ -94,6 +94,9 @@ namespace DL91Web
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+                routes.MapRoute(
+                    name: "swcache",
+                    template: "sw-cache.js", defaults: new { Controller = "Home", Action = "SwCache" });
             });
             MyServiceProvider.ServiceProvider = app.ApplicationServices;
         }
