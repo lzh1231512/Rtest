@@ -2,35 +2,40 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport">
-    <script src="js/loadJs.js"></script>
-    <script src="js/IndexDB.js"></script>
-    <script src="js/cacheM3u8.js?t=3"></script>
+    <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,minimal-ui">
+    <meta name="referrer" content="no-referrer">
+    <link rel="stylesheet" href="https://unpkg.com/xgplayer@latest/dist/index.min.css">
+    <script src="https://unpkg.com/xgplayer@latest/dist/index.min.js" charset="utf-8"></script>
+    <script src="https://unpkg.com/xgplayer-hls@latest/dist/index.min.js"></script>
+    <script src="{loadJsUrl}"></script>
     <script>
-        var vid = parseInt('-1');
-        var isLike = '1'
-        var isHD = '1';
-        var fileSize = '';
-        var title = 'test';
-        var vurl = 'https://bjb.lzhsb.cc/m3u8/19_out/o橘猫o3o奶牛装.m3u8';
-        //var vurl = 'https://bjb.lzhsb.cc/m3u8/14_out/1.m3u8';
-        
+        var vid = parseInt('{id}');
+        var createDate = parseInt('{createdate}');
+        var isLike = '{isLike}'
+        var isHD = '{isHD}';
+        var fileSize = '{filesize}';
+        var title = '{title}';
+        var vurl = '{url}';
+
         var baseUrl = `/hls/contents/videos/${vid - (vid % 1000)}/${vid}/${vid}.mp4/index.m3u8`;
         var localUrl = '';
         if (fileSize) {
-            localUrl = `{site}/video/${(vid - (vid % 1000)) / 1000}/${vid}/index.m3u8`;
+            localUrl = `{site}video/${(vid - (vid % 1000)) / 1000}/${vid}/index.m3u8`;
         }
         var hdurl = '';
         if (isHD == 1) {
             hdurl = `/hls/contents/videos/${vid - (vid % 1000)}/${vid}/${vid}_720p.mp4/index.m3u8`;
         }
-        var likeUrl = '{site}/Home/like';
-        var deleteUrl = '{site}/Home/Delete';
-        loadjs(['lib/jquery/dist/jquery.js',
-            'js/chimee/chimee.0.12.0.index.browser.min.js',
-            'js/chimee/chimee-kernel-hls.1.3.2.index.browser.min.js',
-            'js/chimee/chimee-plugin-mobile-controlbar.min.js',
-            'js/chimee/chimee-plugin-mobile-state.min.js']);
+        var likeUrl = '{site}Home/like';
+        var deleteUrl = '{site}Home/Delete';
+        loadjs(['{site}lib/jquery/dist/jquery.js',
+            //'{site}js/chimee/chimee.0.12.0.index.browser.min.js',
+            //'{site}js/chimee/chimee-kernel-hls.1.3.2.index.browser.min.js',
+            //'{site}js/chimee/chimee-plugin-mobile-controlbar.min.js',
+            //'{site}js/chimee/chimee-plugin-mobile-state.min.js',
+            '{site}js/IndexDB.js',
+            '{site}js/FileAPI.js',
+            '{site}js/cacheM3u8.js']);
     </script>
 
 </head>
@@ -59,6 +64,7 @@
         .video-js .vjs-tech {
             position: relative !important;
         }
+
         container {
             position: relative;
             display: block;
@@ -77,8 +83,9 @@
             video:active {
                 outline: none;
             }
+
             video.fixtop {
-                margin-top:8px;
+                margin-top: 8px;
             }
     </style>
     <div>
@@ -114,170 +121,170 @@
         <div id="wrapper" style='width: 100%;height: auto'></div>
     </div>
 
-
     <script>
-    const screen = window.screen;
-    screen.lockOrientationUniversal = (mode) => screen.orientation && screen.orientation.lock(mode).then(() => { }, err => console.log(err)) || screen.mozLockOrientation && screen.mozLockOrientation(mode) || screen.msLockOrientation && screen.msLockOrientation(mode);
-    $(function () {
-        $('#isLike').prop('checked', isLike == 1);
-        $('#isLike').change(function () {
-            $.post(likeUrl+'?id=' + vid +'&&isLike=' + (this.checked ? 1 : 0));
-        });
-        $('#btnDelete').click(function () {
-            if (confirm('确定删除?')) {
-                m3u8.deleteM3u8(vid + '', function (p) {
-                    $('#spanP').html(p === 0 ? '' : p);
-                }).then(function () {
-                    $.ajax({
-                        type: 'POST',
-                        data: { id: vid },
-                        url: deleteUrl,
-                        dataType: 'json',
-                        success: function (data) {
-                            alert('删除成功');
-                        },
-                        error: function () {
-                            alert('删除失败');
+        const screen = window.screen;
+        screen.lockOrientationUniversal = (mode) => screen.orientation && screen.orientation.lock(mode).then(() => { }, err => console.log(err)) || screen.mozLockOrientation && screen.mozLockOrientation(mode) || screen.msLockOrientation && screen.msLockOrientation(mode);
+        $(function () {
+            $('#isLike').prop('checked', isLike == 1);
+            $('#isLike').change(function () {
+                $.post(likeUrl + '?id=' + vid + '&&isLike=' + (this.checked ? 1 : 0));
+            });
+            $('#btnDelete').click(function () {
+                if (confirm('确定删除?')) {
+                    m3u8.deleteM3u8(vid + '', function (p) {
+                        $('#spanP').html(p === 0 ? '' : p);
+                    }).then(function () {
+                        $.ajax({
+                            type: 'POST',
+                            data: { id: vid },
+                            url: deleteUrl,
+                            dataType: 'json',
+                            success: function (data) {
+                                alert('删除成功');
+                            },
+                            error: function () {
+                                alert('删除失败');
+                            }
+                        });
+                    });
+                }
+            });
+            $('#divTitle').html(title);
+            if (localUrl) {
+                $('#domain').append(`<option data-local="1" value="${localUrl}">Local(${fileSize})</option>`);
+            }
+            if (!hdurl) {
+                $('#isHD').remove();
+            }
+            $('#isCached').change(function () {
+                $('#isHD').prop('checked', true);
+                if (this.checked) {
+                    m3u8.downloadM3u8({
+                        id: vid + '',
+                        createDate: createDate,
+                        isLike: isLike,
+                        isHD: isHD,
+                        fileSize: fileSize,
+                        title: title
+                    }, getUrl(), function (p) {
+                        $('#spanP').html(p === 0 ? '' : p);
+                    }).then(function (data) {
+                        if (data.success) {
+                            alert('start cache');
+                        }
+                        else {
+                            alert(data.msg);
+                            $('#isCached').prop('checked', false);
                         }
                     });
-                });
-            }
-        });
-        $('#divTitle').html(title);
-        if (localUrl) {
-            $('#domain').append(`<option data-local="1" value="${localUrl}">Local(${fileSize})</option>`);
-        }
-        if (!hdurl) {
-            $('#isHD').remove();
-        }
-        $('#isCached').change(function () {
-            $('#isHD').prop('checked', true);
-            if (this.checked) {
-                m3u8.downloadM3u8(vid + '', getUrl(), function (p) {
-                    $('#spanP').html(p === 0 ? '' : p);
-                }).then(function (data) {
-                    if (data.success) {
-                        alert('start cache');
-                    }
-                    else {
-                        alert(data.msg);
-                        $('#isCached').prop('checked', false);
-                    }
-                });
-            }
-            else if (confirm('确定删除缓存?')) {
-                m3u8.deleteM3u8(vid + '', function (p) {
-                    $('#spanP').html(p === 0 ? '' : p);
-                }).then(function () {
-                    initM3u8();
-                    alert('删除成功');
-                });
-            }
-            else {
-                $('#isCached').prop('checked', true);
-            }
-        });
-        function getUrl() {
-            if (vid < 0) {
-                return vurl;
-            }
-            var $op = $('#domain option:selected');
-            localStorage.setItem("isLocal", $op.data('local') == 1 ? "1" : "0");
-            if ($op.data('local') == 1) {
-                return $op.val();
-            }
-            localStorage.setItem("domain", $op.val());
-            localStorage.setItem("isHD", $('#isHD:checked').length > 0 ? "1" : "0");
-            return $op.val() + ($('#isHD:checked').length > 0 ? hdurl : baseUrl);
-        }
-        function copy(text) {
-            const el = document.createElement('input');
-            el.setAttribute('value', text);
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-        }
-        $('#btnCopy').click(function () {
-            copy(getUrl());
-        })
-        $('#btnPlay').click(function () {
-            if ($('#domain').val() == 'cache') {
-                m3u8.getM3u8Url(vid + '').then(function (url) {
-                    playVideo(url);
-                });
-            } else {
-                playVideo(getUrl());
-            }
-        })
-        Chimee.install(chimeePluginMobileControlbar);
-        Chimee.install(chimeePluginMobileState);
-        var myVideo = new Chimee({
-            wrapper: '#wrapper',
-            src:'https://bjb.lzhsb.cc2/1.m3u8',
-            controls: true,
-            autoplay: true,
-            kernels: { hls: ChimeeKernelHls },
-            x5VideoPlayerType: 'h5',
-            x5VideoPlayerFullscreen: false,
-            x5VideoOrientation:'landscape',
-            plugin: isMobile()?[
-                chimeePluginMobileState.name,
-                chimeePluginMobileControlbar.name
-            ]:[]
-        });
-        var isW = false;
-        myVideo.on('loadedmetadata', function () {
-            var h = window.innerHeight-20;
-            var w = window.innerWidth;
-            var nw = h / $('video')[0].videoHeight * $('video')[0].videoWidth;
-            if (nw < w)
-                $('video').width(nw);
-            isW = $('video')[0].videoHeight < $('video')[0].videoWidth;
-        });
-        myVideo.on('fullscreenchange', e => {
-            if (isW) {
-                screen.lockOrientationUniversal('landscape');
-                $('video').removeClass('fixtop');
-            }
-            else{
-                $('video').addClass('fixtop');
-            }
-        });
-        async function initM3u8() {
-            var url = await m3u8.getM3u8Url(vid + '');
-            if (url) {
-                $('#domain').append('<option value="cache">Cache</option>');
-                $('#domain').val('cache');
-                $('#isCached').prop('checked', true);
-                loadVideo(url);
-            }
-            else {
-                $('#domain option[value=cache]').remove();
-                $('#isHD').prop('checked', localStorage.getItem("isHD") == 1);
-                if (localStorage.getItem("isLocal") == 1 && $('#domain option[data-local="1"]').length > 0) {
-                    $('#domain').val($('#domain option[data-local="1"]')[0].value);
+                }
+                else if (confirm('确定删除缓存?')) {
+                    m3u8.deleteM3u8(vid + '', function (p) {
+                        $('#spanP').html(p === 0 ? '' : p);
+                    }).then(function () {
+                        initM3u8();
+                        alert('删除成功');
+                    });
                 }
                 else {
-                    $('#domain').val(localStorage.getItem("domain"));
+                    $('#isCached').prop('checked', true);
                 }
-                loadVideo(getUrl());
+            });
+            function getUrl() {
+                if (vid < 0) {
+                    return vurl;
+                }
+                var $op = $('#domain option:selected');
+                localStorage.setItem("isLocal", $op.data('local') == 1 ? "1" : "0");
+                if ($op.data('local') == 1) {
+                    return $op.val();
+                }
+                localStorage.setItem("domain", $op.val());
+                localStorage.setItem("isHD", $('#isHD:checked').length > 0 ? "1" : "0");
+                return $op.val() + ($('#isHD:checked').length > 0 ? hdurl : baseUrl);
             }
-        }
-        m3u8.initXMLHttpRequest();
-        initM3u8();
+            function copy(text) {
+                const el = document.createElement('input');
+                el.setAttribute('value', text);
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+            }
+            $('#btnCopy').click(function () {
+                copy(getUrl());
+            })
+            $('#btnPlay').click(function () {
+                if ($('#domain').val() == 'cache') {
+                    m3u8.getM3u8Url(vid + '').then(function (url) {
+                        playVideo(url);
+                    });
+                } else {
+                    playVideo(getUrl());
+                }
+            })
+            let myVideo = new Player({
+                el: document.querySelector('#wrapper'),
+                url: 'https://bjb.lzhsb.cc2/1.m3u8'
+            })
 
-        function loadVideo(vdoSrc) {
-            myVideo.load(vdoSrc);
-        }
-        function playVideo(vdoSrc) {
-            loadVideo(vdoSrc);
-            myVideo.play();
-        }
-        function isMobile() {
-            return window.navigator.maxTouchPoints > 0;
-        }
-    });
+            var isW = false;
+            myVideo.on('loadedmetadata', function () {
+                var h = window.innerHeight - 20;
+                var w = window.innerWidth;
+                var nw = h / $('video')[0].videoHeight * $('video')[0].videoWidth;
+                if (nw < w)
+                    $('video').width(nw);
+                isW = $('video')[0].videoHeight < $('video')[0].videoWidth;
+            });
+            myVideo.on('fullscreenchange', e => {
+                if (document.fullscreenElement) {
+                    if (isW) {
+                        screen.lockOrientationUniversal('landscape');
+                        $('video').removeClass('fixtop');
+                    }
+                    else {
+                        $('video').addClass('fixtop');
+                    }
+                }
+                else {
+                    $('video').removeClass('fixtop');
+                }
+            });
+            async function initM3u8() {
+                var url = await m3u8.getM3u8Url(vid + '');
+                if (url) {
+                    $('#domain').append('<option value="cache">Cache</option>');
+                    $('#domain').val('cache');
+                    $('#isCached').prop('checked', true);
+                    loadVideo(url);
+                }
+                else {
+                    $('#domain option[value=cache]').remove();
+                    $('#isHD').prop('checked', localStorage.getItem("isHD") == 1);
+                    if (localStorage.getItem("isLocal") == 1 && $('#domain option[data-local="1"]').length > 0) {
+                        $('#domain').val($('#domain option[data-local="1"]')[0].value);
+                    }
+                    else {
+                        $('#domain').val(localStorage.getItem("domain"));
+                    }
+                    loadVideo(getUrl());
+                }
+            }
+            m3u8.initXMLHttpRequest();
+            initM3u8();
+
+            function loadVideo(vdoSrc) {
+                myVideo.load(vdoSrc);
+            }
+            function playVideo(vdoSrc) {
+                loadVideo(vdoSrc);
+                myVideo.play();
+            }
+            function isMobile() {
+                return window.navigator.maxTouchPoints > 0;
+            }
+        });
     </script>
 </body>
 </html>
