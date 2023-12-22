@@ -69,7 +69,6 @@
                             <select id="selPlayer" class="form-control">
                                 <option value="1">ChimeeJS</option>
                                 <option value="2">VideoJS</option>
-                                <option value="3">XGPlayer</option>
                             </select>
                         </div>
                     </div>
@@ -103,15 +102,12 @@
                 baseUrl + 'js/cacheM3u8.js',
                 baseUrl + 'js/ajaxpager/ajaxpager.js']);
 
-            var playHtml1 = '', playHtml2 = '', playHtml3 = '', loadjsUrl = '';
+            var playHtml1 = '', playHtml2 = '', loadjsUrl = '';
             loadHTML(baseUrl + 'play.html', BuildTime, function (ht) {
                 playHtml1 = ht;
             });
             loadHTML(baseUrl + 'play2.html', BuildTime, function (ht) {
                 playHtml2 = ht;
-            });
-            loadHTML(baseUrl + 'play3.html', BuildTime, function (ht) {
-                playHtml3 = ht;
             });
             loadHTML(baseUrl + 'js/loadJs.js', BuildTime, function (ht) {
                 var blob = new Blob([ht], { type: 'application/javascript' });
@@ -133,7 +129,6 @@
                 switch ($('#selPlayer').val()) {
                     case '1': newHtml = playHtml1; break;
                     case '2': newHtml = playHtml2; break;
-                    case '3': newHtml = playHtml3; break;
                 }
                 newHtml = newHtml.replace('{id}', id)
                     .replace('{title}', title)
