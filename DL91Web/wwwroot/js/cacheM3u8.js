@@ -301,6 +301,10 @@ var m3u8 = (function () {
         };
     }
 
+    const initFetch = function () {
+
+    }
+
     const getCachedList = async function () {
         await openDb();
         return (await Idb.getAllData(db, mainTable)).data;
