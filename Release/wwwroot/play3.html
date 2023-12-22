@@ -223,34 +223,44 @@
                     playVideo(getUrl());
                 }
             })
-            let myVideo = new Player({
-                el: document.querySelector('#wrapper'),
-                url: 'https://bjb.lzhsb.cc2/1.m3u8'
-            })
+            let myVideo;
+            if (document.createElement('video').canPlayType('application/vnd.apple.mpegurl')) {
+                myVideo = new Player({
+                    el: document.querySelector('#wrapper'),
+                    url: 'https://bjb.lzhsb.cc/m3u8/101_out/%E6%A1%94%E6%A2%931.m3u8'
+                })
 
+            } else if (window.HlsPlayer.isSupported()) { // 第一步
+                myVideo = new Player({
+                    el: document.querySelector('#wrapper'),
+                    isLive: false,
+                    url: 'https://bjb.lzhsb.cc/m3u8/101_out/%E6%A1%94%E6%A2%931.m3u8', // hls 流地址
+                    plugins: [window.HlsPlayer] // 第二步
+                })
+            }
             var isW = false;
-            myVideo.on('loadedmetadata', function () {
-                var h = window.innerHeight - 20;
-                var w = window.innerWidth;
-                var nw = h / $('video')[0].videoHeight * $('video')[0].videoWidth;
-                if (nw < w)
-                    $('video').width(nw);
-                isW = $('video')[0].videoHeight < $('video')[0].videoWidth;
-            });
-            myVideo.on('fullscreenchange', e => {
-                if (document.fullscreenElement) {
-                    if (isW) {
-                        screen.lockOrientationUniversal('landscape');
-                        $('video').removeClass('fixtop');
-                    }
-                    else {
-                        $('video').addClass('fixtop');
-                    }
-                }
-                else {
-                    $('video').removeClass('fixtop');
-                }
-            });
+            //myVideo.on('loadedmetadata', function () {
+            //    var h = window.innerHeight - 20;
+            //    var w = window.innerWidth;
+            //    var nw = h / $('video')[0].videoHeight * $('video')[0].videoWidth;
+            //    if (nw < w)
+            //        $('video').width(nw);
+            //    isW = $('video')[0].videoHeight < $('video')[0].videoWidth;
+            //});
+            //myVideo.on('fullscreenchange', e => {
+            //    if (document.fullscreenElement) {
+            //        if (isW) {
+            //            screen.lockOrientationUniversal('landscape');
+            //            $('video').removeClass('fixtop');
+            //        }
+            //        else {
+            //            $('video').addClass('fixtop');
+            //        }
+            //    }
+            //    else {
+            //        $('video').removeClass('fixtop');
+            //    }
+            //});
             async function initM3u8() {
                 var url = await m3u8.getM3u8Url(vid + '');
                 if (url) {
@@ -268,14 +278,15 @@
                     else {
                         $('#domain').val(localStorage.getItem("domain"));
                     }
-                    loadVideo(getUrl());
+                    //loadVideo(getUrl());
                 }
             }
             m3u8.initXMLHttpRequest();
             initM3u8();
 
             function loadVideo(vdoSrc) {
-                myVideo.load(vdoSrc);
+                //myVideo.load('https://bjb.lzhsb.cc/m3u8/101_out/%E6%A1%94%E6%A2%931.m3u8');
+                myVideo.src = vdoSrc;
             }
             function playVideo(vdoSrc) {
                 loadVideo(vdoSrc);
