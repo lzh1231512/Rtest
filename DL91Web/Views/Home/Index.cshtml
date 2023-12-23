@@ -147,41 +147,6 @@
                 var id = $(obj).data('id');
                 obj.href = '@Url.Action("Edit")?id=' + id;
             }
-            async function fixOldData() {
-                var list = await m3u8.getCachedList();
-                var ids = [];
-                for (var i = 0; i < list.length; i++) {
-                    if (!list[i].createDate) {
-                        ids.push(list[i].id);
-                    }
-                }
-                if (ids.length > 0) {
-                    $.ajax({
-                        method: "post",
-                        type:'json',
-                        url: "@Url.Action("GetByIDs")",
-                        data: { ids: ids.join(',') },
-                        success: function (data) {
-                            for (var i = 0; i < list.length; i++) {
-                                if (!list[i].createDate) {
-                                    for (var j = 0; j < data.length; j++) {
-                                        if (list[i].id == data[j].id) {
-                                            list[i].createDate = data[j].createDate;
-                                            list[i].fileSize = data[j].fileSize;
-                                            list[i].isHD = data[j].isHD;
-                                            list[i].isLike = data[j].isLike;
-                                            list[i].title = data[j].title;
-                                            m3u8.updateCache(list[i]);
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            alert('fixed');
-                        }
-                    });
-                }
-            }
 
             async function getTypes() {
                 $('#typeId').empty();
@@ -242,7 +207,6 @@
                     return false;
                 });
                 $('#btnSubmitSalesOrderSearch').click();
-                //fixOldData();
                 getTypes();
             });
             history.pushState(null, null, location.href);

@@ -29,19 +29,25 @@
         }
         $(function () {
             var urls = [];
-            urls.push('https://bjb.lzhsb.cc/m3u8/21_out/ts_1_000.ts');
-            urls.push('https://bjb.lzhsb.cc/m3u8/21_out/ts_1_001.ts');
-            urls.push('https://bjb.lzhsb.cc/m3u8/21_out/ts_1_002.ts');
+            urls.push('https://bjb.lzhsb.cc/m3u8/101_out/ts_1_000.ts');
+            urls.push('https://bjb.lzhsb.cc/m3u8/101_out/ts_1_001.ts');
+            urls.push('https://bjb.lzhsb.cc/m3u8/101_out/ts_1_002.ts');
 
             $('#btntest').click(async function () {
-                await ifile.init();
-                var dir = await ifile.createDic('123');
-                for (var i = 0; i < urls.length; i++) {
-                    var url = urls[i];
-                    var blob = await download(url);
-                    await ifile.saveBlob(dir, i + '', blob);
-                }
-
+                var blob = await download('https://bjb.lzhsb.cc/m3u8/101_out/ts_1_000.ts');
+                var formdata = new FormData();
+                formdata.append("ff", blob);
+                $.ajax({
+                    type: 'POST',
+                    url: "http://192.168.31.161:1080/fileUpload?123;2",
+                    data: formdata,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    success: function (ret) {
+                        alert(ret);
+                    }
+                });
             });
             $('#btntest2').click(async function () {
                 await ifile.init();

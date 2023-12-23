@@ -1,7 +1,8 @@
 ﻿/// <reference path="indexdb.js" />
 /// <reference path="fileapi.js" />
 
-
+var cacheDomain = 'http://localhost:1080';
+//var cacheDomain = 'http://192.168.31.161:1080';
 var m3u8 = (function () {
     var dbName = "m3u8";
     var mainTable = "m3u8";
@@ -61,11 +62,51 @@ var m3u8 = (function () {
         if (progressCallback) {
             progressCallback(0);
         }
-        var dir = await ifile.createDic(id + '');
-        await ifile.deleteDic(dir);
+        //var dir = await ifile.createDic(id + '');
+        //await ifile.deleteDic(dir);
+        await deleteCache(id);
+
         console.log('delete ' + ((new Date()).getTime() - dt.getTime()));
         opflagSub();
     }
+    function deleteCache(id) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                type: 'POST',
+                url: cacheDomain + "/deleteCache?" + id,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function (ret) {
+                    resolve(ret);
+                },
+                error: function () {
+                    reject();
+                }
+            });
+        });
+    }
+    function upload(blob,id,fileName) {
+        return new Promise((resolve, reject) => {
+            var formdata = new FormData();
+            formdata.append("ff", blob);
+            $.ajax({
+                type: 'POST',
+                url: cacheDomain + "/fileUpload?" + id + ";" + fileName,
+                data: formdata,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function (ret) {
+                    resolve(ret);
+                },
+                error: function () {
+                    reject();
+                }
+            });
+        });
+    }
+
     const downloadM3u8 = async function (mdt, url, progressCallback) {
         var id = mdt.id;
         await openDb();
@@ -91,7 +132,8 @@ var m3u8 = (function () {
                 }
                 else {
                     var vurl = inf.indexOf('http') == 0 ? inf : (path + inf);
-                    newInfo.push('https://cachedx.' + id + '.' + vIndex + '/' + vurl);
+                    //newInfo.push('https://cachedx.' + id + '.' + vIndex + '/' + vurl);
+                    newInfo.push('fileList?' + id + '/' + vIndex);
                     tasks.push({
                         id: id + '#' + vIndex,
                         data: null,
@@ -105,8 +147,14 @@ var m3u8 = (function () {
             mdt.url = url;
             mdt.count = tasks.length;
             mdt.downloaded = 0;
-            mdt.m3u8 = newInfo.join('\n');
+            //mdt.m3u8 = newInfo.join('\n');
             await Idb.addData(db, mainTable, mdt);
+
+            var m3u8blob = new Blob([newInfo.join('\n')], { type: "application/x-mpegURL" });
+            var infoblob = new Blob([JSON.stringify(mdt)], { type: "application/json" });
+            await upload(m3u8blob, id, "m3");
+            await upload(infoblob, "menu", id);
+
             var count = 0;
             for (var item in tasks) {
                 await Idb.addData(db, taskTable, tasks[item]);
@@ -144,15 +192,21 @@ var m3u8 = (function () {
     }
 
     const getM3u8Url = async function (id) {
-        await openDb();
-        var exists = await Idb.getData(db, mainTable, id);
-        if (exists.data) {
-            var m3u8blob = new Blob([exists.data.m3u8], { type: 'application/x-mpegURL' })
-            return URL.createObjectURL(m3u8blob);
+        //await openDb();
+        //var exists = await Idb.getData(db, mainTable, id);
+        //if (exists.data) {
+        //    var m3u8blob = new Blob([exists.data.m3u8], { type: 'application/x-mpegURL' })
+        //    return URL.createObjectURL(m3u8blob);
+        //}
+        //else {
+        //    return null;
+        //}
+        var url = cacheDomain + '/fileList?' + id + '/m3';
+        var data= await download(url);
+        if (data.data) {
+            return url;
         }
-        else {
-            return null;
-        }
+        return null;
     }
 
     const initDownloadVideo = async function () {
@@ -189,7 +243,9 @@ var m3u8 = (function () {
                         var id = result.task.id.substr(0, result.task.id.indexOf('#'));
                         var dir = await ifile.createDic(id);
                         //await Idb.addData(db, dataTable, result.task);
-                        await ifile.saveBlob(dir, result.task.id, result.data);
+                        //await ifile.saveBlob(dir, result.task.id, result.data);
+                        const blob = new Blob([result.data], { type: `application/video/MP2T` });
+                        await upload(blob, id, result.task.id.substr(id.length + 1));
                     }
                     else {
                         result.task.status = -1;
@@ -305,9 +361,23 @@ var m3u8 = (function () {
 
     }
 
-    const getCachedList = async function () {
-        await openDb();
-        return (await Idb.getAllData(db, mainTable)).data;
+    const getCachedList = function () {
+        //await openDb();
+        //return (await Idb.getAllData(db, mainTable)).data;
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                type: 'GET',
+                url: cacheDomain + "/getMenu",
+                dataType: "json",
+                cache: false,
+                success: function (ret) {
+                    resolve(ret);
+                },
+                error: function () {
+                    reject();
+                }
+            });
+        })
     }
 
     const updateCache = async function (data) {
