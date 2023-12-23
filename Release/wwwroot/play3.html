@@ -8,7 +8,6 @@
     <script src="{site}js/xgplayer/xgplayer@3.0.11.min.js"></script>
     <script src="{site}js/xgplayer/xgplayer-hls@3.0.11.min.js"></script>
     <script src="{loadJsUrl}"></script>
-    <script src="{site}js/hijackFetch.js"></script>
     <script>
         var vid = parseInt('{id}');
         var createDate = parseInt('{createdate}');
@@ -30,10 +29,6 @@
         var likeUrl = '{site}Home/like';
         var deleteUrl = '{site}Home/Delete';
         loadjs(['{site}lib/jquery/dist/jquery.js',
-            //'{site}js/chimee/chimee.0.12.0.index.browser.min.js',
-            //'{site}js/chimee/chimee-kernel-hls.1.3.2.index.browser.min.js',
-            //'{site}js/chimee/chimee-plugin-mobile-controlbar.min.js',
-            //'{site}js/chimee/chimee-plugin-mobile-state.min.js',
             '{site}js/IndexDB.js',
             '{site}js/FileAPI.js',
             '{site}js/cacheM3u8.js']);
@@ -229,6 +224,7 @@
             if (document.createElement('video').canPlayType('application/vnd.apple.mpegurl')) {
                 myVideo = new Player({
                     el: document.querySelector('#wrapper'),
+                    width: '100%',
                     url: 'https://bjb.lzhsb.cc/m3u8/101_out/%E6%A1%94%E6%A2%931.m3u8'
                 })
 
@@ -236,19 +232,20 @@
                 myVideo = new Player({
                     el: document.querySelector('#wrapper'),
                     isLive: false,
+                    width: '100%',
                     url: 'https://bjb.lzhsb.cc/m3u8/101_out/%E6%A1%94%E6%A2%931.m3u8', // hls 流地址
                     plugins: [window.HlsPlayer] // 第二步
                 })
             }
             var isW = false;
-            //myVideo.on('loadedmetadata', function () {
-            //    var h = window.innerHeight - 20;
-            //    var w = window.innerWidth;
-            //    var nw = h / $('video')[0].videoHeight * $('video')[0].videoWidth;
-            //    if (nw < w)
-            //        $('video').width(nw);
-            //    isW = $('video')[0].videoHeight < $('video')[0].videoWidth;
-            //});
+            myVideo.on('loadedmetadata', function () {
+                var h = window.innerHeight - 20;
+                var w = window.innerWidth;
+                var nw = h / $('video')[0].videoHeight * $('video')[0].videoWidth;
+                if (nw < w)
+                    $('video').width(nw);
+                isW = $('video')[0].videoHeight < $('video')[0].videoWidth;
+            });
             //myVideo.on('fullscreenchange', e => {
             //    if (document.fullscreenElement) {
             //        if (isW) {
@@ -280,10 +277,10 @@
                     else {
                         $('#domain').val(localStorage.getItem("domain"));
                     }
-                    //loadVideo(getUrl());
+                    loadVideo(getUrl());
                 }
             }
-            m3u8.initXMLHttpRequest();
+            //m3u8.initXMLHttpRequest();
             initM3u8();
 
             function loadVideo(vdoSrc) {
