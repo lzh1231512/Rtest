@@ -73,7 +73,7 @@ var m3u8 = (function () {
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: 'POST',
-                url: cacheDomain + "/deleteCache?" + id,
+                url: cacheDomain + "/deleteCache?id=" + id,
                 cache: false,
                 processData: false,
                 contentType: false,
@@ -92,7 +92,7 @@ var m3u8 = (function () {
             formdata.append("ff", blob);
             $.ajax({
                 type: 'POST',
-                url: cacheDomain + "/fileUpload?" + id + ";" + fileName,
+                url: cacheDomain + "/fileUpload?folder=" + id + "&filename=" + fileName,
                 data: formdata,
                 cache: false,
                 processData: false,
@@ -133,7 +133,7 @@ var m3u8 = (function () {
                 else {
                     var vurl = inf.indexOf('http') == 0 ? inf : (path + inf);
                     //newInfo.push('https://cachedx.' + id + '.' + vIndex + '/' + vurl);
-                    newInfo.push('fileList?' + id + '/' + vIndex +';application/video/MP2T');
+                    newInfo.push('fileList?filename=' + id + '/' + vIndex +'&mime=application/video/MP2T');
                     tasks.push({
                         id: id + '#' + vIndex,
                         data: null,
@@ -201,7 +201,7 @@ var m3u8 = (function () {
         //else {
         //    return null;
         //}
-        var url = cacheDomain + '/fileList?' + id + '/m3;application/vnd.apple.mpegurl';
+        var url = cacheDomain + '/fileList?filename=' + id + '/m3&mime=application/vnd.apple.mpegurl?t=1.m3u8';
         var data= await download(url);
         if (data.data) {
             return url;
