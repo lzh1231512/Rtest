@@ -276,14 +276,10 @@
             initM3u8();
 
             function loadVideo(vdoSrc) {
-                if (/\.m3u8$/.test(vdoSrc) || vdoSrc.indexOf('blob') == 0) {
-                    myVideo.src({
-                        src: vdoSrc,
-                        type: 'application/x-mpegURL'
-                    })
-                } else {
-                    myVideo.src(vdoSrc)
-                }
+                myVideo.src({
+                    src: vdoSrc,
+                    type: 'application/x-mpegURL'
+                });
                 myVideo.load();
             }
             function playVideo(vdoSrc) {

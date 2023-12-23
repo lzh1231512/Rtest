@@ -201,7 +201,7 @@ var m3u8 = (function () {
         //else {
         //    return null;
         //}
-        var url = cacheDomain + '/fileList?' + id + '/m3;application/x-mpegURL';
+        var url = cacheDomain + '/fileList?' + id + '/m3;application/vnd.apple.mpegurl';
         var data= await download(url);
         if (data.data) {
             return url;
