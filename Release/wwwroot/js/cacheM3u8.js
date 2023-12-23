@@ -133,7 +133,7 @@ var m3u8 = (function () {
                 else {
                     var vurl = inf.indexOf('http') == 0 ? inf : (path + inf);
                     //newInfo.push('https://cachedx.' + id + '.' + vIndex + '/' + vurl);
-                    newInfo.push('fileList?' + id + '/' + vIndex);
+                    newInfo.push('fileList?' + id + '/' + vIndex +';application/video/MP2T');
                     tasks.push({
                         id: id + '#' + vIndex,
                         data: null,
@@ -201,7 +201,7 @@ var m3u8 = (function () {
         //else {
         //    return null;
         //}
-        var url = cacheDomain + '/fileList?' + id + '/m3';
+        var url = cacheDomain + '/fileList?' + id + '/m3;application/x-mpegURL';
         var data= await download(url);
         if (data.data) {
             return url;
