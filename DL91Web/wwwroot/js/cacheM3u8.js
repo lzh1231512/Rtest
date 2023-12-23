@@ -110,8 +110,8 @@ var m3u8 = (function () {
     const downloadM3u8 = async function (mdt, url, progressCallback) {
         var id = mdt.id;
         await openDb();
-        var exists = await Idb.getData(db, mainTable, id);
-        if (exists.data != null) {
+        var exists = await getM3u8Url(id);
+        if (exists) {
             return { code: -1, success: false, data: null, msg: '任务已存在!' };
         }
         var dt = new Date();
