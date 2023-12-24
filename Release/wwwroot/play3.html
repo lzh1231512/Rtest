@@ -95,6 +95,8 @@
         <span id="spanP"></span>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <button id="btnDelete">Delete</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <span id="spanID"></span>
     </div>
     <div>
         &nbsp;&nbsp;
@@ -122,6 +124,7 @@
         const screen = window.screen;
         screen.lockOrientationUniversal = (mode) => screen.orientation && screen.orientation.lock(mode).then(() => { }, err => console.log(err)) || screen.mozLockOrientation && screen.mozLockOrientation(mode) || screen.msLockOrientation && screen.msLockOrientation(mode);
         $(function () {
+            $('#spanID').html(vid);
             $('#isLike').prop('checked', isLike == 1);
             $('#isLike').change(function () {
                 $.post(likeUrl + '?id=' + vid + '&&isLike=' + (this.checked ? 1 : 0));

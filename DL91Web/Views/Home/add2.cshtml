@@ -1,0 +1,61 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        var cacheDomain = 'http://localhost:1080';
+        //var cacheDomain = 'http://192.168.31.161:1080';
+        $(function () {
+            $("#btn").click(async function () {
+                
+                var file = $("#ff")[0];
+                if (!file.value || file.value.indexOf('mp4')<0) {
+                    alert('select mp4');
+                    return;
+                }
+                var title = $("#title").val();
+                if (!title) {
+                    alert('title');
+                    return;
+                }
+                var formdata = new FormData();
+                formdata.append("ff", file.files[0]);
+                formdata.append("json", JSON.stringify({
+                    id: "{id}",
+                    isLike: "0",
+                    isHD: "0",
+                    fileSize: "",
+                    title: "[00:00][Upload]</br>" + title,
+                    url: "",
+                    createDate: parseInt(((new Date()).getTime() - (new Date(1990, 1, 1)).getTime()) / 60000)
+                }));
+                $("#btn").attr('disabled', 'disabled');
+                $.ajax({
+                    type: 'POST',
+                    url: cacheDomain + "/uploadMp4",
+                    data: formdata,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    success: function (ret) {
+                        alert(ret);
+                        $("#btn").removeAttr('disabled');
+                    },
+                    error: function () {
+                        alert('failed');
+                        $("#btn").removeAttr('disabled');
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div>title:<input id="title" type="text"  value="" style="width:400px" /></div>
+    <div>mp4:<input id="ff" type="file" name="ff" value="" /></div>
+    <input id="btn" type="submit" name="name" value="submit" />
+</body>
+</html>

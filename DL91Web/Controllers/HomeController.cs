@@ -318,6 +318,11 @@ namespace DL91Web.Controllers
             return View();
         }
 
+        public IActionResult Add2()
+        {
+            return View();
+        }
+
         public IActionResult Edit(int id,string title, IFormFile files)
         {
             DB91 obj = null;
