@@ -293,9 +293,6 @@ ajaxPager.pager = (function () {
                 var ntitle = $(this).html();
                 var _this = this;
                 m3u8.getM3u8Url($(this).data('id') + '').then(function (murl) {
-                    if (murl) {
-                        ntitle = '[Cached]' + ntitle;
-                    }
                     ntitle = ntitle.replace('[00:00]', '');
                     $(_this).html(ntitle);
                     m3u8.getImgUrl(id, GetImgURL + '?Imgs=' + id).then(function (imgUrl) {
