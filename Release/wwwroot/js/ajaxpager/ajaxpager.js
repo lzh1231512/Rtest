@@ -244,21 +244,8 @@ ajaxPager.pager = (function () {
         for (var i = 0; i < items.length; i++) {
             var obj = items[i];
             var id = $(obj).data('imgid') + '';
-            var iscached = await m3u8.getM3u8Url(id);
-            if (iscached) {
-                var imgUrl = await m3u8.getImgUrl(id, GetImgURL + '?Imgs=' + id);
-                $(obj).css({
-                    'background-image': 'url(' + imgUrl + ')',
-                    'background-repeat': 'no-repeat',
-                    'background-attachment': 'scroll',
-                    'background-position': '0px 0px',
-                    'background-color': 'transparent'
-                });
-            }
-            else {
-                ids += ',' + id;
-                objs.push(obj);
-            }
+            ids += ',' + id;
+            objs.push(obj);
         }
         await loadImg();
         if (data.nextPageIDs) {
@@ -282,21 +269,50 @@ ajaxPager.pager = (function () {
             else {
                 res = '[' + hour + '小时前]';
             }
-
-            var ntitle = $(this).html();
-            var _this = this;
-            m3u8.getM3u8Url($(this).data('id') + '').then(function (murl) {
-                if (murl) {
-                    ntitle = '[Cached]' + ntitle;
-                }
-                ntitle = res + ntitle;
-                ntitle = ntitle.replace('[00:00]', '');
-                $(_this).html(ntitle);
-            })
+            $(this).html(res+$(this).html());
         });
         if (!isMobile) {
             $('a.edit').show();
         }
+
+        var list = await m3u8.getCachedList();
+
+        $('span.title').each(function () {
+            var id = $(this).data('id');
+            var cacheobj = null;
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].id == id) {
+                    cacheobj = list[i];
+                    break;
+                }
+            }
+            if (cacheobj) {
+                var ntitle = '[Cached]' +$(this).html();
+                ntitle = ntitle.replace('[00:00]', '');
+                $(this).html(ntitle);
+                var ntitle = $(this).html();
+                var _this = this;
+                m3u8.getM3u8Url($(this).data('id') + '').then(function (murl) {
+                    if (murl) {
+                        ntitle = '[Cached]' + ntitle;
+                    }
+                    ntitle = ntitle.replace('[00:00]', '');
+                    $(_this).html(ntitle);
+                    m3u8.getImgUrl(id, GetImgURL + '?Imgs=' + id).then(function (imgUrl) {
+                        if (imgUrl) {
+                            $('#divitems img[data-imgid=' + id + ']').css({
+                                'background-image': 'url(' + imgUrl + ')',
+                                'background-repeat': 'no-repeat',
+                                'background-attachment': 'scroll',
+                                'background-position': '0px 0px',
+                                'background-color': 'transparent'
+                            });
+                        }
+                    });
+                });
+            }
+            
+        });
     }
     pager.OnPageChange = function () {
         var container = $(this).closest("div.pagination-container");

@@ -177,18 +177,24 @@ var m3u8 = (function () {
 
 
     const getImgUrl = async function (id, url) {
-        var dir = await ifile.createDic(id + '');
-        var exists = await ifile.readBlob(dir, id + '#img'); //(await Idb.getData(db, dataTable, id + '#img')).data;
+        //var dir = await ifile.createDic(id + '');
+        await openDb();
+        var exists = (await Idb.getData(db, dataTable, id + '#img')).data;
         if (exists) {
             var m3u8blob = new Blob([exists], { type: 'image/Jpeg' })
             return URL.createObjectURL(m3u8blob);
         }
         var imgdata = await download(url, 'video/MP2T');
         if (imgdata.data) {
-            ifile.saveBlob(dir, id + '#img', imgdata.data);
+            //ifile.saveBlob(dir, id + '#img', imgdata.data);
+            await Idb.addData(db, dataTable, {
+                id: id + '#img',
+                data: imgdata.data
+            });
             var m3u8blob = new Blob([imgdata.data], { type: 'image/Jpeg' })
             return URL.createObjectURL(m3u8blob);
         }
+        return null;
     }
 
     const getM3u8Url = async function (id) {
@@ -241,7 +247,7 @@ var m3u8 = (function () {
                         result.task.data = result.data;
                         await Idb.deleteData(db, taskTable, result.task.id);
                         var id = result.task.id.substr(0, result.task.id.indexOf('#'));
-                        var dir = await ifile.createDic(id);
+                        //var dir = await ifile.createDic(id);
                         //await Idb.addData(db, dataTable, result.task);
                         //await ifile.saveBlob(dir, result.task.id, result.data);
                         const blob = new Blob([result.data], { type: `application/video/MP2T` });
@@ -323,38 +329,38 @@ var m3u8 = (function () {
     }
 
     const initXMLHttpRequest = function () {
-        openDb();
-        var oriXOpen = XMLHttpRequest.prototype.open;
-        var oriXsend = XMLHttpRequest.prototype.send;
-        XMLHttpRequest.prototype.open = function (method, url, asncFlag, user, password) {
-            this.xurl = url;
-            if (url.indexOf('https://cachedx.') != 0) {
-                oriXOpen.call(this, method, url, asncFlag, user, password);
-            }
-        };
-        async function process(_request, url) {
-            var info = url.substr(16);
-            var ind = info.indexOf('/');
-            var oriUrl = info.substr(ind + 1);
-            var inf = info.substr(0, ind).split('.');
-            var dir = await ifile.createDic(inf[0]);
-            var data = await ifile.readBlob(dir, inf[0] + '#' + inf[1]);
-            if (data) {
-                const blob = new Blob([data], { type: 'application/video/MP2T' });
-                oriUrl = URL.createObjectURL(blob);
-            }
-            oriXOpen.call(_request, 'get', oriUrl, true);
-            oriXsend.call(_request);
-        }
-        XMLHttpRequest.prototype.send = function (params) {
-            var url = this.xurl;
-            if (url.indexOf('https://cachedx.') == 0) {
-                process(this, url);
-            }
-            else {
-                oriXsend.call(this, params);
-            }
-        };
+        //openDb();
+        //var oriXOpen = XMLHttpRequest.prototype.open;
+        //var oriXsend = XMLHttpRequest.prototype.send;
+        //XMLHttpRequest.prototype.open = function (method, url, asncFlag, user, password) {
+        //    this.xurl = url;
+        //    if (url.indexOf('https://cachedx.') != 0) {
+        //        oriXOpen.call(this, method, url, asncFlag, user, password);
+        //    }
+        //};
+        //async function process(_request, url) {
+        //    var info = url.substr(16);
+        //    var ind = info.indexOf('/');
+        //    var oriUrl = info.substr(ind + 1);
+        //    var inf = info.substr(0, ind).split('.');
+        //    var dir = await ifile.createDic(inf[0]);
+        //    var data = await ifile.readBlob(dir, inf[0] + '#' + inf[1]);
+        //    if (data) {
+        //        const blob = new Blob([data], { type: 'application/video/MP2T' });
+        //        oriUrl = URL.createObjectURL(blob);
+        //    }
+        //    oriXOpen.call(_request, 'get', oriUrl, true);
+        //    oriXsend.call(_request);
+        //}
+        //XMLHttpRequest.prototype.send = function (params) {
+        //    var url = this.xurl;
+        //    if (url.indexOf('https://cachedx.') == 0) {
+        //        process(this, url);
+        //    }
+        //    else {
+        //        oriXsend.call(this, params);
+        //    }
+        //};
     }
 
     const initFetch = function () {

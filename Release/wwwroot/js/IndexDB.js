@@ -18,7 +18,7 @@
             let db = null
             const req = indexedDB.open(dbName, version)
             // 操作成功
-            req.onsuccess = function () {
+            req.onsuccess = function (event) {
                 db = event.target.result // 数据库对象
                 resolve({ code: 0, success: true, data: db, msg: '数据库打开成功!' })
             }
