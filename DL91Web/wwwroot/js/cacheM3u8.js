@@ -1,8 +1,8 @@
 ﻿/// <reference path="indexdb.js" />
 /// <reference path="fileapi.js" />
 
-//var cacheDomain = 'http://localhost:1080';
-var cacheDomain = 'http://192.168.31.161:1080';
+var cacheDomain = 'http://localhost:1080';
+//var cacheDomain = 'http://192.168.31.161:1080';
 var m3u8 = (function () {
     var dbName = "m3u8";
     var mainTable = "m3u8";
