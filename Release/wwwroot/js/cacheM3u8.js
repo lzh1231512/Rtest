@@ -1,8 +1,8 @@
 ﻿/// <reference path="indexdb.js" />
 /// <reference path="fileapi.js" />
 
-var cacheDomain = 'http://localhost:1080';
-//var cacheDomain = 'http://192.168.31.161:1080';
+//var cacheDomain = 'http://localhost:1080';
+var cacheDomain = 'http://192.168.31.161:1080';
 var m3u8 = (function () {
     var dbName = "m3u8";
     var mainTable = "m3u8";
@@ -174,24 +174,18 @@ var m3u8 = (function () {
             return { code: -1, success: false, data: null, msg: 'm3u8下载失败!' };
         }
     }
-
-
+    
     const getImgUrl = async function (id, url) {
-        //var dir = await ifile.createDic(id + '');
-        await openDb();
-        var exists = (await Idb.getData(db, dataTable, id + '#img')).data;
-        if (exists) {
-            var m3u8blob = new Blob([exists], { type: 'image/Jpeg' })
+        var curl = cacheDomain + '/fileList?filename=' + id + '/m1&mime=image/Jpeg';
+        var data = await download(curl, 'video/MP2T');
+        if (data.data) {
+            var m3u8blob = new Blob([data.data], { type: 'image/Jpeg' });
             return URL.createObjectURL(m3u8blob);
         }
         var imgdata = await download(url, 'video/MP2T');
         if (imgdata.data) {
-            //ifile.saveBlob(dir, id + '#img', imgdata.data);
-            await Idb.addData(db, dataTable, {
-                id: id + '#img',
-                data: imgdata.data
-            });
-            var m3u8blob = new Blob([imgdata.data], { type: 'image/Jpeg' })
+            var m3u8blob = new Blob([imgdata.data], { type: 'image/Jpeg' });
+            await upload(m3u8blob, id, 'm1');
             return URL.createObjectURL(m3u8blob);
         }
         return null;
