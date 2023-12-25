@@ -4,15 +4,28 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=0">
+    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/css/font-awesome.css" rel="stylesheet" />
+    <link href="~/css/pager.css" rel="stylesheet" />
+    <link href="~/css/site.css" rel="stylesheet" />
+    <style>
+        @@media (min-width: 1596px) {
+            #div-body-content {
+                width: 1596px;
+            }
+        }
+    </style>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script>
         var cacheDomain = 'http://localhost:1080';
         //var cacheDomain = 'http://192.168.31.161:1080';
         $(function () {
             $("#btn").click(async function () {
-                
+
                 var file = $("#ff")[0];
-                if (!file.value || file.value.indexOf('mp4')<0) {
+                if (!file.value || file.value.indexOf('mp4') < 0) {
                     alert('select mp4');
                     return;
                 }
@@ -35,6 +48,7 @@
                 $("#btn").attr('disabled', 'disabled');
                 $.ajax({
                     type: 'POST',
+                    async: true,
                     url: cacheDomain + "/uploadMp4",
                     data: formdata,
                     cache: false,
@@ -54,8 +68,24 @@
     </script>
 </head>
 <body>
-    <div>title:<input id="title" type="text"  value="" style="width:400px" /></div>
-    <div>mp4:<input id="ff" type="file" name="ff" value="" /></div>
-    <input id="btn" type="submit" name="name" value="submit" />
+    <div class="row">
+        <div class="col-md-2">
+            @Html.Label("", "title")
+            <input id="title" type="text" value="" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            @Html.Label("", "mp4")
+            <input id="ff" type="file" name="ff" value="" />
+        </div>
+        <div class="col-md-2">
+            @Html.Label("", "Progress")
+            <span id="spanProgress"></span>
+        </div>
+    </div>
+    <div class="row" style="margin-top:10px;">
+        <div class="col-md-12 form-button-Lines">
+            <input id="btn" type="button" class="btn btn-default CommonBtn" value="submit" />
+        </div>
+    </div>
 </body>
 </html>
