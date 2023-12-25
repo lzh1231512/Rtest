@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">无界共享</string>
+    <string name="stop_server">停止服务器</string>
+    <string name="boot_server">启动服务器</string>
+    <string name="open_browser">在浏览器中打开</string>
+    <string name="url">访问地址</string>
+    <string name="help">使用帮助</string>
+    <string name="common_problem">常见问题</string>
+</resources>

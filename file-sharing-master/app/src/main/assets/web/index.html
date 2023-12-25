@@ -1,0 +1,271 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <title>下载文件</title>
+    <script type="text/javascript" src="./js/jquery-2.1.1.min.js"></script>
+    <script src="bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script src="js/jquery-form.js"></script>
+    <link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap.min.css" type="text/css" />
+    <script>
+        $(function(){//入口函数
+
+
+
+        });//入口函数end~
+
+        function upload(){
+            var myFormStr='<div class="upload-fileWrap">\n'+
+               '<form id="myupload" name="myupload" action="fileUpload" method="post" enctype="multipart/form-data">\n'+
+                    '<a href="javascript:;" class="file" onchange="showName()">请您选择文件<input id="upload-input-file" class="upload-input-file" name="ff" type="file"></a>\n'+
+                    '<span id="showTip">您未选择文件</span>\n'+
+                '</form>\n'+
+                '<button type="button" id="upload-input-btn" class="btn btn-primary" onclick="startUp()">开始上传文件</button>\n'+
+                '<div class="upload-file-stateWrap">\n'+
+                    '<div class="progress hidden">\n'+
+                        '<div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">\n'+
+                            '<span class="progress-bar-status">0%</span>\n'+
+                        '</div>\n'+
+                    '</div>\n'+
+                    '<div class="upload-file-result"></div>\n'+
+                '</div>\n'+
+            '</div>';
+            $("#myForm").html(myFormStr);
+        }
+
+
+        function overView(){
+            window.location.href="fileList.html";
+        }
+
+        function uploadAttachment(){
+            $("#trueForm").ajaxSubmit({
+                type:'post',
+                url:"fileUpload",
+                success:function(data){
+                    alert(data);
+                 }
+            });
+            return false;//阻止页面跳转
+        }
+
+        function startUp(){
+
+            var progress = $(".progress-bar"),
+            status = $(".progress-bar-status"),
+            percentVal = '0%';
+            //上传步骤
+            $("#myupload").ajaxSubmit({
+                url: "fileUpload",
+                type: "POST",
+
+                beforeSend: function () {
+                    $(".progress").removeClass("hidden");
+                    progress.width(percentVal);
+                    status.html(percentVal);
+                },
+                uploadProgress: function (event, position, total, percentComplete) {
+                    percentVal = percentComplete + '%';
+                    progress.width(percentVal);
+                    status.html(percentVal);
+                    console.log(percentVal, position, total);
+                },
+                success: function (result) {
+                    percentVal = '100%';
+                    progress.width(percentVal);
+                    status.html(percentVal);
+                    console.log("结果："+result);
+                    $(".upload-file-result").html(result);
+
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    console.log("错误："+errorThrown);
+
+                }
+            });//ajaxSubmit end~
+        }//startUp end ~
+
+
+
+        function showName(){
+            var progress = $(".progress-bar"),
+            status = $(".progress-bar-status"),
+            percentVal = '0%';
+
+            var filePath=$("#upload-input-file").val();
+            var fileNameArr=filePath.split("\\");
+            var fileName=fileNameArr[fileNameArr.length-1];
+            console.log(fileNameArr);
+            if(fileName==""){
+                $("#showTip").html("您未选择文件");
+            }else{
+                 $("#showTip").html(fileName);
+            }
+            $(".upload-file-result").html("");
+            progress.width(percentVal);
+            $(".progress").addClass("hidden");
+        }
+    </script>
+
+    <style type="text/css">
+        .hidden{
+            display:none;
+        }
+
+        .upload-fileWrap {
+
+        }
+
+        .upload-input-file {
+
+
+
+        }
+
+        .upload-file-result {
+            margin-top:10px;
+            color: #ffffff;
+            font-size: 14px;
+            display:inline
+        }
+
+        /*进度条*/
+        .progressWrap {
+            position: absolute;
+            right: 20px;
+            top: 56px;
+            width: 100px;
+            height: 10px;
+        }
+
+        .progress {
+            margin-top:20px;
+            width: 100px;
+            height: 20px;
+            background: #ffffff;
+            -webkit-border-radius: 20px;
+            -moz-border-radius: 20px;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: url("image/upload_img.png");
+            display:inline
+        }
+        .progress-bar span {
+
+        }
+        .progress-bar .progress-bar-status {
+            left: 50%;
+            top: -23px;
+            margin-left: -15px;
+            color: #ffffff;
+        }
+        .upload-file-stateWrap {
+
+        }
+        .upload-file-stateWrap .progress {
+            width: 60%;
+        }
+        .upload-file-stateWrap .progress-bar-status {
+            bottom: -3px;
+            left: 40%;
+            margin-left: 5px;
+        }
+
+        .file {
+    position: relative;
+    display: inline-block;
+    background: #337ab7;
+    border: 1px solid #2e6da4;
+    border-radius: 4px;
+    padding: 6px 12px;
+    overflow: hidden;
+    color: #ffffff;
+    text-decoration: none;
+    text-indent: 0;
+    line-height: 20px;
+    font-size:14px
+}
+.file input {
+    position: absolute;
+    font-size: 100px;
+    right: 0;
+    top: 0;
+    opacity: 0;
+}
+.file:hover {
+    background: #286090;
+    border-color: #204d74;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+#showTip{
+            overflow:hidden;
+            position:relative;
+            display:inline-block;
+            padding-top:6px;
+            padding-bottom:6px;
+            padding-left:12px;
+            padding-right:12px;
+            line-height:20px;
+            color:#fff
+
+        }
+
+
+
+    </style>
+</head>
+<body style="background-image:linear-gradient(to top, #ffffff, #1677b3);height: 700px;padding-top:15px;">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12">
+            <table class="table table-bordered table-hover">
+                <tr class="info"><th class="text-center" colspan="2" style="font-size:300%">无界共享</th></tr>
+                <tr class="success">
+                    <td class="text-center"><button type="button" class="btn btn-primary" onclick="upload()">我要上传文件至服务端</button></td>
+                    <td class="text-center"><button type="button" class="btn btn-primary" onclick="overView()">浏览服务端文件列表</button></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12" >
+
+        </div>
+       <!-- <form id="trueForm" action="fileUpload" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <input type="file" name="lkj.txt"/>
+            </div>
+            <button class="btn btn-primary" id="submitAttachment" onclick="return uploadAttachment()">开始上传文件</button>
+        </form>-->
+    </div>
+    <div class="row">
+        <div class="col-xs-12" id="myForm">
+            <!--<div class="upload-fileWrap">
+                <form id='myupload' name='myupload' action='fileUpload' method='post' enctype='multipart/form-data'>
+                    <a href="javascript:;" class="file" onchange="showName()">请您选择文件<input id="upload-input-file" class="upload-input-file" name="ff" type="file"></a>
+                    <span id="showTip">您未选择文件</span>
+                </form>
+                <button type="button" id="upload-input-btn" class="btn btn-primary" onclick="startUp()">开始上传文件</button>
+                <div class="upload-file-stateWrap">
+                    <div class="progress hidden">
+                        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                            <span class="progress-bar-status">0%</span>
+                        </div>
+                    </div>
+                    <div class="upload-file-result"></div>
+                </div>
+            </div>-->
+        </div><!--单元格结束-->
+    </div><!--row end-->
+</div><!--container end-->
+</body>
+</html>

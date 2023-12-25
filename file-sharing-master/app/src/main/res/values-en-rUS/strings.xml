@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Unbounded Sharing</string>
+    <string name="stop_server">stop the server</string>
+    <string name="boot_server">start the server</string>
+    <string name="open_browser">open in a browser</string>
+    <string name="url">requested URL</string>
+    <string name="help">usinghelp</string>
+    <string name="common_problem">common problem</string>
+
+</resources>

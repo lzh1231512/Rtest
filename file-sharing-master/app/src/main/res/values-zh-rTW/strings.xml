@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">無界共享</string>
+    <string name="stop_server">停止服務器</string>
+    <string name="boot_server">啟動服務器</string>
+    <string name="open_browser">在瀏覽器中打開</string>
+    <string name="url">訪問地址</string>
+    <string name="help">使用幫助</string>
+    <string name="common_problem">常見問題</string>
+
+</resources>

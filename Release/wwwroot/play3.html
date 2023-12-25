@@ -30,7 +30,6 @@
         var deleteUrl = '{site}Home/Delete';
         loadjs(['{site}lib/jquery/dist/jquery.js',
             '{site}js/IndexDB.js',
-            '{site}js/FileAPI.js',
             '{site}js/cacheM3u8.js']);
     </script>
 
@@ -283,7 +282,6 @@
                     loadVideo(getUrl());
                 }
             }
-            //m3u8.initXMLHttpRequest();
             initM3u8();
 
             function loadVideo(vdoSrc) {

@@ -5,9 +5,7 @@ var cacheDomain = 'http://localhost:1080';
 //var cacheDomain = 'http://192.168.31.161:1080';
 var m3u8 = (function () {
     var dbName = "m3u8";
-    var mainTable = "m3u8";
     var taskTable = "m3u8_task";
-    var dataTable = "m3u8_data";
     var db = null;
     var taskChangeEvent = null;
     var opflagAdd = function () {
@@ -29,9 +27,8 @@ var m3u8 = (function () {
     };
     const openDb = async function () {
         if (!db) {
-            db = (await Idb.openDB(dbName, 1, [{ name: mainTable, keyPath: 'id', autoIncrement: false },
-            { name: taskTable, keyPath: 'id', autoIncrement: false },
-            { name: dataTable, keyPath: 'id', autoIncrement: false }])).data;
+            db = (await Idb.openDB(dbName, 1, [
+            { name: taskTable, keyPath: 'id', autoIncrement: false }])).data;
             if (!db) {
                 alert('m3u8数据库初始化失败');
             }
@@ -40,7 +37,6 @@ var m3u8 = (function () {
     const deleteM3u8 = async function (id, progressCallback) {
         opflagAdd();
         await openDb();
-        await Idb.deleteData(db, mainTable, id);
         var dt = new Date();
         var tasks = (await Idb.getAllData(db, taskTable)).data;
         var taskids = [];
@@ -62,8 +58,6 @@ var m3u8 = (function () {
         if (progressCallback) {
             progressCallback(0);
         }
-        //var dir = await ifile.createDic(id + '');
-        //await ifile.deleteDic(dir);
         await deleteCache(id);
 
         console.log('delete ' + ((new Date()).getTime() - dt.getTime()));
@@ -147,8 +141,6 @@ var m3u8 = (function () {
             mdt.url = url;
             mdt.count = tasks.length;
             mdt.downloaded = 0;
-            //mdt.m3u8 = newInfo.join('\n');
-            await Idb.addData(db, mainTable, mdt);
 
             var m3u8blob = new Blob([newInfo.join('\n')], { type: "application/x-mpegURL" });
             var infoblob = new Blob([JSON.stringify(mdt)], { type: "application/json" });
@@ -192,15 +184,6 @@ var m3u8 = (function () {
     }
 
     const getM3u8Url = async function (id) {
-        //await openDb();
-        //var exists = await Idb.getData(db, mainTable, id);
-        //if (exists.data) {
-        //    var m3u8blob = new Blob([exists.data.m3u8], { type: 'application/x-mpegURL' })
-        //    return URL.createObjectURL(m3u8blob);
-        //}
-        //else {
-        //    return null;
-        //}
         var url = cacheDomain + '/fileList?filename=' + id + '/m3&mime=application/vnd.apple.mpegurl?t=1.m3u8';
         var data= await download(url);
         if (data.data) {
@@ -239,13 +222,12 @@ var m3u8 = (function () {
                     if (result.success) {
                         result.task.status = 2;
                         result.task.data = result.data;
-                        await Idb.deleteData(db, taskTable, result.task.id);
+
                         var id = result.task.id.substr(0, result.task.id.indexOf('#'));
-                        //var dir = await ifile.createDic(id);
-                        //await Idb.addData(db, dataTable, result.task);
-                        //await ifile.saveBlob(dir, result.task.id, result.data);
                         const blob = new Blob([result.data], { type: `application/video/MP2T` });
                         await upload(blob, id, result.task.id.substr(id.length + 1));
+
+                        await Idb.deleteData(db, taskTable, result.task.id);
                     }
                     else {
                         result.task.status = -1;
@@ -322,48 +304,7 @@ var m3u8 = (function () {
         })
     }
 
-    const initXMLHttpRequest = function () {
-        //openDb();
-        //var oriXOpen = XMLHttpRequest.prototype.open;
-        //var oriXsend = XMLHttpRequest.prototype.send;
-        //XMLHttpRequest.prototype.open = function (method, url, asncFlag, user, password) {
-        //    this.xurl = url;
-        //    if (url.indexOf('https://cachedx.') != 0) {
-        //        oriXOpen.call(this, method, url, asncFlag, user, password);
-        //    }
-        //};
-        //async function process(_request, url) {
-        //    var info = url.substr(16);
-        //    var ind = info.indexOf('/');
-        //    var oriUrl = info.substr(ind + 1);
-        //    var inf = info.substr(0, ind).split('.');
-        //    var dir = await ifile.createDic(inf[0]);
-        //    var data = await ifile.readBlob(dir, inf[0] + '#' + inf[1]);
-        //    if (data) {
-        //        const blob = new Blob([data], { type: 'application/video/MP2T' });
-        //        oriUrl = URL.createObjectURL(blob);
-        //    }
-        //    oriXOpen.call(_request, 'get', oriUrl, true);
-        //    oriXsend.call(_request);
-        //}
-        //XMLHttpRequest.prototype.send = function (params) {
-        //    var url = this.xurl;
-        //    if (url.indexOf('https://cachedx.') == 0) {
-        //        process(this, url);
-        //    }
-        //    else {
-        //        oriXsend.call(this, params);
-        //    }
-        //};
-    }
-
-    const initFetch = function () {
-
-    }
-
     const getCachedList = function () {
-        //await openDb();
-        //return (await Idb.getAllData(db, mainTable)).data;
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: 'GET',
@@ -382,14 +323,13 @@ var m3u8 = (function () {
 
     const updateCache = async function (data) {
         await openDb();
-        await Idb.updateData(db, mainTable, data);
+        //await Idb.updateData(db, mainTable, data);
     }
 
 
     return {
         downloadM3u8: downloadM3u8,
         deleteM3u8: deleteM3u8,
-        initXMLHttpRequest: initXMLHttpRequest,
         getM3u8Url: getM3u8Url,
         initDownload: initDownload,
         getCachedList: getCachedList,

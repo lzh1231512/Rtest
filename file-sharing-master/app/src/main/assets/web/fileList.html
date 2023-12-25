@@ -1,0 +1,169 @@
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <title>文件列表</title>
+    <script type="text/javascript" src="./js/jquery-2.1.1.min.js"></script>
+    <script src="bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap.min.css" type="text/css" />
+    <script>
+        $(function(){
+        $.post("fileDownload",{},function(data){//异步的post请求
+            var status=data.status;
+            var errMsg=data.errMsg;
+            var note=data.note;
+            var arr=data.objList;
+
+            if(!status){
+                alert(errMsg);
+                return;
+            }else if(arr.length==0){
+                alert(note);
+                return;
+            }else{
+                var flag=false;//标志是否找到文件
+                for(var i=0;i<arr.length;i++){
+                    var o=arr[i];
+                    var b=o.isDir;
+                    if(!b){
+                        flag=true;
+                    }
+                }
+                if(!flag){//如果没有找到文件
+                    alert("服务器指定目录暂无文件!");
+                }
+            }
+
+          var tableStr='<table class="table table-bordered table-hover" id="tab">\n'+
+            '<tr class="info"><th class="text-center" colspan="3" style="font-size:300%">文件一览表</th></tr>\n'+
+            '<tr class="info" style="font-size:200%">\n'+
+                '<th class="text-center">文件名</th>\n'+
+                '<th class="text-center">文件大小</th>\n'+
+                '<th class="text-center">操作</th>\n'+
+            '</tr>';
+
+            for(var i=0;i<arr.length;i++){
+                var o=arr[i];
+                if(o!=null){
+                    var name=o.name;
+                    var length=o.length;
+                    var l=length.toFixed(3);
+                    var len=length/1024;
+                    var leng=len.toFixed(2);
+                    var b=o.isDir;
+                    if(!b){
+                        tableStr+='<tr class="success">\n'+
+                '<td class="text-center" style="display:table-cell; vertical-align:middle">'+name+'</td>\n'+
+                '<td class="text-center" style="display:table-cell; vertical-align:middle">'+l+'KB（'+leng+'M）</td>\n'+
+                '<td class="text-center">\n'+
+                    '<button type="button" class="btn btn-primary btn-lg" onclick="download(\''+name+'\')">下载</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\n'+
+                    '<button data-toggle="modal" onclick="openM(\''+name+'\')" type="button" class="btn btn-danger btn-lg">删除</button>\n'+
+                '</td>\n'+
+            '</tr>';
+                    }
+                }
+            }//for 循环 end~
+            tableStr+='</table>';
+            $("#myTable").html(tableStr);
+
+
+        });//异步post end~
+
+
+
+        });//入口函数end
+
+
+        function download(n){
+            window.location.href = "fileList?filename="+n;//重定向
+        }
+
+        function confirmDel(){
+            var n=$("#fi").val();
+            console.log("发送的参数是："+n);
+            $.post("fileDel/"+n,{name:n},function(data){
+                alert(data);
+                location.reload();//刷新当前页面
+            });//post end
+        }
+
+        function back(){
+            window.location.href = "index.html";//重定向
+        }
+
+
+        function openM(n){
+            $("#fi").val(n);
+            $("#alertMsg").text("您确定要删除文件“"+n+"”吗？");
+            console.log("输入框的值："+ $("#fi").val());
+            $('#myModal').modal('show');//打开模态对话框
+        }
+    </script>
+    <style type="text/css">
+        #box{
+            height:46px;
+            line-height:46px;
+            width:700px;
+            overflow:hidden;
+        }
+    </style>
+</head>
+<body style="background-image:linear-gradient(to top, #ffffff, #1677b3);height: 700px;padding-top:15px">
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">警告</h4>
+            </div>
+            <div class="modal-body">
+                <p id="alertMsg">您确定要删除该文件吗？</p>
+                <input type="hidden" id="fi" name="fil" value="hh">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button id="confirmBtn"type="button" class="btn btn-primary" value="" onclick="confirmDel()">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12" id="myTable">
+            <table class="table table-bordered table-hover" id="tab">
+                <tr class="info"><th class="text-center" colspan="3" style="font-size:300%">文件一览表</th></tr>
+                <tr class="info" style="font-size:200%">
+                    <th class="text-center">文件名</th>
+                    <th class="text-center">文件大小</th>
+                    <th class="text-center">操作</th>
+                </tr>
+                <tr class="success">
+                    <td class="text-center" style="display:table-cell; vertical-align:middle">--</td>
+                    <td class="text-center" style="display:table-cell; vertical-align:middle">--</td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-primary btn-lg" onclick="">下载</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <button type="button" class="btn btn-danger btn-lg" onclick="">删除</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div><!--row end-->
+    <div class="row">
+        <div class="col-xs-2">
+            <button type="button" class="btn btn-default btn-lg" onclick="back()">
+                <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> 返回首页
+            </button>
+        </div>
+        <div id="box" class="col-xs-8">
+            以上是存储在手机“/storage/emulated/0/UnboundedSharing/”目录下的文件，按文件修改日期递减排序。
+        </div>
+    </div><!-- row end-->
+    <div class="row">
+        <div class="col-xs-12"><span style="height:20px;opacity:0">5555</span></div>
+    </div>
+</div><!--container end-->
+</body>
+</html>
