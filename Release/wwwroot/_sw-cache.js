@@ -33,7 +33,7 @@ self.addEventListener('activate', function (event) {
 
 // 捕获请求并返回缓存数据
 self.addEventListener('fetch', function (event) {
-    if (event.request.url.indexOf('.ts') < 0) {
+    if (event.request.url.indexOf('.ts') < 0 && event.request.url.indexOf(':1080') < 0) {
         event.respondWith(
             caches.open(VERSION).then(function (cache) {
                 return cache.match(event.request).then(function (response) {

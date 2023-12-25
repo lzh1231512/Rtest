@@ -58,6 +58,20 @@
                         alert(ret);
                         $("#btn").removeAttr('disabled');
                     },
+                    xhr: function () {
+                        myXhr = $.ajaxSettings.xhr();
+                        if (myXhr.upload) { // check if upload property exists
+                            myXhr.upload.addEventListener('progress', function (e) {
+                                var loaded = e.loaded;                  //已经上传大小情况 
+                                var total = e.total;                      //附件总大小 
+                                var percent = Math.floor(100 * loaded / total) + "%";     //已经上传的百分比  
+                                console.log("已经上传了：" + percent);
+                                //$("#processBar").css("width", percent);
+                                $('#spanProgress').html(percent);
+                            }, false); // for handling the progress of the upload
+                        }
+                        return myXhr;
+                    },     
                     error: function () {
                         alert('failed');
                         $("#btn").removeAttr('disabled');
