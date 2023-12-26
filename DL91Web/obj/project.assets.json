@@ -12358,6 +12358,7 @@
       "Magick.NET-Q16-AnyCPU >= 13.4.0",
       "Magick.NET.Core >= 13.4.0",
       "Microsoft.AspNetCore.App >= 2.1.1",
+      "Microsoft.AspNetCore.Cors >= 2.1.1",
       "Microsoft.AspNetCore.Razor.Design >= 2.1.2",
       "Microsoft.Extensions.Configuration >= 2.1.1",
       "Microsoft.Extensions.Configuration.Json >= 2.1.1",
@@ -12425,6 +12426,10 @@
             "target": "Package",
             "version": "[2.1.1, )",
             "autoReferenced": true
+          },
+          "Microsoft.AspNetCore.Cors": {
+            "target": "Package",
+            "version": "[2.1.1, )"
           },
           "Microsoft.AspNetCore.Razor.Design": {
             "target": "Package",

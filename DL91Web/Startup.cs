@@ -33,7 +33,7 @@ namespace DL91Web
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-
+            services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
@@ -44,7 +44,9 @@ namespace DL91Web
             var provider = new FileExtensionContentTypeProvider();
             provider.Mappings[".m3u8"] = "application/x-mpegURL"; //m3u8的MIME
             provider.Mappings[".ts"] = "video/MP2TL"; //.ts的MIME
-
+            app.UseCors(
+                options => options.WithOrigins("*").AllowAnyMethod()
+            );
             app.Use(next =>
             {
                 return new RequestDelegate(async (httpContext) => {

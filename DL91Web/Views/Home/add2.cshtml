@@ -19,11 +19,13 @@
     </style>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script>
-        var cacheDomain = 'http://localhost:1080';
+        var cacheDomain = localStorage.getItem('cacheDomain') || 'http://localhost:1080';
         //var cacheDomain = 'http://192.168.31.161:1080';
         $(function () {
+            $('#cacheDomain').val(cacheDomain);
             $("#btn").click(async function () {
-
+                cacheDomain = $('#cacheDomain').val();
+                localStorage.setItem('localStorage', localStorage);
                 var file = $("#ff")[0];
                 if (!file.value || file.value.indexOf('mp4') < 0) {
                     alert('select mp4');
@@ -85,6 +87,10 @@
         <div class="col-md-2">
             @Html.Label("", "mp4")
             <input id="ff" type="file" name="ff" value="" />
+        </div>
+        <div class="col-md-2">
+            @Html.Label("", "cacheDomain")
+            <input id="cacheDomain" type="file" name="cacheDomain" value="" />
         </div>
         <div class="col-md-2">
             @Html.Label("", "progress")

@@ -9,6 +9,7 @@
     <script src="{site}js/xgplayer/xgplayer-hls@3.0.11.min.js"></script>
     <script src="{loadJsUrl}"></script>
     <script>
+        var cacheDomain = localStorage.getItem('cacheDomain') || 'http://localhost:1080';
         var vid = parseInt('{id}');
         var createDate = parseInt('{createdate}');
         var isLike = '{isLike}'

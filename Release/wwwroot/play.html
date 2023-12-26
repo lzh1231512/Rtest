@@ -5,6 +5,7 @@
     <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport">
     <script src="{loadJsUrl}"></script>
     <script>
+        var cacheDomain = localStorage.getItem('cacheDomain') || 'http://localhost:1080';
         var vid = parseInt('{id}');
         var createDate = parseInt('{createdate}');
         var isLike = '{isLike}'
