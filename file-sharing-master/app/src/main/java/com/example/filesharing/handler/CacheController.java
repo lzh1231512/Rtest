@@ -16,8 +16,10 @@ import com.example.filesharing.domain.MyFile;
 import com.example.filesharing.utils.FileUtils;
 import com.google.gson.Gson;
 import com.yanzhenjie.andserver.annotation.Controller;
+import com.yanzhenjie.andserver.annotation.CrossOrigin;
 import com.yanzhenjie.andserver.annotation.GetMapping;
 import com.yanzhenjie.andserver.annotation.PostMapping;
+import com.yanzhenjie.andserver.annotation.RequestMethod;
 import com.yanzhenjie.andserver.annotation.RequestParam;
 import com.yanzhenjie.andserver.annotation.ResponseBody;
 import com.yanzhenjie.andserver.http.HttpResponse;
@@ -40,6 +42,7 @@ import java.util.List;
 public class CacheController {
     @GetMapping("/getMenu")
     @ResponseBody
+    @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.GET})
     public String getMenu(RequestBody body, HttpResponse response) throws IOException {
         StringBuilder sb=new StringBuilder();
         sb.append("[");
@@ -61,13 +64,13 @@ public class CacheController {
             }
         }
         sb.append("]");
-        response.setHeader("Access-Control-Allow-Origin","*");
         response.setHeader("Content-Type","text/json;charset=utf-8");
         return sb.toString();
     }
 
     @PostMapping("/deleteCache")
     @ResponseBody
+    @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.GET})
     public String deleteCache(RequestBody body, HttpResponse response
             , @RequestParam("id") String id) throws IOException {
         File dir = new File(FileUtils.fileDirectory + "/" + id);
@@ -80,12 +83,12 @@ public class CacheController {
         File menu = new File(FileUtils.fileDirectory + "/menu/" + id);
         menu.delete();
         response.setHeader("Content-Type","text/html;chartset=utf-8");
-        response.setHeader("Access-Control-Allow-Origin","*");
         return "删除文件“"+id+"”成功！";
     }
 
     @PostMapping("/uploadMp4")
     @ResponseBody
+    @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.GET})
     public String uploadMp4(RequestBody body, HttpResponse response,
                        @RequestParam("ff") MultipartFile ff,
                        @RequestParam(name = "json") String json) throws IOException {
@@ -152,7 +155,6 @@ public class CacheController {
                 result = "failed";
             }
         }
-        response.setHeader("Access-Control-Allow-Origin","*");
         return result;
     }
 

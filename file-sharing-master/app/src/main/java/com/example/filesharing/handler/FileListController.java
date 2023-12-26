@@ -5,11 +5,13 @@ import com.example.filesharing.domain.MyFile;
 import com.example.filesharing.utils.FileUtils;
 import com.google.gson.Gson;
 import com.yanzhenjie.andserver.annotation.Controller;
+import com.yanzhenjie.andserver.annotation.CrossOrigin;
 import com.yanzhenjie.andserver.annotation.FormPart;
 import com.yanzhenjie.andserver.annotation.GetMapping;
 import com.yanzhenjie.andserver.annotation.PathVariable;
 import com.yanzhenjie.andserver.annotation.PostMapping;
 import com.yanzhenjie.andserver.annotation.QueryParam;
+import com.yanzhenjie.andserver.annotation.RequestMethod;
 import com.yanzhenjie.andserver.annotation.RequestParam;
 import com.yanzhenjie.andserver.annotation.ResponseBody;
 import com.yanzhenjie.andserver.annotation.RestController;
@@ -32,6 +34,7 @@ import java.util.List;
 public class FileListController {
 
     @GetMapping("/fileList")
+    @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.GET})
     public FileBody download(HttpRequest request, HttpResponse response
             , @RequestParam("filename") String filename
             , @RequestParam(name = "mime",  required = false) String mime)
@@ -41,12 +44,12 @@ public class FileListController {
         if(mime!=null&&!mime.isEmpty()){
             response.setHeader("Content-Type",mime);
         }
-        response.setHeader("Access-Control-Allow-Origin","*");
         return new FileBody(new File(FileUtils.fileDirectory+"/"+filename));
     }
 
     @PostMapping("/fileDel/{filename}")
     @ResponseBody
+    @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.GET})
     public String delete(HttpRequest request, HttpResponse response
             , @PathVariable("filename") String filename){
         File file = new File(FileUtils.fileDirectory + "/" + filename);
@@ -57,12 +60,12 @@ public class FileListController {
         }else{
             s="删除文件“"+filename+"”失败！";
         }
-        response.setHeader("Access-Control-Allow-Origin","*");
         return s;
     }
 
     @PostMapping("/fileUpload")
     @ResponseBody
+    @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.GET})
     public String upload(HttpRequest request, HttpResponse response
             , @RequestParam("ff") MultipartFile ff
             , @RequestParam(name = "folder",  required = false) String folder
@@ -76,7 +79,6 @@ public class FileListController {
         if(!file.exists()){//如果目录还未存在
             boolean mkdir = file.mkdir();
         }
-        response.setHeader("Access-Control-Allow-Origin","*");
         if(!ff.isEmpty()){
             if(fileName==null||fileName.isEmpty()){
                 fileName=ff.getFilename();

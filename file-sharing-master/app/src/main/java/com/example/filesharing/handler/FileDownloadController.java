@@ -5,8 +5,10 @@ import com.example.filesharing.domain.MyFile;
 import com.example.filesharing.utils.FileUtils;
 import com.google.gson.Gson;
 import com.yanzhenjie.andserver.annotation.Controller;
+import com.yanzhenjie.andserver.annotation.CrossOrigin;
 import com.yanzhenjie.andserver.annotation.GetMapping;
 import com.yanzhenjie.andserver.annotation.PostMapping;
+import com.yanzhenjie.andserver.annotation.RequestMethod;
 import com.yanzhenjie.andserver.annotation.ResponseBody;
 import com.yanzhenjie.andserver.framework.body.StringBody;
 import com.yanzhenjie.andserver.http.HttpResponse;
@@ -22,6 +24,7 @@ import java.util.List;
 public class FileDownloadController {
     @PostMapping("/fileDownload")
     @ResponseBody
+    @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.GET})
     public String body(RequestBody body, HttpResponse response) {
         boolean status=true;
         String errMsg="";
@@ -69,10 +72,6 @@ public class FileDownloadController {
         Gson gson=new Gson();
         JsonResponse<MyFile> myFileJsonResponse=new JsonResponse<>(status,errMsg,note,myFileList);
         response.setHeader("Content-Type","application/json;chartset=utf-8");
-        response.setHeader("Access-Control-Allow-Origin","*");
         return gson.toJson(myFileJsonResponse);
-        //response.setBody(new StringBody(s));
-        //response.setEntity(new StringEntity(s,"utf-8"));
-        //response.setHeader("Content-Type","application/json;chartset=utf-8");
     }
 }
