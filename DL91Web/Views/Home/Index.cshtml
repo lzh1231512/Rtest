@@ -10,36 +10,186 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=0">
+    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/css/site.css" rel="stylesheet" />
+    <link href="~/css/pager.css" rel="stylesheet" />
+    <link href="~/css/font-awesome.css" rel="stylesheet" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/js/IndexDB.js" asp-append-version="true"></script>
+    <script src="~/js/cacheM3u8.js" asp-append-version="true"></script>
+    <script src="~/js/loadJs.js" asp-append-version="true"></script>
     <style>
         @@media (min-width: 1596px) {
             #div-body-content {
                 width: 1596px;
             }
         }
+
+        body {
+            padding-top: 10px;
+        }
+
+        input[type=checkbox].form-control {
+            width: 24px;
+        }
     </style>
     <script>
         var cacheDomain = localStorage.getItem('cacheDomain') || 'http://localhost:1080';
+        var GetImgURL = '@Url.Action("GetImg", "Home")';
+        var IndexForAjaxUrl = '@Url.Action("IndexForAjax", "Home")';
+        var BuildTime = '@DL91Web.Helpers.Common.CompileTime';
+        var baseUrl = window.location.origin + '@Url.Content("~/")';
+    </script>
+    <script src="~/js/ajaxpager/ajaxpager.js" asp-append-version="true"></script>
+    <script>
+        var playHtml1 = '', playHtml2 = '', playHtml3 = '', loadjsUrl = '';
+        loadHTML(baseUrl + 'play.html', BuildTime, function (ht) {
+            playHtml1 = ht;
+        });
+        loadHTML(baseUrl + 'play2.html', BuildTime, function (ht) {
+            playHtml2 = ht;
+        });
+        loadHTML(baseUrl + 'play3.html', BuildTime, function (ht) {
+            playHtml3 = ht;
+        });
+        loadHTML(baseUrl + 'js/loadJs.js', BuildTime, function (ht) {
+            var blob = new Blob([ht], { type: 'application/javascript' });
+            loadjsUrl = URL.createObjectURL(blob);
+        });
+        function onPageLoad() {
+            window.scrollTo(0, 0);
+        }
+        function play(obj) {
+            var id = $(obj).data('id');
+            var title = $(obj).data('title');
+            var filesize = $(obj).data('filesize');
+            var ishd = $(obj).data('ishd');
+            var islike = $(obj).data('islike');
+            var url = $(obj).data('url');
+            var createdate = $(obj).data('createdate');
+
+            var newHtml = playHtml1;// $('#selPlayer').val() == 1 ? playHtml1 : playHtml2;
+            switch ($('#selPlayer').val()) {
+                case '1': newHtml = playHtml1; break;
+                case '2': newHtml = playHtml2; break;
+                case '3': newHtml = playHtml3; break;
+            }
+            newHtml = newHtml.replace('{id}', id)
+                .replace('{title}', title)
+                .replace('{filesize}', filesize)
+                .replace('{isHD}', ishd)
+                .replace('{isLike}', islike)
+                .replace('{url}', url)
+                .replace('{createdate}', createdate)
+                .replace('{loadJsUrl}', loadjsUrl)
+                .replace(/{site}/g, baseUrl)
+                .replace(/{version}/g, BuildTime);
+
+            var blob = new Blob([newHtml], { type: 'text/html' });
+            obj.href = URL.createObjectURL(blob);
+        }
+        function edit(obj) {
+            var id = $(obj).data('id');
+            obj.href = '@Url.Action("Edit")?id=' + id;
+        }
+
+        async function getTypes() {
+            $('#typeId').empty();
+            var dt = localStorage.getItem('getTypes');
+            if (dt) {
+                var data = JSON.parse(dt);
+                for (var i = 0; i < data.length; i++) {
+                    $('#typeId').append("<option   value='" + data[i].id + "'>" + data[i].name + "</option>");
+                }
+            }
+            $.ajax({
+                method: "post",
+                type: 'json',
+                url: "@Url.Action("GetTypes")",
+                success: function (data) {
+                    $('#typeId').empty();
+                    for (var i = 0; i < data.length; i++) {
+                        $('#typeId').append("<option   value='" + data[i].id + "'>" + data[i].name + "</option>");
+                    }
+                    localStorage.setItem('getTypes', JSON.stringify(data))
+                }
+            });
+        }
+
+        $(function () {
+            ajaxPager.pager.init();
+            $('#cacheDomain').val(cacheDomain);
+            $('#selSort').val(localStorage.getItem('selSort') || 1);
+
+            $('#isFromCache').change(function () {
+                if (this.checked) {
+                    $('.nocache').hide();
+                    $('.cache').show();
+                }
+                else {
+                    $('.cache').hide();
+                    $('.nocache').show();
+                }
+            }).change();
+
+            $('#selPlayer').change(function () {
+                localStorage.setItem('selPlayer', $(this).val());
+            });
+            var pl = localStorage.getItem('selPlayer');
+            if (pl) {
+                $('#selPlayer').val(pl);
+            }
+            $('#btnClear').click(function(){
+                $('#title1,#title2').val('');
+                $('#isLike').prop('checked',false);
+            });
+            $('#btnSync').click(function () {
+                $.post('@Url.Action("sync")');
+                alert('OK');
+            });
+            m3u8.initDownload(function (taskCount) {
+                $('#displayDowntask').html('('+taskCount+')');
+            });
+            $('#btnSubmitSalesOrderSearch').click(async function () {
+                if ($('#isFromCache').is(':checked')) {
+                    cacheDomain = $('#cacheDomain').val();
+                    localStorage.setItem('cacheDomain', cacheDomain);
+                    localStorage.setItem('selSort', $('#selSort').val());
+                    var list = await m3u8.getCachedList();
+                    var sort = $('#selSort').val();
+                    list.sort(function (a, b) {
+                        if (sort == 1)
+                            return a.title > b.title ? -1 : 1;
+                        return a.createDate > b.createDate ? -1 : 1;
+                    });
+                    ajaxPager.pager.gotopage(1, $("div.pagination-container"), false, list);
+                }
+                else {
+                    var baseurl = IndexForAjaxUrl + "?currentPage=0&&title1=" + ($('#title1').val() || '') + "&&title2=" + ($('#title2').val() || '') + "&&isLike=" + ($('#isLike').is(':checked')?1:2) + "&&typeId=" + $('#typeId').val();
+                    $('input[name=hipagebaseurl]').val(baseurl);
+                    ajaxPager.pager.gotopage(1, $("div.pagination-container"));
+                }
+
+                return false;
+            });
+            $('#btnSubmitSalesOrderSearch').click();
+            getTypes();
+        });
+        history.pushState(null, null, location.href);
+        window.addEventListener('popstate', function (event) {
+            if ($('#hicurrentPage').val() != '1') {
+                history.pushState(null, null, location.href);
+                $('span.btnprevious').click();
+            }
+        });
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw-cache.js');
+        }
     </script>
 </head>
 <body>
     <div id="div-body-content" class="container body-content">
-
-        <style>
-            body {
-                padding-top: 10px;
-            }
-
-            input[type=checkbox].form-control {
-                width: 24px;
-            }
-        </style>
-        <script src="~/js/loadJs.js"></script>
-        <script>
-    var GetImgURL = '@Url.Action("GetImg", "Home")';
-    var IndexForAjaxUrl = '@Url.Action("IndexForAjax", "Home")';
-    var BuildTime = '@DL91Web.Helpers.Common.CompileTime';
-    var baseUrl = window.location.origin + '@Url.Content("~/")';
-        </script>
         <div>
             <div class="panel panel-info">
                 <div class="panel-heading" id="TelescopicHead" data-toggle="collapse" data-target="#SalesOrderSearchArea">
@@ -78,7 +228,6 @@
                                 <option value="2">Date</option>
                             </select>
                         </div>
-
                         <div class="col-md-2">
                             @Html.Label("", "player")
                             <select id="selPlayer" class="form-control">
@@ -99,164 +248,8 @@
                 </div>
             </div>
             <div id="SalesOrderResult">
-
             </div>
         </div>
-        <script>
-            loadStyle([
-                baseUrl + 'lib/bootstrap/dist/css/bootstrap.css',
-                baseUrl + 'css/site.css',
-                baseUrl + 'css/pager.css',
-                baseUrl + 'css/font-awesome.css'],
-                BuildTime);
-            loadjs([baseUrl + 'lib/jquery/dist/jquery.js',
-                baseUrl + 'lib/bootstrap/dist/js/bootstrap.js',
-                baseUrl + 'js/IndexDB.js',
-                baseUrl + 'js/cacheM3u8.js',
-                baseUrl + 'js/ajaxpager/ajaxpager.js']);
-
-            var playHtml1 = '', playHtml2 = '', playHtml3 = '', loadjsUrl = '';
-            loadHTML(baseUrl + 'play.html', BuildTime, function (ht) {
-                playHtml1 = ht;
-            });
-            loadHTML(baseUrl + 'play2.html', BuildTime, function (ht) {
-                playHtml2 = ht;
-            });
-            loadHTML(baseUrl + 'play3.html', BuildTime, function (ht) {
-                playHtml3 = ht;
-            });
-            loadHTML(baseUrl + 'js/loadJs.js', BuildTime, function (ht) {
-                var blob = new Blob([ht], { type: 'application/javascript' });
-                loadjsUrl = URL.createObjectURL(blob);
-            });
-            function onPageLoad() {
-                window.scrollTo(0, 0);
-            }
-            function play(obj) {
-                var id = $(obj).data('id');
-                var title = $(obj).data('title');
-                var filesize = $(obj).data('filesize');
-                var ishd = $(obj).data('ishd');
-                var islike = $(obj).data('islike');
-                var url = $(obj).data('url');
-                var createdate = $(obj).data('createdate');
-
-                var newHtml = playHtml1;// $('#selPlayer').val() == 1 ? playHtml1 : playHtml2;
-                switch ($('#selPlayer').val()) {
-                    case '1': newHtml = playHtml1; break;
-                    case '2': newHtml = playHtml2; break;
-                    case '3': newHtml = playHtml3; break;
-                }
-                newHtml = newHtml.replace('{id}', id)
-                    .replace('{title}', title)
-                    .replace('{filesize}', filesize)
-                    .replace('{isHD}', ishd)
-                    .replace('{isLike}', islike)
-                    .replace('{url}', url)
-                    .replace('{createdate}', createdate)
-                    .replace('{loadJsUrl}', loadjsUrl)
-                    .replace(/{site}/g, baseUrl);
-
-                var blob = new Blob([newHtml], { type: 'text/html' });
-                obj.href = URL.createObjectURL(blob);
-            }
-            function edit(obj) {
-                var id = $(obj).data('id');
-                obj.href = '@Url.Action("Edit")?id=' + id;
-            }
-
-            async function getTypes() {
-                $('#typeId').empty();
-                var dt = localStorage.getItem('getTypes');
-                if (dt) {
-                    var data = JSON.parse(dt);
-                    for (var i = 0; i < data.length; i++) {
-                        $('#typeId').append("<option   value='" + data[i].id + "'>" + data[i].name + "</option>");
-                    }
-                }
-                $.ajax({
-                    method: "post",
-                    type: 'json',
-                    url: "@Url.Action("GetTypes")",
-                    success: function (data) {
-                        $('#typeId').empty();
-                        for (var i = 0; i < data.length; i++) {
-                            $('#typeId').append("<option   value='" + data[i].id + "'>" + data[i].name + "</option>");
-                        }
-                        localStorage.setItem('getTypes', JSON.stringify(data))
-                    }
-                });
-            }
-
-            $(function () {
-                $('#cacheDomain').val(cacheDomain);
-                $('#selSort').val(localStorage.getItem('selSort') || 1);
-
-                $('#isFromCache').change(function () {
-                    if (this.checked) {
-                        $('.nocache').hide();
-                        $('.cache').show();
-                    }
-                    else {
-                        $('.cache').hide();
-                        $('.nocache').show();
-                    }
-                }).change();
-
-                $('#selPlayer').change(function () {
-                    localStorage.setItem('selPlayer', $(this).val());
-                });
-                var pl = localStorage.getItem('selPlayer');
-                if (pl) {
-                    $('#selPlayer').val(pl);
-                }
-                $('#btnClear').click(function(){
-                    $('#title1,#title2').val('');
-                    $('#isLike').prop('checked',false);
-                });
-                $('#btnSync').click(function () {
-                    $.post('@Url.Action("sync")');
-                    alert('OK');
-                });
-                m3u8.initDownload(function (taskCount) {
-                    $('#displayDowntask').html('('+taskCount+')');
-                });
-                $('#btnSubmitSalesOrderSearch').click(async function () {
-                    if ($('#isFromCache').is(':checked')) {
-                        cacheDomain = $('#cacheDomain').val();
-                        localStorage.setItem('cacheDomain', cacheDomain);
-                        localStorage.setItem('selSort', $('#selSort').val());
-                        var list = await m3u8.getCachedList();
-                        var sort = $('#selSort').val();
-                        list.sort(function (a, b) {
-                            if (sort == 1)
-                                return a.title > b.title ? -1 : 1;
-                            return a.createDate > b.createDate ? -1 : 1;
-                        });
-                        ajaxPager.pager.gotopage(1, $("div.pagination-container"), false, list);
-                    }
-                    else {
-                        var baseurl = IndexForAjaxUrl + "?currentPage=0&&title1=" + ($('#title1').val() || '') + "&&title2=" + ($('#title2').val() || '') + "&&isLike=" + ($('#isLike').is(':checked')?1:2) + "&&typeId=" + $('#typeId').val();
-                        $('input[name=hipagebaseurl]').val(baseurl);
-                        ajaxPager.pager.gotopage(1, $("div.pagination-container"));
-                    }
-
-                    return false;
-                });
-                $('#btnSubmitSalesOrderSearch').click();
-                getTypes();
-            });
-            history.pushState(null, null, location.href);
-            window.addEventListener('popstate', function (event) {
-                if ($('#hicurrentPage').val() != '1') {
-                    history.pushState(null, null, location.href);
-                    $('span.btnprevious').click();
-                }
-            });
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw-cache.js');
-            }
-        </script>
     </div>
 </body>
 </html>

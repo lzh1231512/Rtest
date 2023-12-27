@@ -424,6 +424,5 @@ ajaxPager.pager = (function () {
             page: { pageSize: p}
         }));
     };
-    pager.init();
     return pager;
 })();
