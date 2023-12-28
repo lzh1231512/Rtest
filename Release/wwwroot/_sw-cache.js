@@ -30,10 +30,14 @@ self.addEventListener('activate', function (event) {
 // 捕获请求并返回缓存数据
 self.addEventListener('fetch', function (event) {
     if (event.request.method == 'GET' && event.request.url.indexOf(this.location.origin) == 0) {
-        var url = event.request.url.indexOf('?') > 0 ?
-            event.request.url.substr(0, event.request.url.indexOf('?'))
-            : event.request.url;
-        console.log('url:' + url);
+        var url = event.request.url;
+        if (url.indexOf('?') > 0) {
+            url = url.substr(0, url.indexOf('?'));
+        }
+        else if (url.indexOf('#') > 0) {
+            url = url.substr(0, url.indexOf('#'));
+        }
+        //console.log('url:' + url);
         if (url == this.location.origin ||
             url == this.location.origin + '/' ||
             url.lastIndexOf('.js') == url.length - 3 ||
@@ -44,11 +48,11 @@ self.addEventListener('fetch', function (event) {
                 caches.open(VERSION).then(function (cache) {
                     return cache.match(event.request).then(function (response) {
                         if (response) {
-                            console.log('matched:' + url);
+                            //console.log('matched:' + url);
                             return response;
                         }
                         return fetch(event.request).then(function (response) {
-                            console.log('fetched:' + url);
+                            //console.log('fetched:' + url);
                             cache.put(event.request, response.clone());
                             return response;
                         });
