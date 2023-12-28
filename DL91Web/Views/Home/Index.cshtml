@@ -61,7 +61,7 @@
                 case '2': newHtml = 'play2.html'; break;
                 case '3': newHtml = 'play3.html'; break;
             }
-            postData.open(newHtml, {
+            obj.href = postData.url(newHtml, {
                 id: id,
                 title: title,
                 isHD:ishd,
@@ -70,7 +70,6 @@
                 url: url,
                 createdate: createdate
             });
-            return false;
         }
         function edit(obj) {
             var id = $(obj).data('id');

@@ -1,8 +1,8 @@
 ﻿var postData = {
-    open: function (url,data) {
+    url: function (url,data) {
         var blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
         var burl = URL.createObjectURL(blob);
-        window.open(url + "#" + burl.split('/').pop(), "_blank");
+        return url + "#" + burl.split('/').pop();
     },
     getData: function () {
         var code = window.location.href.split("#").pop();
