@@ -193,7 +193,9 @@ namespace DL91
 
         static string getM3u8Url(int id,bool isHD)
         {
-            var domain = id < 160426 ? "https://cdn.163cdn.net" : "https://cdn2.163cdn.net";
+            //var domain = id < 160426 ? "https://cdn.163cdn.net" : "https://cdn2.163cdn.net";
+            var domain = "https://91rbnet.douyincontent.com";
+
             var result = domain + "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_720p.mp4/index.m3u8";
             if (isHD || testHttp(result))
                 return result;
