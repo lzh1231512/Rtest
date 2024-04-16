@@ -124,16 +124,20 @@ namespace DL91Web.Controllers
             DL91.Job.ResetFailedVideo();
             return Json(1);
         }
-        private string getM3u8(int id,bool isHD,bool isLocal)
+        private string getM3u8(int id,int isHD,bool isLocal)
         {
             //var domain = "https://cdn.163cdn.net";
             if (isLocal)
             {
                 return "/video/" + (id / 1000) + "/" + id + "/index.m3u8";
             }
-            if (isHD)
+            if (isHD == 1)
             {
                 return "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_720p.mp4/index.m3u8";
+            }
+            if (isHD == 2)
+            {
+                return "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_1080p.mp4/index.m3u8";
             }
             return "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8";
         }
@@ -436,7 +440,7 @@ namespace DL91Web.Controllers
             {
                 var obj = db.DB91s.FirstOrDefault(f => f.id == id);
                 var time = obj.time;
-                var url = "https://91rbnet.douyincontent.com" + getM3u8(id, isHD == 1, false).Replace("index.m3u8", "");
+                var url = "https://91rbnet.douyincontent.com" + getM3u8(id, isHD, false).Replace("index.m3u8", "");
                 for (int i = 1; time > 0; i++)
                 {
                     var t = time >= 10 ? 10 : time;
