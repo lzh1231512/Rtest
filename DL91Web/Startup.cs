@@ -94,6 +94,9 @@ namespace DL91Web
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
+                    name: "m3u8fix",
+                    template: "Home/m3u8fix/{isHD}/{id}.m3u8", defaults: new { Controller = "Home", Action = "m3u8fix" });
+                routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
                 routes.MapRoute(

@@ -33,6 +33,8 @@
         }
         var likeUrl = 'Home/like';
         var deleteUrl = 'Home/Delete';
+        var fixURL = `home/m3u8fix/0/${vid}.m3u8`;
+        var fixHDURL = `home/m3u8fix/1/${vid}.m3u8`;
     </script>
 
 </head>
@@ -102,6 +104,7 @@
         &nbsp;&nbsp;
         <select id="domain">
             <option value="https://91rbnet.douyincontent.com">91rbnet.douyincontent.com</option>
+            <option value="https://91rbnet.douyincontent.com" data-fix="1">FixURL</option>
         </select>
         &nbsp;
         <input id="isHD" type="checkbox" name="isHD" value="" />HD
@@ -195,6 +198,9 @@
                 localStorage.setItem("isLocal", $op.data('local') == 1 ? "1" : "0");
                 if ($op.data('local') == 1) {
                     return $op.val();
+                }
+                if ($op.data('fix') == 1) {
+                    return ($('#isHD:checked').length > 0 ? fixHDURL : fixURL);
                 }
                 localStorage.setItem("domain", $op.val());
                 localStorage.setItem("isHD", $('#isHD:checked').length > 0 ? "1" : "0");
