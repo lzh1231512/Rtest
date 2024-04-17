@@ -106,7 +106,8 @@
         <select id="domain">
             <option value="https://91rbnet.douyincontent.com">91rbnet.douyincontent.com</option>
             <option value="https://91rbnet.douyincontent.com" data-fix="1">FixURL</option>
-            <option value="https://91rbnet.douyincontent.com" data-fix="2">FixURL2</option>
+            <option value="https://91rbnet.douyincontent.com" data-fix="2">FixURL720P</option>
+            <option value="https://91rbnet.douyincontent.com" data-fix="3">FixURL1080P</option>
         </select>
         &nbsp;
         <input id="isHD" type="checkbox" name="isHD" value="" />HD
@@ -201,13 +202,16 @@
                 if ($op.data('local') == 1) {
                     return $op.val();
                 }
+                localStorage.setItem("domain", $op.val());
                 if ($op.data('fix') == 1) {
-                    return ($('#isHD:checked').length > 0 ? fixHDURL : fixURL);
+                    return fixURL;
                 }
                 if ($op.data('fix') == 2) {
+                    return fixHDURL;
+                }
+                if ($op.data('fix') == 3) {
                     return fixHDURL2;
                 }
-                localStorage.setItem("domain", $op.val());
                 localStorage.setItem("isHD", $('#isHD:checked').length > 0 ? "1" : "0");
                 return $op.val() + ($('#isHD:checked').length > 0 ? hdurl : baseUrl);
             }
