@@ -147,7 +147,7 @@ namespace DL91
         static int downloadM3u8(int id,bool isHD,int downloadtime,out long fileSize)
         {
             fileSize = 0;
-            var m3url = getM3u8Url(id, isHD);
+            var m3url = getFixedM3u8(id);
             WebPage p = new WebPage(m3url);
             if (!p.IsGood)
             {
@@ -191,16 +191,32 @@ namespace DL91
             return 1;
         }
 
-        static string getM3u8Url(int id,bool isHD)
+        private static string getM3u8Url(int id, int isHD)
         {
-            //var domain = id < 160426 ? "https://cdn.163cdn.net" : "https://cdn2.163cdn.net";
-            var domain = "https://91rbnet.douyincontent.com";
-
-            var result = domain + "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_720p.mp4/index.m3u8";
-            if (isHD || testHttp(result))
-                return result;
-            return domain + "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8";
+            if (isHD == 1)
+            {
+                return "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_720p.mp4/index.m3u8";
+            }
+            if (isHD == 2)
+            {
+                return "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_1080p.mp4/index.m3u8";
+            }
+            return "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8";
         }
+
+        private static string getFixedM3u8(int id)
+        {
+            for (int i = 2; i >= 0; i--)
+            {
+                var url = "https://91rbnet.douyincontent.com" + getM3u8Url(id, i).Replace("index.m3u8", "");
+                if (testHttp(url + "cdn-1-v1-a1.ts"))
+                {
+                    return "https://fj.lzhsb.cc/home/m3u8fix/" + i + "/" + id + "/index.m3u8";
+                }
+            }
+            return "https://91rbnet.douyincontent.com" + getM3u8Url(id, 0);
+        }
+
         static bool testHttp(string url)
         {
             for (int i = 0; i < 3; i++)
@@ -209,7 +225,7 @@ namespace DL91
                 {
                     HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                     request.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko";
-                    request.Method = "GET";
+                    request.Method = "HEAD";
                     request.Accept = "*/*";
                     request.CookieContainer = new CookieContainer();
                     HttpWebResponse respons = (HttpWebResponse)request.GetResponse();
@@ -248,7 +264,7 @@ namespace DL91
                 {
                     if (item.isVideoDownloaded == 1)
                     {
-                        if (File.Exists(getVideoSavePath(item.id, getM3u8Url(item.id, item.isHD))))
+                        if (File.Exists(getVideoSavePath(item.id, getM3u8Url(item.id, 0))))
                         {
                             continue;
                         }
