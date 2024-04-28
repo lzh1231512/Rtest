@@ -7,6 +7,8 @@
   <PropertyGroup>
     <TimeStampOfAssociatedLegacyPublishXmlFile />
     <_PublishTargetUrl>C:\Git\Rtest\DL91Web\..\Release\</_PublishTargetUrl>
+    <History>True|2024-04-28T12:47:48.4568020Z;False|2024-04-28T20:43:04.4778099+08:00;</History>
+    <LastFailureDetails />
   </PropertyGroup>
   <ItemGroup>
     <File Include="config/appsettings.json">
