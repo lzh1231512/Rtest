@@ -1,0 +1,237 @@
+﻿@using DL91;
+@{
+    ViewData["Title"] = "Home Page";
+    var TypeLst = ViewBag.TypeLst as List<DBType>;
+    Layout = null;
+}
+@model DL91.Models.SearchViewModel
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=0">
+    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/css/site.css" rel="stylesheet" />
+    <link href="~/css/pager.css" rel="stylesheet" />
+    <link href="~/css/font-awesome.css" rel="stylesheet" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/js/IndexDB.js" asp-append-version="true"></script>
+    <script src="~/js/cacheM3u8.js" asp-append-version="true"></script>
+    <script src="~/js/postData.js" asp-append-version="true"></script>
+    <style>
+        @@media (min-width: 1596px) {
+            #div-body-content {
+                width: 1596px;
+            }
+        }
+
+        body {
+            padding-top: 10px;
+        }
+
+        input[type=checkbox].form-control {
+            width: 24px;
+        }
+    </style>
+    <script>
+        var cacheDomain = localStorage.getItem('cacheDomain') || 'http://localhost:1080';
+        var GetImgURL = '@Url.Action("GetImg", "Home")';
+        var IndexForAjaxUrl = '@Url.Action("IndexForAjax", "Home")';
+        var BuildTime = '@DL91Web.Helpers.Common.CompileTime';
+        var baseUrl = window.location.origin + '@Url.Content("~/")';
+    </script>
+    <script src="~/js/ajaxpager/ajaxpager.js" asp-append-version="true"></script>
+    <script>
+        function onPageLoad() {
+            window.scrollTo(0, 0);
+        }
+        function play(obj) {
+            var id = $(obj).data('id');
+            var title = $(obj).data('title');
+            var filesize = $(obj).data('filesize');
+            var ishd = $(obj).data('ishd');
+            var islike = $(obj).data('islike');
+            var url = $(obj).data('url');
+            var createdate = $(obj).data('createdate');
+
+            var newHtml = 'play.html';
+            switch ($('#selPlayer').val()) {
+                case '1': newHtml = 'play.html'; break;
+                case '2': newHtml = 'play2.html'; break;
+                case '3': newHtml = 'play3.html'; break;
+            }
+            obj.href = postData.url(newHtml, {
+                id: id,
+                title: title,
+                isHD:ishd,
+                isLike: islike,
+                filesize: filesize,
+                url: url,
+                createdate: createdate
+            });
+        }
+        function edit(obj) {
+            var id = $(obj).data('id');
+            obj.href = '@Url.Action("Edit")?id=' + id;
+        }
+
+        async function getTypes() {
+            $('#typeId').empty();
+            var dt = localStorage.getItem('getTypes');
+            if (dt) {
+                var data = JSON.parse(dt);
+                for (var i = 0; i < data.length; i++) {
+                    $('#typeId').append("<option   value='" + data[i].id + "'>" + data[i].name + "</option>");
+                }
+            }
+            $.ajax({
+                method: "post",
+                type: 'json',
+                url: "@Url.Action("GetTypes")",
+                success: function (data) {
+                    $('#typeId').empty();
+                    for (var i = 0; i < data.length; i++) {
+                        $('#typeId').append("<option   value='" + data[i].id + "'>" + data[i].name + "</option>");
+                    }
+                    localStorage.setItem('getTypes', JSON.stringify(data))
+                }
+            });
+        }
+
+        $(function () {
+            ajaxPager.pager.init();
+            $('#cacheDomain').val(cacheDomain);
+            $('#selSort').val(localStorage.getItem('selSort') || 1);
+
+            $('#isFromCache').change(function () {
+                if (this.checked) {
+                    $('.nocache').hide();
+                    $('.cache').show();
+                }
+                else {
+                    $('.cache').hide();
+                    $('.nocache').show();
+                }
+            }).change();
+
+            $('#selPlayer').change(function () {
+                localStorage.setItem('selPlayer', $(this).val());
+            });
+            var pl = localStorage.getItem('selPlayer');
+            if (pl) {
+                $('#selPlayer').val(pl);
+            }
+            $('#btnClear').click(function(){
+                $('#title1,#title2').val('');
+                $('#isLike').prop('checked',false);
+            });
+            $('#btnSync').click(function () {
+                $.post('@Url.Action("sync")');
+                alert('OK');
+            });
+            m3u8.initDownload(function (taskCount) {
+                $('#displayDowntask').html('('+taskCount+')');
+            });
+            $('#btnSubmitSalesOrderSearch').click(async function () {
+                if ($('#isFromCache').is(':checked')) {
+                    cacheDomain = $('#cacheDomain').val();
+                    localStorage.setItem('cacheDomain', cacheDomain);
+                    localStorage.setItem('selSort', $('#selSort').val());
+                    var list = await m3u8.getCachedList();
+                    var sort = $('#selSort').val();
+                    list.sort(function (a, b) {
+                        if (sort == 1)
+                            return a.title > b.title ? -1 : 1;
+                        return a.createDate > b.createDate ? -1 : 1;
+                    });
+                    ajaxPager.pager.gotopage(1, $("div.pagination-container"), false, list);
+                }
+                else {
+                    var baseurl = IndexForAjaxUrl + "?currentPage=0&&title1=" + ($('#title1').val() || '') + "&&title2=" + ($('#title2').val() || '') + "&&isLike=" + ($('#isLike').is(':checked')?1:2) + "&&typeId=" + $('#typeId').val();
+                    $('input[name=hipagebaseurl]').val(baseurl);
+                    ajaxPager.pager.gotopage(1, $("div.pagination-container"));
+                }
+
+                return false;
+            });
+            $('#btnSubmitSalesOrderSearch').click();
+            getTypes();
+        });
+        history.pushState(null, null, location.href);
+        window.addEventListener('popstate', function (event) {
+            if ($('#hicurrentPage').val() != '1') {
+                history.pushState(null, null, location.href);
+                $('span.btnprevious').click();
+            }
+        });
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw-cache.js');
+        }
+    </script>
+</head>
+<body>
+    <div id="div-body-content" class="container body-content">
+        <div>
+            <div class="panel panel-info">
+                <div class="panel-heading" id="TelescopicHead" data-toggle="collapse" data-target="#SalesOrderSearchArea">
+                    <h3 class="panel-title" id="displaySearchConfig">
+                        Search Area <span id="displayDowntask"></span>&nbsp;&nbsp;
+                    </h3>
+                </div>
+                <div id="SalesOrderSearchArea" class="panel-body in searchArea">
+                    <div class="row">
+                        <div class="col-md-2" style="line-height:40px;">
+                            <label style="float:left">From Cache: &nbsp;&nbsp;</label>
+                            <input id="isFromCache" style="float:left" type="checkbox" class="form-control" value="" />
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="col-md-2 nocache">
+                            @Html.Label("", "Type")
+                            <select id="typeId" name="typeId" class="form-control"></select>
+                        </div>
+                        <div class="col-md-2 nocache">
+                            @Html.Label("", "Contains")
+                            @Html.EditorFor(m => m.title1, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                        <div class="col-md-2 nocache" style="line-height:40px;">
+                            <label style="float:left">Is Like: &nbsp;&nbsp;</label>
+                            <input id="isLike" style="float:left" type="checkbox" class="form-control" value="" />
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="col-md-2 cache">
+                            @Html.Label("", "cache url")
+                            <input id="cacheDomain" type="text" name="cacheDomain" value="" />
+                        </div>
+                        <div class="col-md-2 cache">
+                            @Html.Label("", "sort")
+                            <select id="selSort" class="form-control">
+                                <option value="1">Name</option>
+                                <option value="2">Date</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            @Html.Label("", "player")
+                            <select id="selPlayer" class="form-control">
+                                <option value="1">ChimeeJS</option>
+                                <option value="2">VideoJS</option>
+                                @*<option value="3">XGPlayer</option>*@
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-12 form-button-Lines">
+                            <button id="btnSubmitSalesOrderSearch" class="btn btn-info CommonBtn"><i class='fa fa-search'></i> Search</button>
+                            <input id="btnClear" type="button" class="btn btn-default CommonBtn" value="Clear All" />
+                            <a href="@Url.Action("Add")" target="_blank"><input type="button" class="btn btn-default CommonBtn" value="Add1" /></a>
+                            <a href="@Url.Action("Add2")" target="_blank"><input type="button" class="btn btn-default CommonBtn" value="Add2" /></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="SalesOrderResult">
+            </div>
+        </div>
+    </div>
+</body>
+</html>

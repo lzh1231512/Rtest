@@ -7,6 +7,9 @@
     <Deterministic>false</Deterministic>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 	<EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+	<RazorCompileOnBuild>false</RazorCompileOnBuild>
+	<RazorCompileOnPublish>false</RazorCompileOnPublish>
+	<UseRazorSourceGenerator>false</UseRazorSourceGenerator>
   </PropertyGroup>
   <ItemGroup>
     <None Include="Views\Home\Index.cshtml" />
