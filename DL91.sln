@@ -1,11 +1,11 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.705
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DL91", "DL91\DL91.csproj", "{A47317E4-69CA-404E-BDD2-C7967C5A0381}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DL91Web", "DL91Web\DL91Web.csproj", "{90F91D2E-5B7A-42BC-8235-8185D0DD3D34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DL91Web", "DL91Web\DL91Web.csproj", "{90F91D2E-5B7A-42BC-8235-8185D0DD3D34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

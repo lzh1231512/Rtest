@@ -1,12 +1,14 @@
 {
   "runtimeOptions": {
-    "tfm": "netcoreapp2.1",
+    "tfm": "net8.0",
     "framework": {
       "name": "Microsoft.NETCore.App",
-      "version": "2.1.0"
+      "version": "8.0.0"
     },
     "configProperties": {
-      "System.Reflection.Metadata.MetadataUpdater.IsSupported": false
+      "System.Reflection.Metadata.MetadataUpdater.IsSupported": false,
+      "System.Reflection.NullabilityInfoContext.IsSupported": true,
+      "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false
     }
   }
 }
