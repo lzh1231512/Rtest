@@ -66,30 +66,6 @@ namespace DL91Web8.Controllers
             return Json(model);
         }
 
-        private static string GetFileSize(long filesize)
-        {
-            if (filesize <= 0)
-            {
-                return "0";
-            }
-            else if (filesize >= 1024 * 1024 * 1024) //文件大小大于或等于1024MB
-            {
-                return string.Format("{0:0.00} GB", (double)filesize / (1024 * 1024 * 1024));
-            }
-            else if (filesize >= 1024 * 1024) //文件大小大于或等于1024KB
-            {
-                return string.Format("{0:0.00} MB", (double)filesize / (1024 * 1024));
-            }
-            else if (filesize >= 1024) //文件大小大于等于1024bytes
-            {
-                return string.Format("{0:0.00} KB", (double)filesize / 1024);
-            }
-            else
-            {
-                return string.Format("{0:0.00} bytes", filesize);
-            }
-        }
-
         public IActionResult like(int id, int isLike)
         {
             using (var db = new DB91Context())
@@ -114,51 +90,6 @@ namespace DL91Web8.Controllers
         {
             DL91.Job.ResetFailedVideo();
             return Json(1);
-        }
-        private string getM3u8(int id, int isHD, bool isLocal)
-        {
-            //var domain = "https://cdn.163cdn.net";
-            if (isLocal)
-            {
-                return "/video/" + (id / 1000) + "/" + id + "/index.m3u8";
-            }
-            if (isHD == 1)
-            {
-                return "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_720p.mp4/index.m3u8";
-            }
-            if (isHD == 2)
-            {
-                return "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_1080p.mp4/index.m3u8";
-            }
-            return "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8";
-        }
-
-        private string getTimeString(int time)
-        {
-            return string.Format("[{0:D2}:{1:D2}]", time / 60, time % 60);
-        }
-
-        private string getCreateDateStr(int time)
-        {
-            var dt = new DateTime(1990, 1, 1).AddMinutes(time);
-            var result = DateTime.UtcNow - dt;
-
-            if (result.TotalDays > 365)
-                return "[1年前]";
-            if (result.TotalDays > 7)
-                return "[" + (int)(result.TotalDays / 7) + "周前]";
-            if (result.TotalHours > 24)
-                return "[" + (int)(result.TotalDays) + "天前]";
-            return "[" + (int)(result.TotalHours) + "小时前]";
-        }
-
-
-        private string getTypeName(int typeId, List<DBType> lst)
-        {
-            var result = lst.SingleOrDefault(f => f.id == typeId);
-            if (result == null)
-                return "";
-            return "[" + result.name + "]";
         }
 
         private static string loginkey { set; get; }
@@ -431,7 +362,7 @@ namespace DL91Web8.Controllers
             {
                 var obj = db.DB91s.FirstOrDefault(f => f.id == id);
                 var time = obj.time;
-                var url = "https://91rbnet.douyincontent.com" + getM3u8(id, isHD, false).Replace("index.m3u8", "");
+                var url = "https://91rbnet.douyincontent.com" + Common.getM3u8(id, isHD, false).Replace("index.m3u8", "");
                 for (int i = 1; time > 0; i++)
                 {
                     var t = time >= 10 ? 10 : time;
@@ -475,9 +406,9 @@ namespace DL91Web8.Controllers
                         CreateDate = f.createDate,
                         IsHD = f.isHD ? 1 : 0,
                         IsLike = f.isLike,
-                        FileSize = GetFileSize(f.videoFileSize),
+                        FileSize = Common.GetFileSize(f.videoFileSize),
                         Url = f.url,
-                        Title = (f.isHD ? "[HD]" : "") + getTimeString(f.time) + getTypeName(f.typeId, typeLst) + "</br>" + f.title
+                        Title = (f.isHD ? "[HD]" : "") + Common.GetTimeString(f.time) + Common.GetTypeName(f.typeId, typeLst) + "</br>" + f.title
                     }).ToList()
                     );
             }
