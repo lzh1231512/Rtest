@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DL91Web8")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+44920faf014c1fa6cff4b2c5171b9ed95a88ca9b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f0294855df3b8a2b498ed6890e27a5d8dd5b7b9c")]
 [assembly: System.Reflection.AssemblyProductAttribute("DL91Web8")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DL91Web8")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

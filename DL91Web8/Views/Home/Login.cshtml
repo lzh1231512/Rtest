@@ -1,0 +1,47 @@
+﻿@{
+    Layout = null;
+    var urls = ViewBag.urls as List<string>;
+    var fileSize = ViewBag.fileSize as string;
+}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <script src="~/js/jquery-1.10.2.js"></script>
+</head>
+<body>
+    <input id="pwd" type="text" value="" />
+    <input id="login" type="button"  value="Login" />
+</body>
+
+<script>
+    var Cookie = {
+        set: function (key, value, exdays) {
+            let exdate = new Date();
+            exdate.setTime(exdate.getTime() + 24 * 60 * 60 * 1000 * exdays);
+            window.document.cookie = key + '=' + value + ';path=/;expires=' + exdate.toGMTString();
+        },
+        get: function (key) {
+            if (document.cookie.length > 0) {
+                var arr = document.cookie.split('; ') 
+                for (let i = 0; i < arr.length; i++) {
+                    let arr2 = arr[i].split('=') 
+                    if (arr2[0] === key) {
+                        return arr2[1]
+                    }
+                }
+            }
+        },
+        remove: function (key) {
+            set(key, '', -1);
+        }
+    };
+    $(function () {
+        $('#login').click(function () {
+            Cookie.set('key', $('#pwd').val(), 9999);
+            window.location.href = "..";
+        });
+    });
+</script>
+
+
