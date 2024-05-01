@@ -351,29 +351,13 @@ namespace DL91Web8.Controllers
 
         public IActionResult m3u8fix(int id, int isHD)
         {
-            var result = @"#EXTM3U
-#EXT-X-TARGETDURATION:10
-#EXT-X-ALLOW-CACHE:YES
-#EXT-X-PLAYLIST-TYPE:VOD
-#EXT-X-VERSION:3
-#EXT-X-MEDIA-SEQUENCE:1
-";
-            using (var db = new DB91Context())
+            if (isHD == -1)
             {
-                var obj = db.DB91s.FirstOrDefault(f => f.id == id);
-                var time = obj.time;
-                var url = "https://91rbnet.douyincontent.com" + Common.getM3u8(id, isHD, false).Replace("index.m3u8", "");
-                for (int i = 1; time > 0; i++)
-                {
-                    var t = time >= 10 ? 10 : time;
-                    result += @"#EXTINF:" + t + @".000,
-" + url + "cdn-" + i + @"-v1-a1.ts
-";
-                    time -= 10;
-                }
+                var (url, cont) = Common.GetFixedM3u8(id);
+                return Content(cont, "application/x-mpegURL");
             }
-            result += @"
-#EXT-X-ENDLIST";
+
+            var result = Common.M3u8fix(id, isHD);
             return Content(result, "application/x-mpegURL");
         }
 

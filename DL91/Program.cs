@@ -147,7 +147,7 @@ namespace DL91
         static int downloadM3u8(int id,bool isHD,int downloadtime,out long fileSize)
         {
             fileSize = 0;
-            var m3url = getFixedM3u8(id,out string html);
+            var (m3url, html) = Common.GetFixedM3u8(id);
             Console.WriteLine(m3url);
             if (string.IsNullOrEmpty(html))
             {
@@ -195,86 +195,7 @@ namespace DL91
             return 1;
         }
 
-        private static string getM3u8Url(int id, int isHD)
-        {
-            if (isHD == 1)
-            {
-                return "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_720p.mp4/index.m3u8";
-            }
-            if (isHD == 2)
-            {
-                return "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + "_1080p.mp4/index.m3u8";
-            }
-            return "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8";
-        }
-
-        private static string getFixedM3u8(int id,out string html)
-        {
-            for (int i = 2; i >= 0; i--)
-            {
-                var url = "https://91rbnet.douyincontent.com" + getM3u8Url(id, i).Replace("index.m3u8", "");
-                if (testHttp(url + "cdn-1-v1-a1.ts"))
-                {
-                    html = m3u8fix(id, i);
-                    return "https://fj.lzhsb.cc/home/m3u8fix/" + i + "/" + id + "/index.m3u8";
-                }
-            }
-            html = null;
-            return "https://91rbnet.douyincontent.com" + getM3u8Url(id, 0);
-        }
-
-        private static string m3u8fix(int id, int isHD)
-        {
-            var result = @"#EXTM3U
-#EXT-X-TARGETDURATION:10
-#EXT-X-ALLOW-CACHE:YES
-#EXT-X-PLAYLIST-TYPE:VOD
-#EXT-X-VERSION:3
-#EXT-X-MEDIA-SEQUENCE:1
-";
-            using (var db = new DB91Context())
-            {
-                var obj = db.DB91s.FirstOrDefault(f => f.id == id);
-                var time = obj.time;
-                var url = "https://91rbnet.douyincontent.com" + getM3u8Url(id, isHD).Replace("index.m3u8", "");
-                for (int i = 1; time > 0; i++)
-                {
-                    var t = time >= 10 ? 10 : time;
-                    result += @"#EXTINF:" + t + @".000,
-" + url + "cdn-" + i + @"-v1-a1.ts
-";
-                    time -= 10;
-                }
-            }
-            result += @"
-#EXT-X-ENDLIST";
-            return result;
-        }
-
-        static bool testHttp(string url)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                try
-                {
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                    request.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko";
-                    request.Method = "HEAD";
-                    request.Accept = "*/*";
-                    request.CookieContainer = new CookieContainer();
-                    HttpWebResponse respons = (HttpWebResponse)request.GetResponse();
-                    if(respons.StatusCode == HttpStatusCode.OK)
-                    {
-                        return true;
-                    }
-                }
-                catch
-                {
-                }
-                Thread.Sleep(500);
-            }
-            return false;
-        }
+        
         static void DownloadVideo()
         {
             using (var db = new DB91Context())
@@ -298,7 +219,7 @@ namespace DL91
                 {
                     if (item.isVideoDownloaded == 1)
                     {
-                        if (File.Exists(getVideoSavePath(item.id, getM3u8Url(item.id, 0))))
+                        if (File.Exists(getVideoSavePath(item.id, Common.GetM3u8Url(item.id, 0,false))))
                         {
                             continue;
                         }

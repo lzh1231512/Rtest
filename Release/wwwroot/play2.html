@@ -35,6 +35,7 @@
         var fixURL = `home/m3u8fix/0/${vid}/index.m3u8`;
         var fixHDURL = `home/m3u8fix/1/${vid}/index.m3u8`;
         var fixHDURL2 = `home/m3u8fix/2/${vid}/index.m3u8`;
+        var fixHDURLAuto = `home/m3u8fix/-1/${vid}/index.m3u8`;
     </script>
 
 </head>
@@ -88,6 +89,7 @@
             <option value="1" data-fix="1">FixURL</option>
             <option value="2" data-fix="2">FixURL720P</option>
             <option value="3" data-fix="3">FixURL1080P</option>
+            <option value="3" data-fix="4">AutoFixURL</option>
         </select>
         &nbsp;
         <input id="isHD" type="checkbox" name="isHD" value="" />HD
@@ -191,6 +193,9 @@
                 }
                 if ($op.data('fix') == 3) {
                     return fixHDURL2;
+                }
+                if ($op.data('fix') == 4) {
+                    return fixHDURLAuto;
                 }
                 localStorage.setItem("isHD", $('#isHD:checked').length > 0 ? "1" : "0");
                 return $op.val() + ($('#isHD:checked').length > 0 ? hdurl : baseUrl);
