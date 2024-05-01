@@ -132,6 +132,14 @@
               "target": "Package",
               "version": "[1.11.40, )"
             },
+            "Magick.NET-Q16-AnyCPU": {
+              "target": "Package",
+              "version": "[13.4.0, )"
+            },
+            "Magick.NET.Core": {
+              "target": "Package",
+              "version": "[13.4.0, )"
+            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[8.0.4, )"

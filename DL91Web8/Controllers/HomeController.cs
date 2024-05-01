@@ -14,7 +14,6 @@ namespace DL91Web8.Controllers
 {
     public class HomeController : Controller
     {
-        private const string cachePath = "wwwroot/cache/";
         private const string cacheVirtualPath = "~/cache/";
 
         private readonly IWebHostEnvironment _env;
@@ -112,33 +111,11 @@ namespace DL91Web8.Controllers
                 return Content("NoPIC");
             }
             var fileName = "img" + SearchViewModel.MD5Encrypt16(imgs);
-            if (System.IO.File.Exists(cachePath + fileName))
+            if (System.IO.File.Exists(Common.cachePath + fileName))
             {
                 return File(cacheVirtualPath + fileName, "image/Jpeg");
             }
-            var allImg = imgs.Split(',');
-            MagickReadSettings settings = new MagickReadSettings();
-            settings.Width = 320;
-            settings.Height = 180 * allImg.Count();
-            MagickImage canvas = new MagickImage("xc:white", settings);
-            canvas.Format = MagickFormat.Jpeg;
-            var index = 0;
-            var nopic = new MagickImage("wwwroot/images/NOPIC.jpg");
-            foreach (var item in allImg.Select(f => int.TryParse(f, out int res) ? res : 0))
-            {
-                var imgpath1 = new FileInfo("wwwroot/imgs/" + (item < 0 ? "-1" : (item / 1000).ToString()) + "/" + item + ".jpg");
-                if (imgpath1.Exists)
-                {
-                    var first = new MagickImage(imgpath1.FullName);
-                    canvas.Composite(first, 0, index++ * 180);
-                }
-                else
-                {
-                    canvas.Composite(nopic, 0, index++ * 180);
-                }
-            }
-            canvas.Resize(256, 144 * allImg.Count());
-            canvas.Write(cachePath + fileName);
+            Common.MergeImgs(imgs, fileName);
             return File(cacheVirtualPath + fileName, "image/Jpeg");
         }
 

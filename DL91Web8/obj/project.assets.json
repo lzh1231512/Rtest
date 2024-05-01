@@ -1235,6 +1235,8 @@
         "framework": ".NETCoreApp,Version=v8.0",
         "dependencies": {
           "HtmlAgilityPack": "1.11.40",
+          "Magick.NET-Q16-AnyCPU": "13.4.0",
+          "Magick.NET.Core": "13.4.0",
           "Microsoft.EntityFrameworkCore": "8.0.4",
           "Microsoft.EntityFrameworkCore.Design": "8.0.4",
           "Microsoft.EntityFrameworkCore.Sqlite": "8.0.4",

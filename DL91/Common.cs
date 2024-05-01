@@ -1,6 +1,8 @@
-﻿using System;
+﻿using ImageMagick;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -12,7 +14,34 @@ namespace DL91
 {
     public class Common
     {
+        public const string cachePath = "wwwroot/cache/";
 
+        public static void MergeImgs(string imgs, string fileName)
+        {
+            var allImg = imgs.Split(',');
+            MagickReadSettings settings = new MagickReadSettings();
+            settings.Width = 320;
+            settings.Height = 180 * allImg.Count();
+            MagickImage canvas = new MagickImage("xc:white", settings);
+            canvas.Format = MagickFormat.Jpeg;
+            var index = 0;
+            var nopic = new MagickImage("wwwroot/images/NOPIC.jpg");
+            foreach (var item in allImg.Select(f => int.TryParse(f, out int res) ? res : 0))
+            {
+                var imgpath1 = new FileInfo("wwwroot/imgs/" + (item < 0 ? "-1" : (item / 1000).ToString()) + "/" + item + ".jpg");
+                if (imgpath1.Exists)
+                {
+                    var first = new MagickImage(imgpath1.FullName);
+                    canvas.Composite(first, 0, index++ * 180);
+                }
+                else
+                {
+                    canvas.Composite(nopic, 0, index++ * 180);
+                }
+            }
+            canvas.Resize(256, 144 * allImg.Count());
+            canvas.Write(cachePath + fileName);
+        }
         public static string GetFileSize(long filesize)
         {
             if (filesize <= 0)
