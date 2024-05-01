@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<Deterministic>False</Deterministic>
   </PropertyGroup>
 
   <ItemGroup>
