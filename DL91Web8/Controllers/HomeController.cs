@@ -16,8 +16,10 @@ namespace DL91Web8.Controllers
         private const string cachePath = "wwwroot/cache/";
         private const string cacheVirtualPath = "~/cache/";
 
-        public HomeController()
+        private readonly IWebHostEnvironment _env;
+        public HomeController(IWebHostEnvironment env)
         {
+            _env = env;
         }
 
         public IActionResult Login()
@@ -246,7 +248,7 @@ namespace DL91Web8.Controllers
                             id = min.Value - 1;
                         }
                     }
-                    string path = MyServiceProvider.ServiceProvider.GetRequiredService<IHostingEnvironment>().WebRootPath;
+                    string path = _env.ContentRootPath + "/wwwroot/";
                     var folder = path.TrimEnd('/', '\\') + "/imgs/-1/";
                     if (!System.IO.Directory.Exists(folder))
                     {
@@ -340,7 +342,7 @@ namespace DL91Web8.Controllers
                     }
                     if (files != null)
                     {
-                        string path = MyServiceProvider.ServiceProvider.GetRequiredService<IHostingEnvironment>().WebRootPath;
+                        string path = _env.ContentRootPath + "/wwwroot/";
                         var folder = path.TrimEnd('/', '\\') + "/imgs/-1/";
                         if (!System.IO.Directory.Exists(folder))
                         {
@@ -400,7 +402,7 @@ namespace DL91Web8.Controllers
         {
             using (var db = new DB91Context())
             {
-                string path = MyServiceProvider.ServiceProvider.GetRequiredService<IHostingEnvironment>().WebRootPath;
+                string path = _env.ContentRootPath + "/wwwroot/";
                 var img = path.TrimEnd('/', '\\') + "/imgs/" + (id < 0 ? "-1" : (id / 1000).ToString()) + "/" + id + ".jpg";
                 if (System.IO.File.Exists(img))
                     System.IO.File.Delete(img);
@@ -505,7 +507,7 @@ namespace DL91Web8.Controllers
         {
             if (string.IsNullOrEmpty(_swcache))
             {
-                string path = MyServiceProvider.ServiceProvider.GetRequiredService<IHostingEnvironment>().WebRootPath;
+                string path = _env.ContentRootPath+ "/wwwroot/";
                 path = path.TrimEnd('/', '\\') + "/_sw-cache.js";
                 _swcache = System.IO.File.ReadAllText(path);
                 _swcache = _swcache.Replace("{version}", Common.CompileTime.ToString());
