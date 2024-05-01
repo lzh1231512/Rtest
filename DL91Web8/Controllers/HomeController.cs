@@ -1,6 +1,7 @@
 using DL91;
 using DL91.Models;
 using DL91Web.Helpers;
+using DL91Web8.Helpers;
 using DL91Web8.Models;
 using ImageMagick;
 using Microsoft.AspNetCore.Mvc;
@@ -425,7 +426,7 @@ namespace DL91Web8.Controllers
                 string path = _env.ContentRootPath+ "/wwwroot/";
                 path = path.TrimEnd('/', '\\') + "/_sw-cache.js";
                 _swcache = System.IO.File.ReadAllText(path);
-                _swcache = _swcache.Replace("{version}", Common.CompileTime.ToString());
+                _swcache = _swcache.Replace("{version}", VersionHelper.CompileTime.ToString());
             }
 
             return Content(_swcache, "application/javascript");
