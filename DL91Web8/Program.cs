@@ -1,8 +1,8 @@
-#if DEBUG
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.StaticFiles;
 using System.IO.Compression;
 
+#if DEBUG
 Task.Factory.StartNew(() =>
 {
     DL91.Job.Test(args);
