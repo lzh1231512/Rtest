@@ -6,6 +6,11 @@
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="imgs\**" />
+    <EmbeddedResource Remove="imgs\**" />
+    <None Remove="imgs\**" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="ca.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -23,9 +28,6 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="imgs\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="config\appsettings.json">
