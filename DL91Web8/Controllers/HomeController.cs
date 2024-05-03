@@ -134,7 +134,7 @@ namespace DL91Web8.Controllers
 
         public IActionResult Edit(int id, string title, IFormFile files)
         {
-            DB91? obj = null;
+            DB91 obj = null;
             string message = "";
             if (!string.IsNullOrEmpty(title))
             {

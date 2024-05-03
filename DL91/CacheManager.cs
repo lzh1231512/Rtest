@@ -289,7 +289,7 @@ namespace DL91
                         RunAddCache(pageCountModel);
                         Console.WriteLine("end cache:" + model.HashCode);
                     }
-                    catch (Exception e)
+                    catch
                     {
                     }
                 }

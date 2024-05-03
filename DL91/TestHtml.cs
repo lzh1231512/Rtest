@@ -20,7 +20,6 @@ namespace DL91
                 HtmlNode nat = categoryNodeList[i];
 
                 var url = nat.Attributes["href"].Value.Replace(Job.domain, "");
-                var count = 0;
                 var name = nat.Attributes["title"].Value;
             }
         }
@@ -33,7 +32,6 @@ namespace DL91
             HtmlNode navNode = doc.GetElementbyId("list_videos_latest_videos_list_items");
             HtmlNodeCollection categoryNodeList = navNode.SelectNodes("div");
 
-            var isExists = false;
             var dt91 = new DateTime(1990, 1, 1);
             for (int i = 0; i < categoryNodeList.Count; i++)
             {

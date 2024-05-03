@@ -111,9 +111,9 @@ namespace DL91Web8.BLL
             return message;
         }
 
-        public DB91? Edit(int id, string title, IFormFile files,out string message)
+        public DB91 Edit(int id, string title, IFormFile files,out string message)
         {
-            DB91? result = null;
+            DB91 result = null;
             message = "";
             if (files != null && !files.FileName.ToLower().EndsWith(".jpg"))
             {
@@ -218,7 +218,7 @@ namespace DL91Web8.BLL
                 return db.DB91s.AsQueryable().Where(f => idList.Contains(f.id)).ToList();
             }
         }
-        public DB91? GetByID(int id)
+        public DB91 GetByID(int id)
         {
             using (var db = new DB91Context())
             {

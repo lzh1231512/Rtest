@@ -1,5 +1,4 @@
 ﻿/// <reference path="indexdb.js" />
-/// <reference path="fileapi.js" />
 
 var m3u8 = (function () {
     var dbName = "m3u8";
