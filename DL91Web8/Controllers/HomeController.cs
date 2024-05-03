@@ -25,7 +25,7 @@ namespace DL91Web8.Controllers
             bll = new WebBLL(ContentPath);
         }
 
-        public string ContentPath => _env.ContentRootPath + "/wwwroot/";
+        public string ContentPath => _env.WebRootPath;
 
         public bool IsLogined => Request.Cookies["key"] == ConfigurationHelper.LoginKey;
 
