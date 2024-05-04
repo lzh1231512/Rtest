@@ -161,12 +161,12 @@ namespace DL91
 
             var info = html.Split("\n").Select(f => f.Trim(' ', '\r'));
             var urls = info.Where(f => !f.ToLower().StartsWith("#") && !string.IsNullOrEmpty(f.Trim()));
-            var dLst = urls.Select(f => new DLTask()
+            var dLst = urls.Select(f => new DownloadTask()
             {
                 url = f.ToLower().StartsWith("http") ? f : m3url.Replace("index.m3u8", f),
                 savepath = getVideoSavePath(id, f)
             });
-            var dLst2 = DLHelper.DL(dLst.ToList(), 1);
+            var dLst2 = DownloadHelper.DL(dLst.ToList(), 1);
             if (dLst2.Any(f => f.result != 1))
             {
                 return downloadtime - 1;
@@ -269,12 +269,12 @@ namespace DL91
                         item.imgUrl = item.imgUrl;
                     }
 
-                    var dLst = lst.Select(f => new DLTask()
+                    var dLst = lst.Select(f => new DownloadTask()
                     {
                         url = f.imgUrl,
                         savepath = getSavePath(f)
                     });
-                    var dLst2 = DLHelper.DL(dLst.ToList(), 8);
+                    var dLst2 = DownloadHelper.DL(dLst.ToList(), 8);
 
                     foreach (var item in lst)
                     {

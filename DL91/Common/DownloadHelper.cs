@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace DL91
 {
-    public class DLTask
+    public class DownloadTask
     {
         public string url { set; get; }
         public string savepath { set; get; }
         public int result { set; get; }
         public long fileSize { set; get; }
     }
-    public class DLHelper
+    public class DownloadHelper
     {
         private static Object locker = new object();
         private static int _runingCount = 0;
@@ -46,7 +46,7 @@ namespace DL91
             }
         }
         
-        public static List<DLTask> DL(List<DLTask> tasks, int theadCount)
+        public static List<DownloadTask> DL(List<DownloadTask> tasks, int theadCount)
         {
             foreach (var item in tasks)
             {
@@ -63,7 +63,7 @@ namespace DL91
             return tasks;
         }
 
-        private static void addTask(DLTask task)
+        private static void addTask(DownloadTask task)
         {
             addCount();
             Task.Factory.StartNew(() =>
@@ -82,7 +82,7 @@ namespace DL91
         }
 
 
-        private static bool DLSingleFile(DLTask task,bool isFinal)
+        private static bool DLSingleFile(DownloadTask task,bool isFinal)
         {
             try
             {
