@@ -24,5 +24,7 @@ namespace DL91
         }
 
         public static string LoginKey => configuration["App:key"];
+
+        public static IEnumerable<int> DisabledType => configuration["App:disabledType"].Split(',').Select(f => int.Parse(f));
     }
 }

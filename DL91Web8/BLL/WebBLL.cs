@@ -196,7 +196,7 @@ namespace DL91Web8.BLL
             var typeLst = new List<DBType>();
             using (var db = new DB91Context())
             {
-                typeLst = db.DBTypes.Select(f => new DBType()
+                typeLst = db.DBTypes.Where(f => !ConfigurationHelper.DisabledType.Contains(f.id)).Select(f => new DBType()
                 {
                     id = f.id,
                     name = f.name

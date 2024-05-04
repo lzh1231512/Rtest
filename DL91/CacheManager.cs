@@ -244,7 +244,7 @@ namespace DL91
                         }
                         using (var db = new DB91Context())
                         {
-                            var lst = db.DB91s.AsQueryable();
+                            var lst = db.DB91s.Where(f => !ConfigurationHelper.DisabledType.Contains(f.typeId)).AsQueryable();
                             if (!string.IsNullOrEmpty(model.title1))
                             {
                                 var c1 = (model.title1 ?? "").Split(' ');
