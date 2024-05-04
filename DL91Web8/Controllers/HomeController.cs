@@ -95,7 +95,14 @@ namespace DL91Web8.Controllers
         }
         public IActionResult ResetFailedVideo()
         {
-            DL91.Job.ResetFailedVideo();
+            using (var db = new DB91Context())
+            {
+                foreach (var obj in db.DB91s.Where(f => f.isLike == 1 && f.isVideoDownloaded < 0))
+                {
+                    obj.isVideoDownloaded = 0;
+                }
+                db.SaveChanges();
+            }
             return Json(1);
         }
 
