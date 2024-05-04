@@ -420,7 +420,6 @@ namespace DL91
                 {
                     existsflag++;
                 }
-                break;
             }
             return hasNew;
         }
