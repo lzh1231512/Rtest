@@ -14,56 +14,9 @@ namespace DL91
 {
     public class Job
     {
-        public static string domain = "https://www.rm2029.com";
-        //static string domain = "https://www.91rb.net";
-
-        public static int SyncFlag { set; get; } = 0;
-        public static int DownloadVideoFlag { set; get; } = 0;
-
-        public static bool EnableCacheProcess { set; get; } = false;
-
-
         public static void Main(string[] args)
         {
-            HttpHelper.NEVER_EAT_POISON_Disable_CertificateValidation();
-            CacheManager.ClearCache();
-            while (true)
-            {
-                try
-                {
-                    if (SyncFlag <= 0)
-                    {
-                        if (ProcessHtml.DownloadNewData())
-                        {
-                            CacheManager.ClearCache();
-                        }
-                        ProcessImg.DownloadImg();
-                        SyncFlag = 60 * 6;
-
-                        Thread.Sleep(1000);
-                        GC.Collect();
-                        GC.WaitForPendingFinalizers();
-                    }
-                    SyncFlag--;
-                    if (EnableCacheProcess)
-                    {
-                        CacheManager.ProcessCache();
-                    }
-                    if (DownloadVideoFlag <= 0)
-                    {
-                        ProcessVideo.DownloadVideo();
-                        DownloadVideoFlag = 10;
-                    }
-                    DownloadVideoFlag--;
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                    Console.WriteLine(e.StackTrace);
-                }
-                Thread.Sleep(60000);
-            }
+            
         }
         public static void Test2(string[] args)
         {
@@ -108,22 +61,6 @@ namespace DL91
                         File.Delete(mpath + item.id);
                     }
                     File.WriteAllText(mpath + item.id, JsonConvert.SerializeObject(obj));
-                }
-            }
-        }
-        public static void Test(string[] args)
-        {
-            while (true)
-            {
-                Thread.Sleep(60000);
-                try
-                {
-                    CacheManager.ProcessCache();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                    Console.WriteLine(e.StackTrace);
                 }
             }
         }

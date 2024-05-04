@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using DL91.Jobs;
+using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,7 +20,7 @@ namespace DL91
             {
                 HtmlNode nat = categoryNodeList[i];
 
-                var url = nat.Attributes["href"].Value.Replace(Job.domain, "");
+                var url = nat.Attributes["href"].Value.Replace(AutoProcessService.domain, "");
                 var name = nat.Attributes["title"].Value;
             }
         }
@@ -38,7 +39,7 @@ namespace DL91
                 HtmlNode nat = categoryNodeList[i];
                 var atag = nat.SelectNodes("a")[0];
                 String href = atag.Attributes["href"].Value;
-                href = href.Replace(Job.domain, "");
+                href = href.Replace(AutoProcessService.domain, "");
                 var a = href.IndexOf('/', 2);
                 var b = href.IndexOf('/', a + 1);
                 var id = int.Parse(href.Substring(a + 1, b - a - 1));

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using DL91.Jobs;
 
 namespace DL91
 {
@@ -24,7 +25,7 @@ namespace DL91
         private static bool isRunding = false;
         public static SearchViewModel GetData(SearchViewModel model,out int isCached)
         {
-            Job.EnableCacheProcess = true;
+            AutoProcessService.EnableCacheProcess = true;
             var pageKey = model.HashCode;
             isCached = 1;
             if (!cachedData.ContainsKey(pageKey))
@@ -188,7 +189,7 @@ namespace DL91
                 }
                 if (cachedData.Count == 0)
                 {
-                    Job.EnableCacheProcess = false;
+                    AutoProcessService.EnableCacheProcess = false;
                 }
             }
             if (NeedClearLikeCache)

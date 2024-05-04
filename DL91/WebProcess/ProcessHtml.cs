@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using DL91.Jobs;
+using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +27,7 @@ namespace DL91.WebProcess
             try
             {
                 Console.WriteLine("Get Types");
-                var p = HttpHelper.GetHtml(Job.domain + "/categories/");
+                var p = HttpHelper.GetHtml(AutoProcessService.domain + "/categories/");
                 if (!p.IsGood)
                 {
                     return false;
@@ -38,7 +39,7 @@ namespace DL91.WebProcess
                 for (int i = 0; i < categoryNodeList.Count; i++)
                 {
                     HtmlNode nat = categoryNodeList[i];
-                    var url = nat.Attributes["href"].Value.Replace(Job.domain, "");
+                    var url = nat.Attributes["href"].Value.Replace(AutoProcessService.domain, "");
                     var count = "0";
                     var name = nat.Attributes["title"].Value;
 
@@ -95,7 +96,7 @@ namespace DL91.WebProcess
                     HtmlNode nat = categoryNodeList[i];
                     var atag = nat.SelectNodes("a")[0];
                     String href = atag.Attributes["href"].Value;
-                    href = href.Replace(Job.domain, "");
+                    href = href.Replace(AutoProcessService.domain, "");
                     var a = href.IndexOf('/', 2);
                     var b = href.IndexOf('/', a + 1);
                     var id = int.Parse(href.Substring(a + 1, b - a - 1));
@@ -158,7 +159,7 @@ namespace DL91.WebProcess
                     }
                     var typeName = "";
                     var typeID = -1;
-                    var html = getDetailHtml(Job.domain + item.url);
+                    var html = getDetailHtml(AutoProcessService.domain + item.url);
                     if (html != null)
                     {
                         HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
@@ -227,10 +228,10 @@ namespace DL91.WebProcess
         {
             if (page == 1)
             {
-                return Job.domain + "/latest-updates/?tt=" + Guid.NewGuid();
+                return AutoProcessService.domain + "/latest-updates/?tt=" + Guid.NewGuid();
 
             }
-            return Job.domain + "/latest-updates/" + page + "/?tt=" + Guid.NewGuid();
+            return AutoProcessService.domain + "/latest-updates/" + page + "/?tt=" + Guid.NewGuid();
         }
 
         private static string getDetailHtml(string url)

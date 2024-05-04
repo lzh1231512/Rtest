@@ -1,18 +1,8 @@
+using DL91.Jobs;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.StaticFiles;
 using System.IO.Compression;
-
-#if DEBUG
-Task.Factory.StartNew(() =>
-{
-    DL91.Job.Test(args);
-});
-#else
-Task.Factory.StartNew(() =>
-{
-    DL91.Job.Main(args);
-});
-#endif
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +36,7 @@ builder.Services.AddResponseCompression(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHostedService<AutoProcessService>();
 
 var app = builder.Build();
 app.UseResponseCompression();
@@ -69,7 +60,6 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseRouting();
 
 app.UseAuthorization();
-
 
 app.MapControllerRoute(
     name: "m3u8fix",

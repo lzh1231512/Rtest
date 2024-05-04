@@ -1,4 +1,5 @@
 using DL91;
+using DL91.Jobs;
 using DL91.Models;
 using DL91Web.Helpers;
 using DL91Web8.BLL;
@@ -83,14 +84,14 @@ namespace DL91Web8.Controllers
                     obj.isVideoDownloaded = 0;
                 db.SaveChanges();
             }
-            DL91.Job.DownloadVideoFlag = 0;
+            AutoProcessService.DownloadVideoFlag = 0;
             CacheManager.NeedClearLikeCache = true;
             return Json(1);
         }
 
         public IActionResult sync()
         {
-            DL91.Job.SyncFlag = 0;
+            AutoProcessService.SyncFlag = 0;
             return Json(1);
         }
         public IActionResult ResetFailedVideo()
