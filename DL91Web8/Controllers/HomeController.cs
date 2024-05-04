@@ -20,9 +20,12 @@ namespace DL91Web8.Controllers
 
         private readonly IWebHostEnvironment _env;
         private WebBLL bll;
-        public HomeController(IWebHostEnvironment env)
+        private readonly ILogTool _logTool;
+
+        public HomeController(IWebHostEnvironment env, ILogTool logTool)
         {
             _env = env;
+            _logTool = logTool;
             bll = new WebBLL(ContentPath);
         }
 

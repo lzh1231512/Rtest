@@ -1,4 +1,8 @@
+using DL91;
 using DL91.Jobs;
+using log4net.Config;
+using log4net.Repository;
+using log4net;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.StaticFiles;
@@ -37,6 +41,10 @@ builder.Services.AddResponseCompression(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddHostedService<AutoProcessService>();
+
+ILoggerRepository repository = LogManager.CreateRepository("LogRepository");
+XmlConfigurator.Configure(repository, new FileInfo(ConfigurationHelper.FixPath("config/log4net.config")));//此行文件目录为项目根目录，根据自己需要修改
+builder.Services.AddSingleton<ILogTool, LogTool>();//因为日志不需要其他操作，所以这里注入的时生命周期可以使用单例
 
 var app = builder.Build();
 app.UseResponseCompression();

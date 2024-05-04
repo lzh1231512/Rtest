@@ -13,7 +13,7 @@ namespace DL91.WebProcess
             var downloaded = 0;
             while (true)
             {
-                Console.WriteLine("download img " + downloaded);
+                LogTool.Instance.Info("download img " + downloaded);
 
                 using (var db = new DB91Context())
                 {

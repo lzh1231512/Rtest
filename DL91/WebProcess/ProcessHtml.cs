@@ -26,7 +26,7 @@ namespace DL91.WebProcess
         {
             try
             {
-                Console.WriteLine("Get Types");
+                LogTool.Instance.Info("Get Types");
                 var p = HttpHelper.GetHtml(AutoProcessService.domain + "/categories/");
                 if (!p.IsGood)
                 {
@@ -79,7 +79,7 @@ namespace DL91.WebProcess
             var pageCount = 1500;
             for (int page = 1, existsflag = 0; page <= pageCount && existsflag < 5; page++)
             {
-                Console.WriteLine("Load Page " + page);
+                LogTool.Instance.Info("Load Page " + page);
                 var html = getListHtml(page, out bool is404);
                 if (is404)
                     break;
@@ -155,7 +155,7 @@ namespace DL91.WebProcess
                     index++;
                     if (index % 10 == 0)
                     {
-                        Console.WriteLine("Load Detail " + index + "/" + count);
+                        LogTool.Instance.Info("Load Detail " + index + "/" + count);
                     }
                     var typeName = "";
                     var typeID = -1;

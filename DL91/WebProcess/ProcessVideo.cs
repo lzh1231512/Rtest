@@ -20,7 +20,7 @@ namespace DL91.WebProcess
                 {
                     if (Directory.Exists(getVideoSaveFolder(item.id)))
                     {
-                        Console.WriteLine("Delete folder " + getVideoSaveFolder(item.id));
+                        LogTool.Instance.Info("Delete folder " + getVideoSaveFolder(item.id));
                         Directory.Delete(getVideoSaveFolder(item.id), true);
                     }
                     item.isVideoDownloaded = 0;
@@ -41,14 +41,13 @@ namespace DL91.WebProcess
                     }
                     try
                     {
-                        Console.WriteLine("download video " + item.id);
+                        LogTool.Instance.Info("download video " + item.id);
                         item.isVideoDownloaded = downloadM3u8(item.id, item.isVideoDownloaded, out long fileSize);
                         item.videoFileSize = fileSize;
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("download video " + item.id + "Failed:" + e.Message);
-                        Console.WriteLine(e.StackTrace);
+                        LogTool.Instance.Error("download video " + item.id + "Failed", e);
                     }
                     db.SaveChanges();
                 }
@@ -59,7 +58,7 @@ namespace DL91.WebProcess
         {
             fileSize = 0;
             var (m3url, html) = CommonFunc.GetFixedM3u8(id);
-            Console.WriteLine("Start Download:" + m3url);
+            LogTool.Instance.Info("Start Download:" + m3url);
             if (string.IsNullOrEmpty(html))
             {
                 var p = HttpHelper.GetHtml(m3url);
@@ -103,7 +102,7 @@ namespace DL91.WebProcess
                     fs.Close();
                 }
             }
-            Console.WriteLine("Download finish:" + m3url);
+            LogTool.Instance.Info("Download finish:" + m3url);
             return 1;
         }
 

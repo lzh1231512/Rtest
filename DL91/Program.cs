@@ -1,5 +1,7 @@
 ﻿using DL91.WebProcess;
 using HtmlAgilityPack;
+using log4net.Config;
+using log4net;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -7,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
@@ -16,7 +19,9 @@ namespace DL91
     {
         public static void Main(string[] args)
         {
-            
+            var logRep = LogManager.GetRepository(Assembly.GetEntryAssembly());
+            XmlConfigurator.Configure(logRep, new FileInfo("config/log4net.config"));
+
         }
         public static void Test2(string[] args)
         {

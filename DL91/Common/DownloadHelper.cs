@@ -92,7 +92,7 @@ namespace DL91
                 if (fi.Exists)
                     fi.Delete();
 
-                Console.WriteLine("download " + task.url);
+                LogTool.Instance.Info("download " + task.url);
 
                 using FileStream fs = new FileStream(task.savepath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
                 var dl = HttpHelper.DownloadFile(task.url, fs);
@@ -107,7 +107,7 @@ namespace DL91
             {
                 if (isFinal)
                 {
-                    Console.WriteLine(ex.Message);
+                    LogTool.Instance.Error("DLSingleFile Failed", ex);
                 }
                 return false;
             }

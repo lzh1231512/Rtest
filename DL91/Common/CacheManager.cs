@@ -88,7 +88,7 @@ namespace DL91
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("serialize Failed:" + e.Message);
+                    LogTool.Instance.Error("serialize Failed", e);
                 }
                 finally
                 {
@@ -101,7 +101,7 @@ namespace DL91
         {
             if (model == null)
                 return;
-            Console.WriteLine("add cache:" + model.HashCode);
+            LogTool.Instance.Info("add cache:" + model.HashCode);
             CacheAddTask(model, isUrgent);
             if (!isRunding)
             {
@@ -165,7 +165,7 @@ namespace DL91
         public static bool NeedClearLikeCache { set; get; } = false;
         public static void ProcessCache()
         {
-            Console.WriteLine("ProcessCache");
+            LogTool.Instance.Info("ProcessCache");
             List<SearchViewModel> lst = null;
             lock (cachedData)
             {
@@ -232,7 +232,7 @@ namespace DL91
                     }
                     try
                     {
-                        Console.WriteLine("begin cache:" + model.HashCode);
+                        LogTool.Instance.Info("begin cache:" + model.HashCode);
                         if (cachedData.ContainsKey(model.HashCode))
                         {
                             continue;
@@ -288,7 +288,7 @@ namespace DL91
                         }
                         RunAddCache(model);
                         RunAddCache(pageCountModel);
-                        Console.WriteLine("end cache:" + model.HashCode);
+                        LogTool.Instance.Info("end cache:" + model.HashCode);
                     }
                     catch
                     {

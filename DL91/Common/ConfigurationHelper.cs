@@ -25,7 +25,7 @@ namespace DL91
             }
         }
 
-        private static string FixPath(string path)
+        public static string FixPath(string path)
         {
             if (!File.Exists(path))
             {

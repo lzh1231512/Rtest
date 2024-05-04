@@ -68,8 +68,7 @@ namespace DL91
             catch(Exception e)
             {
                 result.IsGood = false;
-                Console.WriteLine("Failed to access " + url + "/r/n" + e.Message);
-                Console.WriteLine(e.StackTrace);
+                LogTool.Instance.Error("Failed to access " + url, e);
             }
             return result;
         }
@@ -91,8 +90,7 @@ namespace DL91
             catch (Exception e)
             {
                 result.IsGood = false;
-                Console.WriteLine("Failed to access " + url + "/r/n" + e.Message);
-                Console.WriteLine(e.StackTrace);
+                LogTool.Instance.Error("Failed to access " + url, e);
             }
             return result;
         }

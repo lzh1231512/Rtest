@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace DL91.Jobs
         {
             return Task.Run(() =>
             {
-                Console.WriteLine("start AutoDownload");
+                LogTool.Instance.Info("start AutoDownload");
                 HttpHelper.NEVER_EAT_POISON_Disable_CertificateValidation();
                 CacheManager.ClearCache();
                 while (true)
@@ -57,8 +58,7 @@ namespace DL91.Jobs
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e.Message);
-                        Console.WriteLine(e.StackTrace);
+                        LogTool.Instance.Error("AutoDownload Failed", e);
                     }
                     Thread.Sleep(60000);
                 }
@@ -69,7 +69,7 @@ namespace DL91.Jobs
         {
             return Task.Run(() =>
             {
-                Console.WriteLine("start AutoProcesCache");
+                LogTool.Instance.Info("start AutoProcesCache");
                 while (true)
                 {
                     Thread.Sleep(60000);
@@ -79,8 +79,7 @@ namespace DL91.Jobs
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e.Message);
-                        Console.WriteLine(e.StackTrace);
+                        LogTool.Instance.Error("AutoProcesCache Failed", e);
                     }
                 }
             });
