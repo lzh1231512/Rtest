@@ -18,4 +18,10 @@
     <ProjectReference Include="..\DL91\DL91.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\cache\fileHolder.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
