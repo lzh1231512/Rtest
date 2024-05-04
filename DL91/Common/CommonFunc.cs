@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DL91
 {
-    public class Common
+    public class CommonFunc
     {
         public const string cachePath = "wwwroot/cache/";
 
@@ -81,31 +81,6 @@ namespace DL91
             return "[" + result.name + "]";
         }
 
-        public static bool TestHttp(string url)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                try
-                {
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                    request.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko";
-                    request.Method = "HEAD";
-                    request.Accept = "*/*";
-                    request.CookieContainer = new CookieContainer();
-                    HttpWebResponse respons = (HttpWebResponse)request.GetResponse();
-                    if (respons.StatusCode == HttpStatusCode.OK)
-                    {
-                        return true;
-                    }
-                }
-                catch
-                {
-                }
-                Thread.Sleep(500);
-            }
-            return false;
-        }
-
         public static string M3u8fix(int id, int isHD)
         {
             var result = @"#EXTM3U
@@ -156,7 +131,7 @@ namespace DL91
             for (int i = 2; i >= 0; i--)
             {
                 var url = "https://91rbnet.douyincontent.com" + GetM3u8Url(id, i,false).Replace("index.m3u8", "");
-                if (Common.TestHttp(url + "cdn-1-v1-a1.ts"))
+                if (HttpHelper.TestHttp(url + "cdn-1-v1-a1.ts"))
                 {
                     return ("https://fj.lzhsb.cc/home/m3u8fix/" + i + "/" + id + "/index.m3u8", M3u8fix(id, i));
                 }

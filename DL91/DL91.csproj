@@ -33,6 +33,9 @@
     <None Update="config\appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="db\91db.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="htmlsample\detail.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

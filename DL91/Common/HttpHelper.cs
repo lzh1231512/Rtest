@@ -1,0 +1,114 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
+
+namespace DL91
+{
+    public class HttpHelper
+    {
+        private static HttpClient _httpClient;
+        private static HttpClient HttpClient
+        {
+            get
+            {
+                if(_httpClient == null)
+                {
+                    _httpClient = new HttpClient(new SocketsHttpHandler()
+                    {
+                        UseCookies = false,
+                        ConnectTimeout = TimeSpan.FromSeconds(10),
+                        KeepAlivePingTimeout = TimeSpan.FromSeconds(60),
+                        SslOptions = new System.Net.Security.SslClientAuthenticationOptions()
+                        {
+                            RemoteCertificateValidationCallback = (sender, cer, chain, err) => true
+                        }
+                    });
+                    _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
+                }
+                return _httpClient;
+            }
+        }
+
+        public static async Task<bool> TestHttpSync(string url)
+        {
+            try
+            {
+                using HttpRequestMessage request = new(HttpMethod.Head, url);
+                using HttpResponseMessage response = await HttpClient.SendAsync(request);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        public static bool TestHttp(string url)
+        {
+            return Task.Run(() => TestHttpSync(url)).Result;
+        }
+
+        public static async Task<HttpStatus> DownloadFileSync(string url,FileStream fs)
+        {
+            var result = new HttpStatus();
+            try
+            {
+                var response = await HttpClient.GetAsync(url);
+                result.StatusCode = response.StatusCode;
+                await response.Content.CopyToAsync(fs);
+                result.Length = fs.Length;
+            }
+            catch(Exception e)
+            {
+                result.IsGood = false;
+                Console.WriteLine("Failed to access " + url + "/r/n" + e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            return result;
+        }
+
+        public static HttpStatus DownloadFile(string url, FileStream fs)
+        {
+            return Task.Run(() => DownloadFileSync(url, fs)).Result;
+        }
+
+        public static async Task<HttpStatus> GetHtmlSync(string url)
+        {
+            var result = new HttpStatus();
+            try
+            {
+                var response = await HttpClient.GetAsync(url);
+                result.StatusCode = response.StatusCode;
+                result.Html = await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception e)
+            {
+                result.IsGood = false;
+                Console.WriteLine("Failed to access " + url + "/r/n" + e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            return result;
+        }
+
+        public static HttpStatus GetHtml(string url)
+        {
+            return Task.Run(() => GetHtmlSync(url)).Result;
+        }
+    }
+
+    public class HttpStatus
+    { 
+        public HttpStatusCode StatusCode { get; set; }
+        public string Html { get; set; }
+
+        public bool Is404 => (int)StatusCode == 404;
+
+        public long Length { get; set; }
+        public bool IsGood { set; get; } = true;
+    }
+}

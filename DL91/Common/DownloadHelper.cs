@@ -94,23 +94,13 @@ namespace DL91
 
                 Console.WriteLine("download " + task.url);
 
-                FileStream fs = new FileStream(task.savepath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
-                HttpWebRequest request = WebRequest.Create(task.url) as HttpWebRequest;
-                request.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko";
-                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
-                Stream responseStream = response.GetResponseStream();
-                byte[] bArr = new byte[102400];
-                int size = responseStream.Read(bArr, 0, (int)bArr.Length);
-                long fileSize = size;
-                while (size > 0)
+                using FileStream fs = new FileStream(task.savepath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
+                var dl = HttpHelper.DownloadFile(task.url, fs);
+                if (!dl.IsGood)
                 {
-                    fs.Write(bArr, 0, size);
-                    size = responseStream.Read(bArr, 0, (int)bArr.Length);
-                    fileSize += size;
+                    return false;
                 }
-                fs.Close();
-                responseStream.Close();
-                task.fileSize = fileSize;
+                task.fileSize = dl.Length;
                 return true;
             }
             catch (Exception ex)

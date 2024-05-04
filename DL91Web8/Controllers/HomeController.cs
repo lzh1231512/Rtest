@@ -106,11 +106,11 @@ namespace DL91Web8.Controllers
                 return Content("NoPIC");
             }
             var fileName = "img" + SearchViewModel.MD5Encrypt16(imgs);
-            if (System.IO.File.Exists(Common.cachePath + fileName))
+            if (System.IO.File.Exists(CommonFunc.cachePath + fileName))
             {
                 return File(cacheVirtualPath + fileName, "image/Jpeg");
             }
-            Common.MergeImgs(imgs, fileName);
+            CommonFunc.MergeImgs(imgs, fileName);
             return File(cacheVirtualPath + fileName, "image/Jpeg");
         }
 
@@ -163,11 +163,11 @@ namespace DL91Web8.Controllers
         {
             if (isHD == -1)
             {
-                var (url, cont) = Common.GetFixedM3u8(id);
+                var (url, cont) = CommonFunc.GetFixedM3u8(id);
                 return Content(cont, "application/x-mpegURL");
             }
 
-            var result = Common.M3u8fix(id, isHD);
+            var result = CommonFunc.M3u8fix(id, isHD);
             return Content(result, "application/x-mpegURL");
         }
 

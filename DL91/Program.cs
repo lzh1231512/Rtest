@@ -144,15 +144,15 @@ namespace DL91
                     return true;
                 };
         }
-        static int downloadM3u8(int id,bool isHD,int downloadtime,out long fileSize)
+        static int downloadM3u8(int id,int downloadtime,out long fileSize)
         {
             fileSize = 0;
-            var (m3url, html) = Common.GetFixedM3u8(id);
+            var (m3url, html) = CommonFunc.GetFixedM3u8(id);
             Console.WriteLine(m3url);
             if (string.IsNullOrEmpty(html))
             {
-                WebPage p = new WebPage(m3url);
-                if (!p.IsGood)
+                var p = HttpHelper.GetHtml(m3url);
+                if(!p.IsGood)
                 {
                     return downloadtime - 1;
                 }
@@ -219,7 +219,7 @@ namespace DL91
                 {
                     if (item.isVideoDownloaded == 1)
                     {
-                        if (File.Exists(getVideoSavePath(item.id, Common.GetM3u8Url(item.id, 0,false))))
+                        if (File.Exists(getVideoSavePath(item.id, CommonFunc.GetM3u8Url(item.id, 0,false))))
                         {
                             continue;
                         }
@@ -227,8 +227,7 @@ namespace DL91
                     try
                     {
                         Console.WriteLine("download video " + item.id);
-                        item.isVideoDownloaded = downloadM3u8(item.id, item.isHD,
-                            item.isVideoDownloaded, out long fileSize);
+                        item.isVideoDownloaded = downloadM3u8(item.id, item.isVideoDownloaded, out long fileSize);
                         item.videoFileSize = fileSize;
                     }
                     catch (Exception e)
@@ -315,7 +314,7 @@ namespace DL91
             is404 = false;
             while (true)
             {
-                WebPage p = new WebPage(getUrl( page));
+                var p = HttpHelper.GetHtml(getUrl(page));
                 if (p.IsGood)
                 {
                     return p.Html;
@@ -334,7 +333,7 @@ namespace DL91
             var i = 0;
             while (i < 3)
             {
-                WebPage p = new WebPage(url);
+                var p = HttpHelper.GetHtml(url);
                 if (p.IsGood)
                 {
                     return p.Html;
@@ -487,50 +486,59 @@ namespace DL91
             }
         }
 
-        
+
 
         static bool getType()
         {
-            Console.WriteLine("Get Types");
-
-            WebPage p = new WebPage(domain + "/categories/");
-            if (!p.IsGood)
-                return false;
-
-            HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
-            doc.LoadHtml(p.Html);
-
-            var categoryNodeList = doc.DocumentNode.SelectNodes("//div[@id='list_categories_categories_list_items']/a[@class='item']");
-            for (int i = 0; i < categoryNodeList.Count; i++)
+            try
             {
-                HtmlNode nat = categoryNodeList[i];
-                var url= nat.Attributes["href"].Value.Replace(domain, "");
-                var count = "0";
-                var name = nat.Attributes["title"].Value;
+                Console.WriteLine("Get Types");
+                
 
-                using (var db = new DB91Context())
+                var p = HttpHelper.GetHtml(domain + "/categories/");
+                if (!p.IsGood)
                 {
-                    var type = db.DBTypes.SingleOrDefault(f => f.url == url);
-                    if (type == null)
-                    {
-                        type = new DBType()
-                        {
-                            url = url,
-                            name = name,
-                            count = int.Parse(count),
-                            maxID = 0
-                        };
-                        db.DBTypes.Add(type);
-                    }
-                    else
-                    {
-                        type.count = int.Parse(count);
-                    }
-                    db.SaveChanges();
+                    return false;
                 }
-            }
+                HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+                doc.LoadHtml(p.Html);
 
-            return true;
+                var categoryNodeList = doc.DocumentNode.SelectNodes("//div[@id='list_categories_categories_list_items']/a[@class='item']");
+                for (int i = 0; i < categoryNodeList.Count; i++)
+                {
+                    HtmlNode nat = categoryNodeList[i];
+                    var url = nat.Attributes["href"].Value.Replace(domain, "");
+                    var count = "0";
+                    var name = nat.Attributes["title"].Value;
+
+                    using (var db = new DB91Context())
+                    {
+                        var type = db.DBTypes.SingleOrDefault(f => f.url == url);
+                        if (type == null)
+                        {
+                            type = new DBType()
+                            {
+                                url = url,
+                                name = name,
+                                count = int.Parse(count),
+                                maxID = 0
+                            };
+                            db.DBTypes.Add(type);
+                        }
+                        else
+                        {
+                            type.count = int.Parse(count);
+                        }
+                        db.SaveChanges();
+                    }
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
         
     }
