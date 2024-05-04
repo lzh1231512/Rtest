@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,7 +18,14 @@ namespace DL91
             {
                 if(_configuration== null)
                 {
-                    _configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("config/appsettings.json").Build();
+                    var path = "config/appsettings.json";
+                    if (!File.Exists(path))
+                    {
+                        string assemblyLocation = Assembly.GetExecutingAssembly().Location;
+                        string dllFolder = Path.GetDirectoryName(assemblyLocation);
+                        path = dllFolder + "/" + path;
+                    }
+                    _configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile(path).Build();
                 }
                 return _configuration;
             }

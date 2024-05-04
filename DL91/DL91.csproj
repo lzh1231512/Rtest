@@ -31,7 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Update="config\appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="htmlsample\detail.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
