@@ -28,14 +28,11 @@ namespace DL91
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (connectionString != null)
+            if (connectionString == null)
             {
-                optionsBuilder.UseSqlite(connectionString);
+                connectionString = "Data Source=" + ConfigurationHelper.dbPath;
             }
-            else
-            {
-                optionsBuilder.UseSqlite(ConfigurationHelper.configuration.GetConnectionString("db"));
-            }
+            optionsBuilder.UseSqlite(connectionString);
         }
     }
 }

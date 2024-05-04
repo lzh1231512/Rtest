@@ -12,27 +12,35 @@ namespace DL91
     public class ConfigurationHelper
     {
         public static IConfiguration _configuration;
-        public static IConfiguration configuration 
-        { 
+        public static IConfiguration configuration
+        {
             get
             {
-                if(_configuration== null)
+                if (_configuration == null)
                 {
-                    var path = "config/appsettings.json";
-                    if (!File.Exists(path))
-                    {
-                        string assemblyLocation = Assembly.GetExecutingAssembly().Location;
-                        string dllFolder = Path.GetDirectoryName(assemblyLocation);
-                        path = dllFolder + "/" + path;
-                    }
+                    var path = FixPath("config/appsettings.json");
                     _configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile(path).Build();
                 }
                 return _configuration;
             }
         }
 
+        private static string FixPath(string path)
+        {
+            if (!File.Exists(path))
+            {
+                string assemblyLocation = Assembly.GetExecutingAssembly().Location;
+                string dllFolder = Path.GetDirectoryName(assemblyLocation);
+                path = dllFolder + "/" + path;
+            }
+            return path;
+        }
+
         public static string LoginKey => configuration["App:key"];
 
         public static IEnumerable<int> DisabledType => configuration["App:disabledType"].Split(',').Select(f => int.Parse(f));
+
+        public static string dbPath => FixPath(configuration["App:dbPath"]);
     }
+
 }
