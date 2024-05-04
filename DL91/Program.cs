@@ -420,6 +420,7 @@ namespace DL91
                 {
                     existsflag++;
                 }
+                break;
             }
             return hasNew;
         }
@@ -513,7 +514,7 @@ namespace DL91
 
                     using (var db = new DB91Context())
                     {
-                        var type = db.DBTypes.SingleOrDefault(f => f.url == url);
+                        var type = db.DBTypes.FirstOrDefault(f => f.name == name);
                         if (type == null)
                         {
                             type = new DBType()
