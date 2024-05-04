@@ -1,6 +1,9 @@
 ﻿using log4net;
+using log4net.Config;
+using log4net.Repository;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +24,16 @@ namespace DL91
                 return _logTool;
             }
         }
-
+        public static void Init()
+        {
+            ILoggerRepository repository = LogManager.CreateRepository("LogRepository");
+            var fileInfo = new FileInfo(ConfigurationHelper.FixPath("config/log4net.config"));
+            XmlConfigurator.Configure(repository, fileInfo);
+            if (!fileInfo.Exists)
+            {
+                Instance.Error("Failed Init log4Net:" + fileInfo.FullName);
+            }
+        }
         /// <summary>
         /// 写入错误日志
         /// </summary>

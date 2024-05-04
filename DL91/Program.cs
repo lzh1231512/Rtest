@@ -19,8 +19,7 @@ namespace DL91
     {
         public static void Main(string[] args)
         {
-            var logRep = LogManager.GetRepository(Assembly.GetEntryAssembly());
-            XmlConfigurator.Configure(logRep, new FileInfo("config/log4net.config"));
+            LogTool.Init();
 
         }
         public static void Test2(string[] args)
