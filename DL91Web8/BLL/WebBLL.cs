@@ -200,7 +200,7 @@ namespace DL91Web8.BLL
                 {
                     id = f.id,
                     name = f.name
-                }).ToList();
+                }).OrderBy(f => f.name).ToList();
                 typeLst.Insert(0, new DBType()
                 {
                     id = 0,
