@@ -59,7 +59,7 @@ namespace DL91.WebProcess
         {
             fileSize = 0;
             var (m3url, html) = CommonFunc.GetFixedM3u8(id);
-            Console.WriteLine(m3url);
+            Console.WriteLine("Start Download:" + m3url);
             if (string.IsNullOrEmpty(html))
             {
                 var p = HttpHelper.GetHtml(m3url);
@@ -103,6 +103,7 @@ namespace DL91.WebProcess
                     fs.Close();
                 }
             }
+            Console.WriteLine("Download finish:" + m3url);
             return 1;
         }
 
