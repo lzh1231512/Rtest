@@ -46,7 +46,7 @@ namespace DL91
 
         public void Error(string exInfo, Exception e)
         {
-            var msg = exInfo + ":" + e.Message + "\r\n" + e.StackTrace;
+            var msg = exInfo + "\r\n" + e.Message + "\r\n" + e.StackTrace;
             Error(msg);
         }
 
