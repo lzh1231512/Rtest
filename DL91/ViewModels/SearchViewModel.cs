@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace DL91.Models
 {
@@ -59,7 +60,7 @@ namespace DL91.Models
                 }
             };
         }
-
+        [JsonIgnore]
         public SearchViewModel NextPage
         {
             get
@@ -67,7 +68,7 @@ namespace DL91.Models
                 return ClonePage((Page?.CurrentPage ?? 0) + 1);
             }
         }
-
+        [JsonIgnore]
         public SearchViewModel PrevPage
         {
             get
@@ -76,6 +77,7 @@ namespace DL91.Models
             }
         }
 
+        [JsonIgnore]
         public SearchViewModel LastPage
         {
             get

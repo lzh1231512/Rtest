@@ -2,7 +2,6 @@
 using HtmlAgilityPack;
 using log4net.Config;
 using log4net;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +11,7 @@ using System.Net.Security;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using DL91.Common;
 
 namespace DL91
 {
@@ -64,7 +64,7 @@ namespace DL91
                     {
                         File.Delete(mpath + item.id);
                     }
-                    File.WriteAllText(mpath + item.id, JsonConvert.SerializeObject(obj));
+                    File.WriteAllText(mpath + item.id, JsonHelper.Serialize(obj));
                 }
             }
         }

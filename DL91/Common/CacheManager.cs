@@ -8,6 +8,7 @@ using System.Threading;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using DL91.Jobs;
+using DL91.Common;
 
 namespace DL91
 {
@@ -19,7 +20,6 @@ namespace DL91
         private const int cacheSizeLimit = 15;
         private const int cacheTimeLimit = 10;
 
-        //private static Object cacheLocker = new object();
         private const string cachePath = "wwwroot/cache/";
 
         private static bool isRunding = false;
@@ -59,8 +59,10 @@ namespace DL91
             {
                 try
                 {
-                    BinaryFormatter bf = new BinaryFormatter();
-                    return (SearchViewModel)bf.Deserialize(fs);
+                    return Task.Run(async () =>
+                    {
+                        return await JsonHelper.DeserializeFromStream<SearchViewModel>(fs);
+                    }).Result;
                 }
                 catch
                 {
@@ -83,8 +85,10 @@ namespace DL91
             {
                 try
                 {
-                    BinaryFormatter bf = new BinaryFormatter();
-                    bf.Serialize(fs, model);
+                    Task.Run(async () =>
+                    {
+                        await JsonHelper.SerializeToStream(model, fs);
+                    }).Wait();
                 }
                 catch (Exception e)
                 {
