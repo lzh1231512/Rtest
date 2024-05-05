@@ -1,8 +1,8 @@
 using DL91;
+using DL91.BLL;
 using DL91.Jobs;
 using DL91.Models;
 using DL91Web.Helpers;
-using DL91Web8.BLL;
 using DL91Web8.Helpers;
 using DL91Web8.Models;
 using ImageMagick;
@@ -18,18 +18,14 @@ namespace DL91Web8.Controllers
     {
         private const string cacheVirtualPath = "~/cache/";
 
-        private readonly IWebHostEnvironment _env;
-        private WebBLL bll;
-        private readonly ILogTool _logTool;
+        private IWebBLL bll;
+        private readonly IContent _content;
 
-        public HomeController(IWebHostEnvironment env, ILogTool logTool)
+        public HomeController(IWebBLL bll, IContent content)
         {
-            _env = env;
-            _logTool = logTool;
-            bll = new WebBLL(ContentPath);
+            this._content = content;
+            this.bll = bll;
         }
-
-        public string ContentPath => _env.WebRootPath;
 
         public bool IsLogined => Request.Cookies["key"] == ConfigurationHelper.LoginKey;
 
@@ -79,16 +75,7 @@ namespace DL91Web8.Controllers
 
         public IActionResult like(int id, int isLike)
         {
-            using (var db = new DB91Context())
-            {
-                var obj = db.DB91s.Where(f => f.id == id).FirstOrDefault();
-                obj.isLike = isLike;
-                if (obj.isVideoDownloaded == 2)
-                    obj.isVideoDownloaded = 0;
-                db.SaveChanges();
-            }
-            AutoProcessService.DownloadVideoFlag = 0;
-            CacheManager.NeedClearLikeCache = true;
+            bll.Like(id, isLike);
             return Json(1);
         }
 
@@ -99,14 +86,7 @@ namespace DL91Web8.Controllers
         }
         public IActionResult ResetFailedVideo()
         {
-            using (var db = new DB91Context())
-            {
-                foreach (var obj in db.DB91s.Where(f => f.isLike == 1 && f.isVideoDownloaded < 0))
-                {
-                    obj.isVideoDownloaded = 0;
-                }
-                db.SaveChanges();
-            }
+            bll.ResetFailedVideo();
             return Json(1);
         }
 
@@ -130,7 +110,7 @@ namespace DL91Web8.Controllers
             var message = "";
             if (!string.IsNullOrEmpty(url))
             {
-                message = bll.Add(url, files);
+                message = bll.Add(url, files.Select(f => f.ToUploadedFile()).ToList());
             }
             ViewBag.url = url;
             ViewBag.msg = message;
@@ -149,7 +129,7 @@ namespace DL91Web8.Controllers
             string message = "";
             if (!string.IsNullOrEmpty(title))
             {
-                obj = bll.Edit(id, title, files, out message);
+                obj = bll.Edit(id, title, files.ToUploadedFile(), out message);
             }
             else
             {
@@ -192,7 +172,7 @@ namespace DL91Web8.Controllers
         {
             if (string.IsNullOrEmpty(_swcache))
             {
-                string path = ContentPath;
+                string path = _content.ContentPath;
                 path = path.TrimEnd('/', '\\') + "/_sw-cache.js";
                 _swcache = System.IO.File.ReadAllText(path);
                 _swcache = _swcache.Replace("{version}", VersionHelper.CompileTime.ToString());

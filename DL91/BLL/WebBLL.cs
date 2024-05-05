@@ -1,19 +1,23 @@
-﻿using DL91;
-using DL91.Models;
+﻿using DL91.Jobs;
 using ImageMagick;
-using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace DL91Web8.BLL
+namespace DL91.BLL
 {
-    public class WebBLL
+    public class WebBLL: IWebBLL
     {
-        private string ContentPath { set; get; }
-        public WebBLL(string ContentPath)
+        private IContent content { set; get; }
+        public WebBLL(IContent content)
         {
-            this.ContentPath = ContentPath;
+            this.content = content;
         }
 
-        public string Add(string url, List<IFormFile> files)
+        public string Add(string url, List<UploadedFile> files)
         {
             string message;
             if (files == null || files.Count == 0)
@@ -49,7 +53,7 @@ namespace DL91Web8.BLL
                         id = min.Value - 1;
                     }
                 }
-                string path = ContentPath;
+                string path = content.ContentPath;
                 var folder = path.TrimEnd('/', '\\') + "/imgs/-1/";
                 if (!System.IO.Directory.Exists(folder))
                 {
@@ -111,7 +115,7 @@ namespace DL91Web8.BLL
             return message;
         }
 
-        public DB91 Edit(int id, string title, IFormFile files,out string message)
+        public DB91 Edit(int id, string title, UploadedFile files, out string message)
         {
             DB91 result = null;
             message = "";
@@ -134,7 +138,7 @@ namespace DL91Web8.BLL
                 }
                 if (files != null)
                 {
-                    var folder = ContentPath.TrimEnd('/', '\\') + "/imgs/-1/";
+                    var folder = content.ContentPath.TrimEnd('/', '\\') + "/imgs/-1/";
                     if (!System.IO.Directory.Exists(folder))
                     {
                         System.IO.Directory.CreateDirectory(folder);
@@ -143,7 +147,7 @@ namespace DL91Web8.BLL
                     settings.Width = 320;
                     settings.Height = 180;
 
-                    string fullPath = ContentPath.TrimEnd('/', '\\') + "/imgs/" + (id < 0 ? -1 : (((id / 1000) * 1000))) + "/" + id + ".jpg";
+                    string fullPath = content.ContentPath.TrimEnd('/', '\\') + "/imgs/" + (id < 0 ? -1 : (((id / 1000) * 1000))) + "/" + id + ".jpg";
                     using (var stream = new FileStream(fullPath, FileMode.Create))
                     {
                         files.CopyTo(stream);
@@ -177,7 +181,7 @@ namespace DL91Web8.BLL
         {
             using (var db = new DB91Context())
             {
-                var img = ContentPath.TrimEnd('/', '\\') + "/imgs/" + (id < 0 ? "-1" : (id / 1000).ToString()) + "/" + id + ".jpg";
+                var img = content.ContentPath.TrimEnd('/', '\\') + "/imgs/" + (id < 0 ? "-1" : (id / 1000).ToString()) + "/" + id + ".jpg";
                 if (System.IO.File.Exists(img))
                     System.IO.File.Delete(img);
 
@@ -190,6 +194,32 @@ namespace DL91Web8.BLL
             }
             CacheManager.ClearCache();
         }
+
+        public void Like(int id, int isLike)
+        {
+            using (var db = new DB91Context())
+            {
+                var obj = db.DB91s.Where(f => f.id == id).FirstOrDefault();
+                obj.isLike = isLike;
+                if (obj.isVideoDownloaded == 2)
+                    obj.isVideoDownloaded = 0;
+                db.SaveChanges();
+            }
+            AutoProcessService.DownloadVideoFlag = 0;
+            CacheManager.NeedClearLikeCache = true;
+        }
+        public void ResetFailedVideo()
+        {
+            using (var db = new DB91Context())
+            {
+                foreach (var obj in db.DB91s.Where(f => f.isLike == 1 && f.isVideoDownloaded < 0))
+                {
+                    obj.isVideoDownloaded = 0;
+                }
+                db.SaveChanges();
+            }
+        }
+
 
         public List<DBType> GetTypes()
         {
@@ -210,14 +240,6 @@ namespace DL91Web8.BLL
             }
         }
 
-        public List<DB91> GetByIDs(string ids)
-        {
-            var idList = ids.Split(',').Select(f => int.Parse(f)).ToArray();
-            using (var db = new DB91Context())
-            {
-                return db.DB91s.AsQueryable().Where(f => idList.Contains(f.id)).ToList();
-            }
-        }
         public DB91 GetByID(int id)
         {
             using (var db = new DB91Context())

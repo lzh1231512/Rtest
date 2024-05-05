@@ -8,9 +8,7 @@
     ".NETCoreApp,Version=v8.0": {
       "DL91Web8/1.0.0": {
         "dependencies": {
-          "DL91": "1.0.0",
-          "Magick.NET-Q16-AnyCPU": "13.4.0",
-          "Magick.NET.Core": "13.4.0"
+          "DL91": "1.0.0"
         },
         "runtime": {
           "DL91Web8.dll": {}

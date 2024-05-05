@@ -5,15 +5,12 @@
 /.vs/
 /DL91/bin/
 /DL91/obj/
-/DL91Web/bin/
-/DL91Web/obj/
-/DL91Web/db/91db.db
+/DL91/db/91db.db
 /Release/config/appsettings.json
 /Release/appsettings.json
-/DL91/db/91db.db
 /Release/db/91db.db
 /Release/wwwroot/cache
-/DL91Web/wwwroot/cache
+/Release/wwwroot/imgs
 /file-sharing-master/app/release
 /DL91Web8/db/91db.db
 /DL91Web8/bin/

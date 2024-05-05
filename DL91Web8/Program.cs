@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.StaticFiles;
 using System.IO.Compression;
 using DL91Web8.Helpers;
+using DL91.BLL;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,8 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 LogTool.Init();
 builder.Services.AddSingleton<ILogTool, LogTool>();//因为日志不需要其他操作，所以这里注入的时生命周期可以使用单例
+builder.Services.AddSingleton<IContent, Content>();
+builder.Services.AddSingleton<IWebBLL, WebBLL>();
 
 var app = builder.Build();
 app.UseResponseCompression();

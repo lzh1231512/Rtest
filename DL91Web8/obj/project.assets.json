@@ -60,7 +60,7 @@
           }
         },
         "build": {
-          "build/netstandard20/Magick.NET-Q16-AnyCPU.targets": {}
+          "build/netstandard20/_._": {}
         },
         "runtimeTargets": {
           "runtimes/linux-arm64/native/Magick.Native-Q16-arm64.dll.so": {
@@ -3606,9 +3606,7 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
-      "DL91 >= 1.0.0",
-      "Magick.NET-Q16-AnyCPU >= 13.4.0",
-      "Magick.NET.Core >= 13.4.0"
+      "DL91 >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -3662,16 +3660,6 @@
     "frameworks": {
       "net8.0": {
         "targetAlias": "net8.0",
-        "dependencies": {
-          "Magick.NET-Q16-AnyCPU": {
-            "target": "Package",
-            "version": "[13.4.0, )"
-          },
-          "Magick.NET.Core": {
-            "target": "Package",
-            "version": "[13.4.0, )"
-          }
-        },
         "imports": [
           "net461",
           "net462",

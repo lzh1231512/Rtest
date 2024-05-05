@@ -8,11 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.4.0" />
-    <PackageReference Include="Magick.NET.Core" Version="13.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\DL91\DL91.csproj" />
   </ItemGroup>
 
