@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DL91.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,5 +16,6 @@ namespace DL91.BLL
         void ResetFailedVideo();
         List<DBType> GetTypes();
         DB91 GetByID(int id);
+        void Search(SearchViewModel model, int currentPage, int pageSize);
     }
 }

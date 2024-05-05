@@ -27,8 +27,6 @@ namespace DL91Web8.Controllers
             this.bll = bll;
         }
 
-        public bool IsLogined => Request.Cookies["key"] == ConfigurationHelper.LoginKey;
-
         public IActionResult Login()
         {
             return View();
@@ -36,10 +34,6 @@ namespace DL91Web8.Controllers
 
         public IActionResult Index()
         {
-            if (!IsLogined)
-            {
-                return Redirect("~/Home/Login");
-            }
             var model = new SearchViewModel();
             model.Page = new Pager()
             {
@@ -51,25 +45,7 @@ namespace DL91Web8.Controllers
 
         public IActionResult IndexForAjax(SearchViewModel model, int currentPage = 1)
         {
-            if (!IsLogined)
-            {
-                return Redirect("~/Home/Login");
-            }
-
-            model.Page = new Pager()
-            {
-                CurrentPage = currentPage,
-                PageSize = new CookiesHelper().GetPageSize(HttpContext)
-            };
-            var cache = CacheManager.GetData(model, out int isCached);
-            model.Data = cache.Data;
-            model.NextPageIDs = cache.NextPageIDs;
-            model.Page.RecordCount = cache.Page.RecordCount;
-            ViewBag.fromCache = isCached;
-            CacheManager.Cache(model.NextPage);
-            CacheManager.Cache(model.LastPage);
-            CacheManager.Cache(model.PrevPage);
-
+            bll.Search(model, currentPage, new CookiesHelper().GetPageSize(HttpContext));
             return Json(model);
         }
 

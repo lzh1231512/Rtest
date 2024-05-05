@@ -8,7 +8,6 @@ using System.Text.Json.Serialization;
 
 namespace DL91.Models
 {
-    [Serializable]
     public class SearchViewModel
     {
         public SearchViewModel()

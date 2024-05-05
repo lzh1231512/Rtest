@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 namespace DL91.Models
 {
-    [Serializable]
     public class DataViewModel
     {
         public int Id { set; get; }

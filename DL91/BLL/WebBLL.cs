@@ -1,9 +1,11 @@
 ﻿using DL91.Jobs;
+using DL91.Models;
 using ImageMagick;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -246,6 +248,22 @@ namespace DL91.BLL
             {
                 return db.DB91s.FirstOrDefault(f => f.id == id);
             }
+        }
+
+        public void Search(SearchViewModel model, int currentPage,int pageSize)
+        {
+            model.Page = new Pager()
+            {
+                CurrentPage = currentPage,
+                PageSize = pageSize
+            };
+            var cache = CacheManager.GetData(model, out int isCached);
+            model.Data = cache.Data;
+            model.NextPageIDs = cache.NextPageIDs;
+            model.Page.RecordCount = cache.Page.RecordCount;
+            CacheManager.Cache(model.NextPage);
+            CacheManager.Cache(model.LastPage);
+            CacheManager.Cache(model.PrevPage);
         }
     }
 }
