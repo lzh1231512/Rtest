@@ -159,44 +159,51 @@ namespace DL91.WebProcess
                     }
                     var typeName = "";
                     var typeID = -1;
-                    var html = getDetailHtml(AutoProcessService.domain + item.url);
-                    if (html != null)
+                    try
                     {
-                        HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
-                        doc.LoadHtml(html);
-                        HtmlNode navNode = doc.GetElementbyId("tab_video_info");
-                        foreach (var atag in navNode.SelectNodes("div//a"))
+                        var html = getDetailHtml(AutoProcessService.domain + item.url);
+                        if (html != null)
                         {
-                            var href = atag.Attributes["href"].Value;
-                            if (href.Contains("categories"))
+                            HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+                            doc.LoadHtml(html);
+                            HtmlNode navNode = doc.GetElementbyId("tab_video_info");
+                            foreach (var atag in navNode.SelectNodes("div//a"))
                             {
-                                typeName = atag.InnerText.Trim();
-                                break;
+                                var href = atag.Attributes["href"].Value;
+                                if (href.Contains("categories"))
+                                {
+                                    typeName = atag.InnerText.Trim();
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(typeName))
+                        {
+                            var type = types.FirstOrDefault(f => f.name == typeName);
+                            if (type == null)
+                            {
+                                var ntype = new DBType()
+                                {
+                                    url = "",
+                                    name = typeName,
+                                    count = 0,
+                                    maxID = 0
+                                };
+                                db.DBTypes.Add(ntype);
+                                db.SaveChanges();
+                                types = db.DBTypes.ToList();
+                                type = types.FirstOrDefault(f => f.name == typeName);
+                            }
+                            if (type != null)
+                            {
+                                typeID = type.id;
                             }
                         }
                     }
-
-                    if (!string.IsNullOrEmpty(typeName))
+                    catch (Exception ex)
                     {
-                        var type = types.FirstOrDefault(f => f.name == typeName);
-                        if (type == null)
-                        {
-                            var ntype = new DBType()
-                            {
-                                url = "",
-                                name = typeName,
-                                count = 0,
-                                maxID = 0
-                            };
-                            db.DBTypes.Add(ntype);
-                            db.SaveChanges();
-                            types = db.DBTypes.ToList();
-                            type = types.FirstOrDefault(f => f.name == typeName);
-                        }
-                        if (type != null)
-                        {
-                            typeID = type.id;
-                        }
+                        LogTool.Instance.Error("Failed to get detail for " + item.id + " " + item.url + "\r\n" + ex.Message + "\r\n" + ex.StackTrace);
                     }
                     item.typeId = typeID;
                     db.SaveChanges();
