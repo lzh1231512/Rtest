@@ -57,7 +57,7 @@ namespace DL91.WebProcess
         private static int downloadM3u8(int id, int downloadtime, out long fileSize)
         {
             fileSize = 0;
-            var (m3url, html) = CommonFunc.GetFixedM3u8(id);
+            var (m3url, html,domain) = CommonFunc.GetFixedM3u8(id);
             LogTool.Instance.Info("Start Download:" + m3url);
             if (string.IsNullOrEmpty(html))
             {

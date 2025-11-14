@@ -128,13 +128,12 @@ namespace DL91Web8.Controllers
 
         public IActionResult m3u8fix(int id, int isHD)
         {
+            var (url, cont, domain) = CommonFunc.GetFixedM3u8(id);
             if (isHD == -1)
             {
-                var (url, cont) = CommonFunc.GetFixedM3u8(id);
                 return Content(cont, "application/x-mpegURL");
             }
-
-            var result = CommonFunc.M3u8fix(id, isHD);
+            var result = CommonFunc.M3u8fix(id, isHD, domain);
             return Content(result, "application/x-mpegURL");
         }
 

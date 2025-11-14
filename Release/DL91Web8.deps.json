@@ -849,7 +849,10 @@
           "log4net": "2.0.17"
         },
         "runtime": {
-          "DL91.dll": {}
+          "DL91.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

@@ -81,7 +81,7 @@ namespace DL91
             return "[" + result.name + "]";
         }
 
-        public static string M3u8fix(int id, int isHD)
+        public static string M3u8fix(int id, int isHD,string domain)
         {
             var result = @"#EXTM3U
 #EXT-X-TARGETDURATION:10
@@ -94,7 +94,7 @@ namespace DL91
             {
                 var obj = db.DB91s.FirstOrDefault(f => f.id == id);
                 var time = obj.time;
-                var url = "https://91rbnet.douyincontent.com" + GetM3u8Url(id, isHD, false).Replace("index.m3u8", "");
+                var url = domain + GetM3u8Url(id, isHD, false).Replace("index.m3u8", "");
                 for (int i = 1; time > 0; i++)
                 {
                     var t = time >= 10 ? 10 : time;
@@ -126,17 +126,25 @@ namespace DL91
             return "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8";
         }
 
-        public static (string, string) GetFixedM3u8(int id)
+        public static (string, string,string) GetFixedM3u8(int id)
         {
-            for (int i = 2; i >= 0; i--)
+            var domains= new List<string>() { 
+                "https://91rbnet.gslb-al.com",
+                "https://91rbnet.douyincontent.com"
+            };
+            foreach (var domain in domains)
             {
-                var url = "https://91rbnet.douyincontent.com" + GetM3u8Url(id, i,false).Replace("index.m3u8", "");
-                if (HttpHelper.TestHttp(url + "cdn-1-v1-a1.ts"))
+                for (int i = 2; i >= 0; i--)
                 {
-                    return ("https://fj.lzhsb.cc/home/m3u8fix/" + i + "/" + id + "/index.m3u8", M3u8fix(id, i));
+                    var url = domain + GetM3u8Url(id, i, false).Replace("index.m3u8", "");
+                    if (HttpHelper.TestHttp(url + "cdn-1-v1-a1.ts"))
+                    {
+                        return ("https://fj.lzhsb.cc/home/m3u8fix/" + i + "/" + id + "/index.m3u8", M3u8fix(id, i, domain), domain);
+                    }
                 }
             }
-            return ("https://91rbnet.douyincontent.com" + GetM3u8Url(id, 0, false), null);
+           
+            return ("https://91rbnet.douyincontent.com" + GetM3u8Url(id, 0, false), null, "https://91rbnet.douyincontent.com");
         }
     }
 }
