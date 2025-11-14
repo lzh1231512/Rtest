@@ -1,5 +1,6 @@
 ﻿using DL91.Jobs;
 using HtmlAgilityPack;
+using Humanizer.Localisation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,11 +15,8 @@ namespace DL91.WebProcess
         public static bool DownloadNewData()
         {
             var result = false;
-            if (DownloadTypes())
-            {
-                result = DownloadList();
-                DownloadDetails();
-            }
+            result = DownloadList();
+            DownloadDetails();
             return result;
         }
 
@@ -73,61 +71,36 @@ namespace DL91.WebProcess
             }
         }
 
-        private static bool DownloadList()
+        public static bool DownloadList(bool isTest = false)
         {
             var hasNew = false;
             var pageCount = 1500;
             for (int page = 1, existsflag = 0; page <= pageCount && existsflag < 5; page++)
             {
                 LogTool.Instance.Info("Load Page " + page);
-                var html = getListHtml(page, out bool is404);
+                var json = getListHtml(page, out bool is404);
                 if (is404)
                     break;
-
-                HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
-                doc.LoadHtml(html);
-                HtmlNode navNode = doc.GetElementbyId("list_videos_latest_videos_list_items");
-                HtmlNodeCollection categoryNodeList = navNode.SelectNodes("div");
-
                 var isExists = true;
                 var dt91 = new DateTime(1990, 1, 1);
-                for (int i = 0; i < categoryNodeList.Count; i++)
+                var data = JsonParsingDemo.helper.parseJson(json);
+                foreach (var item in data.Content.Data)
                 {
-                    HtmlNode nat = categoryNodeList[i];
-                    var atag = nat.SelectNodes("a")[0];
-                    String href = atag.Attributes["href"].Value;
-                    href = href.Replace(AutoProcessService.domain, "");
-                    var a = href.IndexOf('/', 2);
-                    var b = href.IndexOf('/', a + 1);
-                    var id = int.Parse(href.Substring(a + 1, b - a - 1));
-                    String title = atag.Attributes["title"].Value;
-                    String img = atag.SelectNodes("div")[0].SelectNodes("img")[0].Attributes["data-original"].Value;
-                    var time = atag.SelectNodes("div")[1].SelectNodes("div")[0].InnerText.Split(':');
-                    var isHD = nat.SelectNodes("a//span[@class='is-hd']") != null;
-                    int timeInt = 0;
-                    if (time.Length == 3)
-                    {
-                        timeInt = int.Parse(time[0]) * 60 * 60 + int.Parse(time[1]) * 60 + int.Parse(time[2]);
-                    }
-                    else if (time.Length == 2)
-                    {
-                        timeInt = int.Parse(time[0]) * 60 + int.Parse(time[1]);
-                    }
                     using (var db = new DB91Context())
                     {
-                        if (!db.DB91s.Any(f => f.id == id))
+                        if (!db.DB91s.Any(f => f.id == item.VideoId))
                         {
                             isExists = false;
                             hasNew = true;
                             db.DB91s.Add(new DB91()
                             {
-                                id = id,
-                                time = timeInt,
-                                title = title,
-                                imgUrl = img,
+                                id = item.VideoId,
+                                time = item.Duration,
+                                title = item.Title,
+                                imgUrl = "",
                                 typeId = 0,
-                                url = href,
-                                isHD = isHD,
+                                url = "",
+                                isHD = item.IsHd > 0,
                                 createDate = (int)(DateTime.UtcNow - dt91).TotalMinutes
                             });
                             db.SaveChanges();
@@ -139,11 +112,13 @@ namespace DL91.WebProcess
                 {
                     existsflag++;
                 }
+                if (isTest)
+                    break;
             }
             return hasNew;
         }
 
-        private static void DownloadDetails()
+        public static void DownloadDetails()
         {
             using (var db = new DB91Context())
             {
@@ -161,21 +136,12 @@ namespace DL91.WebProcess
                     var typeID = -1;
                     try
                     {
-                        var html = getDetailHtml(AutoProcessService.domain + item.url);
+                        var html = getDetailHtml(AutoProcessService.domain+ "/api/videos/detail?id=" + item.id);
                         if (html != null)
                         {
-                            HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
-                            doc.LoadHtml(html);
-                            HtmlNode navNode = doc.GetElementbyId("tab_video_info");
-                            foreach (var atag in navNode.SelectNodes("div//a"))
-                            {
-                                var href = atag.Attributes["href"].Value;
-                                if (href.Contains("categories"))
-                                {
-                                    typeName = atag.InnerText.Trim();
-                                    break;
-                                }
-                            }
+                            var json = DetailHelper.parseJson(html);
+
+                            typeName = json?.Content.Categories[0].Title;
                         }
 
                         if (!string.IsNullOrEmpty(typeName))
@@ -233,12 +199,7 @@ namespace DL91.WebProcess
 
         private static string getListUrl(int page)
         {
-            if (page == 1)
-            {
-                return AutoProcessService.domain + "/latest-updates/?tt=" + Guid.NewGuid();
-
-            }
-            return AutoProcessService.domain + "/latest-updates/" + page + "/?tt=" + Guid.NewGuid();
+            return AutoProcessService.domain + "/api/videos/index?page=" + page + "&size=24&sort=last_time_view_date&tags=&&tt=" + Guid.NewGuid();
         }
 
         private static string getDetailHtml(string url)

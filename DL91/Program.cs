@@ -20,7 +20,8 @@ namespace DL91
         public static void Main(string[] args)
         {
             LogTool.Init();
-
+            //ProcessHtml.DownloadList(true);
+            //ProcessHtml.DownloadDetails();
         }
         public static void Test2(string[] args)
         {
