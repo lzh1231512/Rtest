@@ -41,15 +41,19 @@ namespace DL91
         {
             try
             {
-                using HttpRequestMessage request = new(HttpMethod.Head, url);
-                using HttpResponseMessage response = await HttpClient.SendAsync(request);
+                using var request = new HttpRequestMessage(HttpMethod.Head, url);
+                var response = await HttpClient.SendAsync(
+                    request,
+                    HttpCompletionOption.ResponseHeadersRead
+                );
                 return response.IsSuccessStatusCode;
             }
-            catch
+            catch (HttpRequestException)
             {
                 return false;
             }
         }
+
         public static bool TestHttp(string url)
         {
             return Task.Run(() => TestHttpSync(url)).Result;
