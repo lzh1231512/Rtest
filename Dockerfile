@@ -11,6 +11,7 @@ EXPOSE 8080
 COPY ./Release .
 
 # 安装 Playwright 依赖（关键步骤）
+RUN dotnet build DL91Web8.dll
 RUN pwsh /dotnet/playwright.ps1 install --with-deps
 
 # 设置权限（可选）
