@@ -34,9 +34,10 @@ namespace DL91.WebProcess
                         encrypted.Wait();
                         if (string.IsNullOrEmpty(encrypted.Result))
                             throw new Exception("img encrypt failed " + item.id);
+                        item.imgUrl= imgBaseUrl + encrypted.Result;
                         dLst.Add(new DownloadTask()
                         {
-                            url = imgBaseUrl + encrypted.Result,
+                            url = item.imgUrl,
                             savepath = getImgSavePath(item)
                         });
                     }
