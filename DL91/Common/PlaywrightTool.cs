@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Threading;
+using DL91;
 
 public class PlaywrightTool
 {
@@ -69,87 +70,111 @@ public class PlaywrightTool
 
     public async Task<string> ProcessAsync(string id)
     {
-        await EnsureInitializedAsync();
-        ResetDisposeTimer();
-        var page = await _browser.NewPageAsync();
-        var tcs = new TaskCompletionSource<string>();
-
-        // 拦截所有请求
-        await page.RouteAsync("**/*", async route =>
+        try
         {
-            var url = route.Request.Url;
+            LogTool.Instance.Info($"ProcessAsync started, id={id}");
+            await EnsureInitializedAsync();
+            ResetDisposeTimer();
+            LogTool.Instance.Info("Playwright initialized.");
 
-            if (url.EndsWith("main.js"))
-            {
-                var jsPath = Path.Combine(_htmlRoot, "main.js");
-                var jsContent = await File.ReadAllTextAsync(jsPath);
-                await route.FulfillAsync(new RouteFulfillOptions
-                {
-                    Status = 200,
-                    ContentType = "application/javascript",
-                    Body = jsContent
-                });
-                return;
-            }
-            if (url.Contains("encrypt"))
-            {
-                var jsonPath = Path.Combine(_htmlRoot, "encrypt.json");
-                var jsonContent = await File.ReadAllTextAsync(jsonPath);
-                await route.FulfillAsync(new RouteFulfillOptions
-                {
-                    Status = 200,
-                    ContentType = "application/json",
-                    Body = jsonContent
-                });
-                return;
-            }
-            if (url.Contains("api/videos/index_byall"))
-            {
-                var jsonPath = Path.Combine(_htmlRoot, "main.json");
-                var jsonContent = await File.ReadAllTextAsync(jsonPath);
-                jsonContent = jsonContent.Replace("{id}", id);
-                await route.FulfillAsync(new RouteFulfillOptions
-                {
-                    Status = 200,
-                    ContentType = "application/json",
-                    Body = jsonContent
-                });
-                return;
-            }
+            var page = await _browser.NewPageAsync();
+            LogTool.Instance.Info("New page created.");
 
-            if (url.Contains("api/videos/img/"))
+            var tcs = new TaskCompletionSource<string>();
+
+            // 拦截所有请求
+            await page.RouteAsync("**/*", async route =>
             {
-                // 提取加密后的部分
-                var parts = url.Split(new[] { "/img/" }, StringSplitOptions.None);
-                if (parts.Length > 1)
+                var url = route.Request.Url;
+                LogTool.Instance.Info($"Routing URL: {url}");
+
+                try
                 {
-                    var encryptedUrl = parts[1];
-                    Console.WriteLine($"{id} 加密后的URL: {encryptedUrl}");
-                    tcs.TrySetResult(encryptedUrl);
-                    // 关闭页面
-                    await page.CloseAsync();
+                    if (url.EndsWith("main.js"))
+                    {
+                        var jsPath = Path.Combine(_htmlRoot, "main.js");
+                        var jsContent = await File.ReadAllTextAsync(jsPath);
+                        await route.FulfillAsync(new RouteFulfillOptions
+                        {
+                            Status = 200,
+                            ContentType = "application/javascript",
+                            Body = jsContent
+                        });
+                        LogTool.Instance.Info("main.js fulfilled.");
+                        return;
+                    }
+                    if (url.Contains("encrypt"))
+                    {
+                        var jsonPath = Path.Combine(_htmlRoot, "encrypt.json");
+                        var jsonContent = await File.ReadAllTextAsync(jsonPath);
+                        await route.FulfillAsync(new RouteFulfillOptions
+                        {
+                            Status = 200,
+                            ContentType = "application/json",
+                            Body = jsonContent
+                        });
+                        LogTool.Instance.Info("encrypt.json fulfilled.");
+                        return;
+                    }
+                    if (url.Contains("api/videos/index_byall"))
+                    {
+                        var jsonPath = Path.Combine(_htmlRoot, "main.json");
+                        var jsonContent = await File.ReadAllTextAsync(jsonPath);
+                        jsonContent = jsonContent.Replace("{id}", id);
+                        await route.FulfillAsync(new RouteFulfillOptions
+                        {
+                            Status = 200,
+                            ContentType = "application/json",
+                            Body = jsonContent
+                        });
+                        LogTool.Instance.Info("main.json fulfilled.");
+                        return;
+                    }
+
+                    if (url.Contains("api/videos/img/"))
+                    {
+                        var parts = url.Split(new[] { "/img/" }, StringSplitOptions.None);
+                        if (parts.Length > 1)
+                        {
+                            var encryptedUrl = parts[1];
+                            LogTool.Instance.Info($"{id} 加密后的URL: {encryptedUrl}");
+                            tcs.TrySetResult(encryptedUrl);
+                            await page.CloseAsync();
+                            LogTool.Instance.Info("Page closed after img route.");
+                        }
+                        await route.ContinueAsync();
+                        return;
+                    }
+
+                    await route.ContinueAsync();
                 }
-                await route.ContinueAsync();
-                return;
+                catch (Exception ex)
+                {
+                    LogTool.Instance.Error($"Route handling error: {ex}");
+                    await route.ContinueAsync();
+                }
+            });
+
+            var indexPath = Path.Combine(_htmlRoot, "index.html");
+            LogTool.Instance.Info($"Loading index.html: {indexPath}");
+            await page.GotoAsync($"file:///{indexPath.Replace("\\", "/")}");
+
+            var result = await Task.WhenAny(tcs.Task, Task.Delay(5000));
+            if (tcs.Task.IsCompleted)
+            {
+                LogTool.Instance.Info($"ProcessAsync success, result={tcs.Task.Result}");
+                return tcs.Task.Result;
             }
-
-            // 默认继续请求
-            await route.ContinueAsync();
-        });
-
-        // 加载本地 index.html
-        var indexPath = Path.Combine(_htmlRoot, "index.html");
-        await page.GotoAsync($"file:///{indexPath.Replace("\\", "/")}");
-
-        // 等待加密URL被捕获
-        var result = await Task.WhenAny(tcs.Task, Task.Delay(5000));
-        if (tcs.Task.IsCompleted)
-        {
-            return tcs.Task.Result;
+            else
+            {
+                await page.CloseAsync();
+                LogTool.Instance.Error("ProcessAsync timeout, result is null.");
+                return null;
+            }
         }
-        else
+        catch (Exception ex)
         {
-            await page.CloseAsync();
+            LogTool.Instance.Error($"ProcessAsync exception: {ex}");
             return null;
         }
     }
