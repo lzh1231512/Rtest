@@ -1,0 +1,62 @@
+{
+    "error": 0,
+    "message": "请求成功",
+    "content": {
+        "list_hot": {
+            "total": 1,
+            "per_page": 12,
+            "current_page": 1,
+            "last_page": 1,
+            "data": [
+              {
+                "video_id": {id},
+                "title": "",
+                "duration": 5016,
+                "video_viewed": 21722,
+                "resolution_type": 0,
+                "is_private": 0,
+                "screen_main": 2,
+                "img_opt": 2,
+                "is_hd": 0
+              }
+            ]
+        },
+        "list_new": {
+            "total": 271210,
+            "per_page": 12,
+            "current_page": 1,
+            "last_page": 22601,
+          "data": [
+          ]
+        },
+        "list_ads_top": {
+            "error": 0,
+            "content": [
+
+            ],
+            "message": "请求成功"
+        },
+        "ENCRYPT": 0,
+        "OPEN_AD": 1,
+        "notice": {
+            "error": 0,
+            "content": {
+                "post_id": 8,
+                "title": "公告",
+                "content": "",
+                "status_id": 1
+            },
+            "message": "请求成功"
+        },
+        "top_scroll_notice": {
+            "error": 0,
+            "content": {
+                "post_id": 9,
+                "title": "",
+                "content": "",
+                "status_id": 0
+            },
+            "message": "请求成功"
+        }
+    }
+}

@@ -94,7 +94,7 @@ namespace DL91.WebProcess
                             typeName = json?.Content.Categories[0].Title;
                             try
                             {
-                                created = DateTime.ParseExact(json?.Content.PostDate, "yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+                                created = DateTime.ParseExact(json?.Content.PostDate, "yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture);
                             }
                             catch(Exception e)
                             {
