@@ -72,13 +72,10 @@ public class PlaywrightTool
     {
         try
         {
-            LogTool.Instance.Info($"ProcessAsync started, id={id}");
             await EnsureInitializedAsync();
             ResetDisposeTimer();
-            LogTool.Instance.Info("Playwright initialized.");
 
             var page = await _browser.NewPageAsync();
-            LogTool.Instance.Info("New page created.");
 
             var tcs = new TaskCompletionSource<string>();
 
@@ -86,7 +83,6 @@ public class PlaywrightTool
             await page.RouteAsync("**/*", async route =>
             {
                 var url = route.Request.Url;
-                LogTool.Instance.Info($"Routing URL: {url}");
 
                 try
                 {
@@ -100,7 +96,6 @@ public class PlaywrightTool
                             ContentType = "application/javascript",
                             Body = jsContent
                         });
-                        LogTool.Instance.Info("main.js fulfilled.");
                         return;
                     }
                     if (url.Contains("encrypt"))
@@ -113,7 +108,6 @@ public class PlaywrightTool
                             ContentType = "application/json",
                             Body = jsonContent
                         });
-                        LogTool.Instance.Info("encrypt.json fulfilled.");
                         return;
                     }
                     if (url.Contains("api/videos/index_byall"))
@@ -127,7 +121,6 @@ public class PlaywrightTool
                             ContentType = "application/json",
                             Body = jsonContent
                         });
-                        LogTool.Instance.Info("main.json fulfilled.");
                         return;
                     }
 
@@ -137,10 +130,9 @@ public class PlaywrightTool
                         if (parts.Length > 1)
                         {
                             var encryptedUrl = parts[1];
-                            LogTool.Instance.Info($"{id} 加密后的URL: {encryptedUrl}");
                             tcs.TrySetResult(encryptedUrl);
+                            LogTool.Instance.Info($"{id} 加密后的URL: {encryptedUrl}");
                             await page.CloseAsync();
-                            LogTool.Instance.Info("Page closed after img route.");
                         }
                         await route.ContinueAsync();
                         return;
@@ -156,13 +148,11 @@ public class PlaywrightTool
             });
 
             var indexPath = Path.Combine(_htmlRoot, "index.html");
-            LogTool.Instance.Info($"Loading index.html: {indexPath}");
             await page.GotoAsync($"file:///{indexPath.Replace("\\", "/")}");
 
             var result = await Task.WhenAny(tcs.Task, Task.Delay(5000));
             if (tcs.Task.IsCompleted)
             {
-                LogTool.Instance.Info($"ProcessAsync success, result={tcs.Task.Result}");
                 return tcs.Task.Result;
             }
             else
