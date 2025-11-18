@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DL91.Jobs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,7 @@ namespace DL91.WebProcess
             while (true)
             {
                 LogTool.Instance.Info("download img " + downloaded);
-
+                var tool = new PlaywrightTool();
                 using (var db = new DB91Context())
                 {
                     var lst = db.DB91s.Where(f => f.IsImgDownload == 0).Take(200);
@@ -25,12 +26,18 @@ namespace DL91.WebProcess
                     {
                         item.imgUrl = item.imgUrl;
                     }
-
-                    var dLst = lst.Select(f => new DownloadTask()
+                    var imgBaseUrl = AutoProcessService.domain + "/api/videos/img/";
+                    var dLst = new List<DownloadTask>();
+                    foreach (var item in lst)
                     {
-                        url = f.imgUrl,
-                        savepath = getImgSavePath(f)
-                    });
+                        var encrypted = tool.ProcessAsync(item.id.ToString());
+                        encrypted.Wait();
+                        dLst.Add(new DownloadTask()
+                        {
+                            url = imgBaseUrl + encrypted.Result,
+                            savepath = getImgSavePath(item)
+                        });
+                    }
                     var dLst2 = DownloadHelper.DL(dLst.ToList(), 8);
 
                     foreach (var item in lst)
@@ -40,6 +47,8 @@ namespace DL91.WebProcess
                     db.SaveChanges();
                     downloaded += lst.Count();
                 }
+
+                break;
             }
         }
 

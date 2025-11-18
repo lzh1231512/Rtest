@@ -12,6 +12,7 @@ namespace DL91
 {
     public class DownloadTask
     {
+        public bool isJsonImg { set; get; } = false;
         public string url { set; get; }
         public string savepath { set; get; }
         public int result { set; get; }
@@ -82,7 +83,7 @@ namespace DL91
         }
 
 
-        private static bool DLSingleFile(DownloadTask task,bool isFinal)
+        private static bool DLSingleFile(DownloadTask task, bool isFinal)
         {
             try
             {
@@ -94,14 +95,49 @@ namespace DL91
 
                 LogTool.Instance.Info("download " + task.url);
 
-                using FileStream fs = new FileStream(task.savepath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
-                var dl = HttpHelper.DownloadFile(task.url, fs);
-                if (!dl.IsGood)
+                if (task.isJsonImg)
                 {
-                    return false;
+                    using var httpClient = new System.Net.Http.HttpClient();
+                    var response = httpClient.GetAsync(task.url).Result;
+                    if (!response.IsSuccessStatusCode)
+                        return false;
+                    var jsonStr = response.Content.ReadAsStringAsync().Result;
+                    var jsonObj = System.Text.Json.JsonDocument.Parse(jsonStr);
+                    if (!jsonObj.RootElement.TryGetProperty("content", out var contentElem))
+                        return false;
+                    if (!contentElem.TryGetProperty("base64", out var base64Elem))
+                        return false;
+                    var base64Str = base64Elem.GetString();
+                    if (string.IsNullOrEmpty(base64Str))
+                        return false;
+                    // 去除前缀
+                    var idx = base64Str.IndexOf(",");
+                    if (idx >= 0)
+                        base64Str = base64Str.Substring(idx + 1);
+                    byte[] imgBytes;
+                    try
+                    {
+                        imgBytes = Convert.FromBase64String(base64Str);
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                    File.WriteAllBytes(task.savepath, imgBytes);
+                    task.fileSize = imgBytes.Length;
+                    return true;
                 }
-                task.fileSize = dl.Length;
-                return true;
+                else
+                {
+                    using FileStream fs = new FileStream(task.savepath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
+                    var dl = HttpHelper.DownloadFile(task.url, fs);
+                    if (!dl.IsGood)
+                    {
+                        return false;
+                    }
+                    task.fileSize = dl.Length;
+                    return true;
+                }
             }
             catch (Exception ex)
             {

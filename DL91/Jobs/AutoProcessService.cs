@@ -36,7 +36,7 @@ namespace DL91.Jobs
                             {
                                 CacheManager.ClearCache();
                             }
-                            //ProcessImg.DownloadImg();
+                            ProcessImg.DownloadImg();
                             SyncFlag = 60 * 6;
 
                             Thread.Sleep(1000);

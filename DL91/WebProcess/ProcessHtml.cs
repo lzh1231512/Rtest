@@ -20,57 +20,6 @@ namespace DL91.WebProcess
             return result;
         }
 
-        private static bool DownloadTypes()
-        {
-            try
-            {
-                LogTool.Instance.Info("Get Types");
-                var p = HttpHelper.GetHtml(AutoProcessService.domain + "/categories/");
-                if (!p.IsGood)
-                {
-                    return false;
-                }
-                HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
-                doc.LoadHtml(p.Html);
-
-                var categoryNodeList = doc.DocumentNode.SelectNodes("//div[@id='list_categories_categories_list_items']/a[@class='item']");
-                for (int i = 0; i < categoryNodeList.Count; i++)
-                {
-                    HtmlNode nat = categoryNodeList[i];
-                    var url = nat.Attributes["href"].Value.Replace(AutoProcessService.domain, "");
-                    var count = "0";
-                    var name = nat.Attributes["title"].Value;
-
-                    using (var db = new DB91Context())
-                    {
-                        var type = db.DBTypes.FirstOrDefault(f => f.name == name);
-                        if (type == null)
-                        {
-                            type = new DBType()
-                            {
-                                url = url,
-                                name = name,
-                                count = int.Parse(count),
-                                maxID = 0
-                            };
-                            db.DBTypes.Add(type);
-                        }
-                        else
-                        {
-                            type.count = int.Parse(count);
-                        }
-                        db.SaveChanges();
-                    }
-                }
-
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
         public static bool DownloadList(bool isTest = false)
         {
             var hasNew = false;
@@ -134,6 +83,7 @@ namespace DL91.WebProcess
                     }
                     var typeName = "";
                     var typeID = -1;
+                    DateTime? created = null;
                     try
                     {
                         var html = getDetailHtml(AutoProcessService.domain+ "/api/videos/detail?id=" + item.id);
@@ -142,6 +92,15 @@ namespace DL91.WebProcess
                             var json = DetailHelper.parseJson(html);
 
                             typeName = json?.Content.Categories[0].Title;
+                            try
+                            {
+                                created = DateTime.ParseExact(json?.Content.PostDate, "yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+                            }
+                            catch(Exception e)
+                            {
+                                LogTool.Instance.Error("Failed to parse date for "+ json?.Content.PostDate);
+                                created = null;
+                            }
                         }
 
                         if (!string.IsNullOrEmpty(typeName))
@@ -172,6 +131,10 @@ namespace DL91.WebProcess
                         LogTool.Instance.Error("Failed to get detail for " + item.id + " " + item.url + "\r\n" + ex.Message + "\r\n" + ex.StackTrace);
                     }
                     item.typeId = typeID;
+                    if(created!=null)
+                    {
+                        item.createDate = (int)(created.Value.ToUniversalTime() - new DateTime(1990, 1, 1)).TotalMinutes;
+                    }
                     db.SaveChanges();
                 }
 
@@ -199,7 +162,7 @@ namespace DL91.WebProcess
 
         private static string getListUrl(int page)
         {
-            return AutoProcessService.domain + "/api/videos/index?page=" + page + "&size=24&sort=last_time_view_date&tags=&&tt=" + Guid.NewGuid();
+            return AutoProcessService.domain + "/api/videos/index?page=" + page + "&size=24&sort=post_date&tags=&&tt=" + Guid.NewGuid();
         }
 
         private static string getDetailHtml(string url)
