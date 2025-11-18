@@ -38,6 +38,7 @@ namespace DL91.WebProcess
                         dLst.Add(new DownloadTask()
                         {
                             url = item.imgUrl,
+                            isJsonImg = true,
                             savepath = getImgSavePath(item)
                         });
                     }
