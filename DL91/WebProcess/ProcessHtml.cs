@@ -133,7 +133,8 @@ namespace DL91.WebProcess
                     item.typeId = typeID;
                     if(created!=null)
                     {
-                        item.createDate = (int)(created.Value.ToUniversalTime() - new DateTime(1990, 1, 1)).TotalMinutes;
+                        item.createDate = (int)(created.Value.ToUniversalTime()
+                            .AddHours(8) - new DateTime(1990, 1, 1)).TotalMinutes;
                     }
                     db.SaveChanges();
                 }

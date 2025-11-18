@@ -21,5 +21,6 @@ FROM mcr.microsoft.com/playwright/dotnet:latest
 WORKDIR /dotnet
 COPY --from=build /app/out .
 RUN pwsh /dotnet/playwright.ps1 install 
+RUN chmod -R 777 /dotnet
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "DL91Web8.dll"]
