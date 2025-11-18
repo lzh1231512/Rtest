@@ -20,6 +20,6 @@ RUN dotnet publish -c Release -o /app/out
 FROM mcr.microsoft.com/playwright/dotnet:latest
 WORKDIR /dotnet
 COPY --from=build /app/out .
-pwsh /dotnet/playwright.ps1 install 
+RUN pwsh /dotnet/playwright.ps1 install 
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "DL91Web8.dll"]
