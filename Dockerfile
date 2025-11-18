@@ -1,21 +1,14 @@
-# 使用官方 Playwright 镜像，包含 .NET SDK 和浏览器
-FROM mcr.microsoft.com/playwright/dotnet:latest
+FROM mcr.microsoft.com/playwright/dotnet:latest AS build
+WORKDIR /src
+COPY . .
 
-# 设置工作目录
+RUN dotnet restore
+RUN dotnet build -c Release
+RUN dotnet tool run playwright install --with-deps
+RUN dotnet publish -c Release -o /app/out
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /dotnet
-
-# 暴露端口
+COPY --from=build /app/out .
 EXPOSE 8080
-
-# 复制已发布的文件（假设你在本地已执行 dotnet publish -c Release -o Release）
-COPY ./Release .
-
-# 安装 Playwright 依赖（关键步骤）
-#RUN dotnet build DL91Web8.dll
-RUN pwsh /dotnet/playwright.ps1 install --with-deps
-
-# 设置权限（可选）
-RUN chmod -R 777 /dotnet
-
-# 入口点：运行 ASP.NET Core 应用
 ENTRYPOINT ["dotnet", "DL91Web8.dll"]
