@@ -11,7 +11,7 @@ EXPOSE 8080
 COPY ./Release .
 
 # 安装 Playwright 依赖（关键步骤）
-RUN pwsh /dotnet/playwright.ps1 install
+RUN pwsh /dotnet/playwright.ps1 install --with-deps
 
 # 设置权限（可选）
 RUN chmod -R 777 /dotnet
