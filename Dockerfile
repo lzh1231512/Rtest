@@ -4,7 +4,9 @@ COPY . .
 
 RUN dotnet restore
 RUN dotnet build -c Release
-RUN dotnet tool run playwright install --with-deps
+RUN dotnet new tool-manifest \
+ && dotnet tool install Microsoft.Playwright.CLI \
+ && dotnet tool run playwright install --with-deps
 RUN dotnet publish -c Release -o /app/out
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
