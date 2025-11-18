@@ -10,6 +10,9 @@ EXPOSE 8080
 # 复制已发布的文件（假设你在本地已执行 dotnet publish -c Release -o Release）
 COPY ./Release .
 
+# 安装 Playwright 依赖（关键步骤）
+RUN pwsh /dotnet/playwright.ps1 install
+
 # 设置权限（可选）
 RUN chmod -R 777 /dotnet
 
