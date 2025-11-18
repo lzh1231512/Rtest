@@ -18,7 +18,7 @@ namespace DL91.WebProcess
                 var tool = new PlaywrightTool();
                 using (var db = new DB91Context())
                 {
-                    var lst = db.DB91s.Where(f => f.IsImgDownload == 0).Take(3);
+                    var lst = db.DB91s.Where(f => f.IsImgDownload == 0).Take(200);
                     if (!lst.Any())
                         break;
 
@@ -51,8 +51,6 @@ namespace DL91.WebProcess
                     db.SaveChanges();
                     downloaded += lst.Count();
                 }
-
-                break;
             }
         }
 
