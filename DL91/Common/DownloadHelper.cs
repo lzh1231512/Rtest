@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -102,27 +103,18 @@ namespace DL91
                     if (!response.IsSuccessStatusCode)
                         return false;
                     var jsonStr = response.Content.ReadAsStringAsync().Result;
-                    var jsonObj = System.Text.Json.JsonDocument.Parse(jsonStr);
-                    if (!jsonObj.RootElement.TryGetProperty("content", out var contentElem))
-                        return false;
-                    if (!contentElem.TryGetProperty("base64", out var base64Elem))
-                        return false;
-                    var base64Str = base64Elem.GetString();
-                    if (string.IsNullOrEmpty(base64Str))
-                        return false;
-                    // 去除前缀
-                    var idx = base64Str.IndexOf(",");
-                    if (idx >= 0)
-                        base64Str = base64Str.Substring(idx + 1);
-                    byte[] imgBytes;
-                    try
-                    {
-                        imgBytes = Convert.FromBase64String(base64Str);
-                    }
-                    catch
-                    {
-                        return false;
-                    }
+                    using JsonDocument doc = JsonDocument.Parse(jsonStr);
+                    string base64WithPrefix = doc.RootElement
+                        .GetProperty("content")
+                        .GetProperty("base64")
+                        .GetString();
+
+                    // 去掉前缀
+                    string base64 = base64WithPrefix.Substring(base64WithPrefix.IndexOf(",") + 1);
+
+                    // 转换为字节数组
+                    byte[] imgBytes = Convert.FromBase64String(base64);
+
                     File.WriteAllBytes(task.savepath, imgBytes);
                     task.fileSize = imgBytes.Length;
                     return true;

@@ -1,7 +1,8 @@
-﻿using DL91.WebProcess;
+﻿using DL91.Common;
+using DL91.WebProcess;
 using HtmlAgilityPack;
-using log4net.Config;
 using log4net;
+using log4net.Config;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,8 +11,9 @@ using System.Net;
 using System.Net.Security;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.Json;
 using System.Threading;
-using DL91.Common;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace DL91
 {
@@ -19,6 +21,7 @@ namespace DL91
     {
         public static void Main(string[] args)
         {
+            //Test3();
             LogTool.Init();
             //ProcessHtml.DownloadList(true);
             //ProcessHtml.DownloadDetails();
@@ -69,5 +72,32 @@ namespace DL91
                 }
             }
         }
+
+
+        static void Test3()
+        {
+            // 假设 jsonString 是你的 JSON 字符串
+            string jsonString = File.ReadAllText("HTML/img.json");
+
+            // 解析 JSON
+            using JsonDocument doc = JsonDocument.Parse(jsonString);
+            string base64WithPrefix = doc.RootElement
+                .GetProperty("content")
+                .GetProperty("base64")
+                .GetString();
+
+            // 去掉前缀
+            string base64 = base64WithPrefix.Substring(base64WithPrefix.IndexOf(",") + 1);
+
+            // 转换为字节数组
+            byte[] imageBytes = Convert.FromBase64String(base64);
+
+            // 保存为图片文件
+            string outputPath = "output.jpg";
+            File.WriteAllBytes(outputPath, imageBytes);
+
+            Console.WriteLine($"图片已保存到: {outputPath}");
+        }
+
     }
 }
