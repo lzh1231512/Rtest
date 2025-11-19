@@ -47,6 +47,18 @@ namespace DL91
                 }
                 else
                 {
+                    if (item > 0)
+                    {
+                        using (var db = new DB91Context())
+                        {
+                            var obj = db.DB91s.FirstOrDefault(f => f.id == item);
+                            if(obj != null)
+                            {
+                                obj.isVideoDownloaded = 0;
+                                db.SaveChanges();
+                            }
+                        }
+                    }
                     canvas.Composite(nopic, 0, index++ * 180);
                 }
                 
