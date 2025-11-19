@@ -33,7 +33,10 @@ namespace DL91.WebProcess
                         var encrypted = tool.ProcessAsync(item.id.ToString());
                         encrypted.Wait();
                         if (string.IsNullOrEmpty(encrypted.Result))
-                            throw new Exception("img encrypt failed " + item.id);
+                        {
+                            LogTool.Instance.Error("img encrypt failed " + item.id);
+                            continue;
+                        }
                         item.imgUrl= imgBaseUrl + encrypted.Result;
                         dLst.Add(new DownloadTask()
                         {

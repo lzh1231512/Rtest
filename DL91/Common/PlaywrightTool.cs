@@ -120,7 +120,7 @@ public class PlaywrightTool
 
     private async Task setEvent(string id, TaskCompletionSource<string> tcs)
     {
-        await _page.UnrouteAsync("**/*");
+        //await _page.UnrouteAsync("**/*");
         await _page.RouteAsync("**/*", async route =>
         {
             var url = route.Request.Url;
