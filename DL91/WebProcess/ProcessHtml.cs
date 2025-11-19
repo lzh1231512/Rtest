@@ -134,7 +134,7 @@ namespace DL91.WebProcess
                     if(created!=null)
                     {
                         item.createDate = (int)(created.Value.ToUniversalTime()
-                            .AddHours(8) - new DateTime(1990, 1, 1)).TotalMinutes;
+                            .AddHours(-8) - new DateTime(1990, 1, 1)).TotalMinutes;
                     }
                     db.SaveChanges();
                 }
