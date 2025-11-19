@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using ImageMagick;
 
 namespace DL91
 {
@@ -142,26 +143,20 @@ namespace DL91
             // 转换为字节数组
             byte[] imgBytes = Convert.FromBase64String(base64);
 
-            // 图片压缩处理
-            using var ms = new MemoryStream(imgBytes);
-            using var image = System.Drawing.Image.FromStream(ms);
+            // 使用 Magick.NET 处理图片
+            using var image = new MagickImage(imgBytes);
+
             int maxSize = 1000;
-            int width = image.Width;
-            int height = image.Height;
-            if (width > maxSize || height > maxSize)
+            if (image.Width > maxSize || image.Height > maxSize)
             {
-                double scale = Math.Min((double)maxSize / width, (double)maxSize / height);
-                int newWidth = (int)(width * scale);
-                int newHeight = (int)(height * scale);
-                using var bitmap = new System.Drawing.Bitmap(image, newWidth, newHeight);
-                bitmap.Save(task.savepath, image.RawFormat);
-                task.fileSize = new FileInfo(task.savepath).Length;
+                double scale = Math.Min((double)maxSize / image.Width, (double)maxSize / image.Height);
+                int newWidth = (int)(image.Width * scale);
+                int newHeight = (int)(image.Height * scale);
+                image.Resize(newWidth, newHeight);
             }
-            else
-            {
-                image.Save(task.savepath, image.RawFormat);
-                task.fileSize = imgBytes.Length;
-            }
+
+            image.Write(task.savepath);
+            task.fileSize = new FileInfo(task.savepath).Length;
             return true;
         }
     }
