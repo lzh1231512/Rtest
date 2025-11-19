@@ -32,12 +32,24 @@ namespace DL91
                 if (imgpath1.Exists)
                 {
                     var first = new MagickImage(imgpath1.FullName);
-                    canvas.Composite(first, 0, index++ * 180);
+                    // 创建320x180黑色背景
+                    var bg = new MagickImage(MagickColors.Black, 320, 180);
+                    // 计算缩放比例
+                    double scale = Math.Min(320.0 / first.Width, 180.0 / first.Height);
+                    int newW = (int)(first.Width * scale);
+                    int newH = (int)(first.Height * scale);
+                    first.Resize(newW, newH);
+                    // 居中粘贴
+                    int offsetX = (320 - newW) / 2;
+                    int offsetY = (180 - newH) / 2;
+                    bg.Composite(first, offsetX, offsetY, CompositeOperator.Over);
+                    canvas.Composite(bg, 0, index++ * 180);
                 }
                 else
                 {
                     canvas.Composite(nopic, 0, index++ * 180);
                 }
+                
             }
             canvas.Resize(256, 144 * allImg.Count());
             canvas.Write(cachePath + fileName);

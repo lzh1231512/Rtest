@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Net.Security;
@@ -21,7 +22,7 @@ namespace DL91
     }
     public class DownloadHelper
     {
-        private static Object locker = new object();
+        private static Object locker = new Object();
         private static int _runingCount = 0;
         private static int runingCount
         {
@@ -98,26 +99,7 @@ namespace DL91
 
                 if (task.isJsonImg)
                 {
-                    using var httpClient = new System.Net.Http.HttpClient();
-                    var response = httpClient.GetAsync(task.url).Result;
-                    if (!response.IsSuccessStatusCode)
-                        return false;
-                    var jsonStr = response.Content.ReadAsStringAsync().Result;
-                    using JsonDocument doc = JsonDocument.Parse(jsonStr);
-                    string base64WithPrefix = doc.RootElement
-                        .GetProperty("content")
-                        .GetProperty("base64")
-                        .GetString();
-
-                    // 去掉前缀
-                    string base64 = base64WithPrefix.Substring(base64WithPrefix.IndexOf(",") + 1);
-
-                    // 转换为字节数组
-                    byte[] imgBytes = Convert.FromBase64String(base64);
-
-                    File.WriteAllBytes(task.savepath, imgBytes);
-                    task.fileSize = imgBytes.Length;
-                    return true;
+                    return downJsonImg(task);
                 }
                 else
                 {
@@ -139,6 +121,48 @@ namespace DL91
                 }
                 return false;
             }
+        }
+
+        private static bool downJsonImg(DownloadTask task)
+        {
+            using var httpClient = new System.Net.Http.HttpClient();
+            var response = httpClient.GetAsync(task.url).Result;
+            if (!response.IsSuccessStatusCode)
+                return false;
+            var jsonStr = response.Content.ReadAsStringAsync().Result;
+            using JsonDocument doc = JsonDocument.Parse(jsonStr);
+            string base64WithPrefix = doc.RootElement
+                .GetProperty("content")
+                .GetProperty("base64")
+                .GetString();
+
+            // 去掉前缀
+            string base64 = base64WithPrefix.Substring(base64WithPrefix.IndexOf(",") + 1);
+
+            // 转换为字节数组
+            byte[] imgBytes = Convert.FromBase64String(base64);
+
+            // 图片压缩处理
+            using var ms = new MemoryStream(imgBytes);
+            using var image = System.Drawing.Image.FromStream(ms);
+            int maxSize = 1000;
+            int width = image.Width;
+            int height = image.Height;
+            if (width > maxSize || height > maxSize)
+            {
+                double scale = Math.Min((double)maxSize / width, (double)maxSize / height);
+                int newWidth = (int)(width * scale);
+                int newHeight = (int)(height * scale);
+                using var bitmap = new System.Drawing.Bitmap(image, newWidth, newHeight);
+                bitmap.Save(task.savepath, image.RawFormat);
+                task.fileSize = new FileInfo(task.savepath).Length;
+            }
+            else
+            {
+                image.Save(task.savepath, image.RawFormat);
+                task.fileSize = imgBytes.Length;
+            }
+            return true;
         }
     }
 }
