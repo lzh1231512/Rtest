@@ -15,6 +15,7 @@ public class PlaywrightTool
     private static readonly object _lock = new();
     private static bool _initialized = false;
     private const int DisposeTimeoutMs = 5000;
+    private static IPage _page;
 
     public PlaywrightTool()
     {
@@ -50,6 +51,11 @@ public class PlaywrightTool
             if (!_initialized) return;
             _initialized = false;
         }
+        if (_page != null && !_page.IsClosed)
+        {
+            await _page.CloseAsync();
+            _page = null;
+        }
         if (_browser != null)
         {
             await _browser.CloseAsync();
@@ -75,97 +81,129 @@ public class PlaywrightTool
             await EnsureInitializedAsync();
             ResetDisposeTimer();
 
-            var page = await _browser.NewPageAsync();
-
             var tcs = new TaskCompletionSource<string>();
 
-            // 拦截所有请求
-            await page.RouteAsync("**/*", async route =>
+            if (_page == null || _page.IsClosed)
             {
-                var url = route.Request.Url;
-
-                try
-                {
-                    if (url.EndsWith("main.js"))
-                    {
-                        var jsPath = Path.Combine(_htmlRoot, "main.js");
-                        var jsContent = await File.ReadAllTextAsync(jsPath);
-                        await route.FulfillAsync(new RouteFulfillOptions
-                        {
-                            Status = 200,
-                            ContentType = "application/javascript",
-                            Body = jsContent
-                        });
-                        return;
-                    }
-                    if (url.Contains("encrypt"))
-                    {
-                        var jsonPath = Path.Combine(_htmlRoot, "encrypt.json");
-                        var jsonContent = await File.ReadAllTextAsync(jsonPath);
-                        await route.FulfillAsync(new RouteFulfillOptions
-                        {
-                            Status = 200,
-                            ContentType = "application/json",
-                            Body = jsonContent
-                        });
-                        return;
-                    }
-                    if (url.Contains("api/videos/index_byall"))
-                    {
-                        var jsonPath = Path.Combine(_htmlRoot, "main.json");
-                        var jsonContent = await File.ReadAllTextAsync(jsonPath);
-                        jsonContent = jsonContent.Replace("{id}", id);
-                        await route.FulfillAsync(new RouteFulfillOptions
-                        {
-                            Status = 200,
-                            ContentType = "application/json",
-                            Body = jsonContent
-                        });
-                        return;
-                    }
-
-                    if (url.Contains("api/videos/img/"))
-                    {
-                        var parts = url.Split(new[] { "/img/" }, StringSplitOptions.None);
-                        if (parts.Length > 1)
-                        {
-                            var encryptedUrl = parts[1];
-                            tcs.TrySetResult(encryptedUrl);
-                            LogTool.Instance.Info($"{id} 加密后的URL: {encryptedUrl}");
-                            await page.CloseAsync();
-                        }
-                        await route.ContinueAsync();
-                        return;
-                    }
-
-                    await route.ContinueAsync();
-                }
-                catch (Exception ex)
-                {
-                    LogTool.Instance.Error($"Route handling error: {ex}");
-                    await route.ContinueAsync();
-                }
-            });
-
-            var indexPath = Path.Combine(_htmlRoot, "index.html");
-            await page.GotoAsync($"file:///{indexPath.Replace("\\", "/")}");
-
+                _page = await _browser.NewPageAsync();
+                // 拦截所有请求
+                await setEvent(id, tcs);
+                var indexPath = Path.Combine(_htmlRoot, "index.html");
+                await _page.GotoAsync($"file:///{indexPath.Replace("\\", "/")}#/video/" + id);
+            }
+            else
+            {
+                await setEvent(id, tcs);
+                string vueRoute = "/video/" + id;
+                await _page.EvaluateAsync($"window.location.hash = '{vueRoute}';");
+                // 这里需要重新等待加密结果
+            }
             var result = await Task.WhenAny(tcs.Task, Task.Delay(5000));
             if (tcs.Task.IsCompleted)
             {
+                LogTool.Instance.Info($"{id} 加密后的URL: {tcs.Task.Result}");
                 return tcs.Task.Result;
             }
             else
             {
-                await page.CloseAsync();
-                LogTool.Instance.Error("ProcessAsync timeout, result is null.");
                 return null;
             }
         }
         catch (Exception ex)
         {
-            LogTool.Instance.Error($"ProcessAsync exception: {ex}");
             return null;
         }
+    }
+
+    private async Task setEvent(string id, TaskCompletionSource<string> tcs)
+    {
+        await _page.RouteAsync("**/*", async route =>
+        {
+            var url = route.Request.Url;
+            try
+            {
+                if (url.EndsWith("main.js"))
+                {
+                    var jsPath = Path.Combine(_htmlRoot, "main.js");
+                    var jsContent = await File.ReadAllTextAsync(jsPath);
+                    await route.FulfillAsync(new RouteFulfillOptions
+                    {
+                        Status = 200,
+                        ContentType = "application/javascript",
+                        Body = jsContent
+                    });
+                    return;
+                }
+                if (url.Contains("encrypt"))
+                {
+                    var jsonPath = Path.Combine(_htmlRoot, "encrypt.json");
+                    var jsonContent = await File.ReadAllTextAsync(jsonPath);
+                    await route.FulfillAsync(new RouteFulfillOptions
+                    {
+                        Status = 200,
+                        ContentType = "application/json",
+                        Body = jsonContent
+                    });
+                    return;
+                }
+                if (url.Contains("api/videos/index_byall"))
+                {
+                    var jsonPath = Path.Combine(_htmlRoot, "main.json");
+                    var jsonContent = await File.ReadAllTextAsync(jsonPath);
+                    jsonContent = jsonContent.Replace("{id}", id);
+                    await route.FulfillAsync(new RouteFulfillOptions
+                    {
+                        Status = 200,
+                        ContentType = "application/json",
+                        Body = jsonContent
+                    });
+                    return;
+                }
+                if (url.Contains("detail"))
+                {
+                    var jsonPath = Path.Combine(_htmlRoot, "detail.json");
+                    var jsonContent = await File.ReadAllTextAsync(jsonPath);
+                    jsonContent = jsonContent.Replace("{id}", id);
+                    await route.FulfillAsync(new RouteFulfillOptions
+                    {
+                        Status = 200,
+                        ContentType = "application/json",
+                        Body = jsonContent
+                    });
+                    return;
+                }
+                if (url.Contains("related"))
+                {
+                    var jsonPath = Path.Combine(_htmlRoot, "detail.json");
+                    var jsonContent = await File.ReadAllTextAsync(jsonPath);
+                    jsonContent = jsonContent.Replace("{id}", id);
+                    await route.FulfillAsync(new RouteFulfillOptions
+                    {
+                        Status = 200,
+                        ContentType = "application/json",
+                        Body = jsonContent
+                    });
+                    return;
+                }
+                if (url.Contains("api/videos/img/"))
+                {
+                    var parts = url.Split(new[] { "/img/" }, StringSplitOptions.None);
+                    if (parts.Length > 1)
+                    {
+                        var encryptedUrl = parts[1];
+                        tcs.TrySetResult(encryptedUrl);
+                    }
+                    await route.ContinueAsync();
+                    return;
+                }
+
+                await route.ContinueAsync();
+            }
+            catch (Exception ex)
+            {
+                LogTool.Instance.Error($"Route handling error: {ex}");
+                await route.ContinueAsync();
+            }
+        });
     }
 }

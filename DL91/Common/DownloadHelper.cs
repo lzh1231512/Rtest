@@ -154,7 +154,8 @@ namespace DL91
                 int newHeight = (int)(image.Height * scale);
                 image.Resize(newWidth, newHeight);
             }
-
+            if(File.Exists(task.savepath))
+                File.Delete(task.savepath);
             image.Write(task.savepath);
             task.fileSize = new FileInfo(task.savepath).Length;
             return true;
