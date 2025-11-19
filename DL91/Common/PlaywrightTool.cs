@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Threading;
 using DL91;
+using System.Collections.Generic;
 
 public class PlaywrightTool
 {
@@ -16,6 +17,7 @@ public class PlaywrightTool
     private static bool _initialized = false;
     private const int DisposeTimeoutMs = 5000;
     private static IPage _page;
+    private static List<string> keys= new List<string>();
 
     public PlaywrightTool()
     {
@@ -66,6 +68,7 @@ public class PlaywrightTool
             _playwright.Dispose();
             _playwright = null;
         }
+        keys.Clear();
         lock (_lock)
         {
             _disposeTimer?.Dispose();
@@ -117,6 +120,7 @@ public class PlaywrightTool
 
     private async Task setEvent(string id, TaskCompletionSource<string> tcs)
     {
+        await _page.UnrouteAsync("**/*");
         await _page.RouteAsync("**/*", async route =>
         {
             var url = route.Request.Url;
@@ -188,8 +192,9 @@ public class PlaywrightTool
                 if (url.Contains("api/videos/img/"))
                 {
                     var parts = url.Split(new[] { "/img/" }, StringSplitOptions.None);
-                    if (parts.Length > 1)
+                    if (parts.Length > 1 && !keys.Contains(parts[1]))
                     {
+                        keys.Add(parts[1]);
                         var encryptedUrl = parts[1];
                         tcs.TrySetResult(encryptedUrl);
                     }
