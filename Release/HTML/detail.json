@@ -1,0 +1,45 @@
+{
+  "error": 0,
+  "message": "请求成功",
+  "content": {
+    "video_id": {id},
+    "title": "",
+    "duration": 3868,
+    "post_date": "2024-12-30 23:56",
+    "resolution_type": 1,
+    "is_private": 0,
+    "file_dimensions": "720x1280",
+    "screen_main": 5,
+    "img_opt": 2,
+    "is_limit_over": 1,
+    "tags": [
+      {
+        "tag_id": 2,
+        "tag": ""
+      }
+    ],
+    "categories": [
+      {
+        "category_id": 1,
+        "title": ""
+      }
+    ],
+    "video_viewed": 7467,
+    "favourites_count": 0,
+    "good_count": 0,
+    "status_id": 1,
+    "vip_expire": 0,
+    "is_hd": 1,
+    "video_url": "",
+    "can_good": 0,
+    "favInfo": {
+      "add_flag": 0,
+      "add_just": 0,
+      "playlists": [],
+      "is_good": 0,
+      "good_count": 0,
+      "favourites_count": 0
+    },
+    "ads": []
+  }
+}

@@ -23,6 +23,7 @@ namespace DL91
         {
             //Test3();
             LogTool.Init();
+            //var xxx = ImgIndexHelper.ProcessAsync(123);
             //ProcessHtml.DownloadList(true);
             //ProcessHtml.DownloadDetails();
         }
