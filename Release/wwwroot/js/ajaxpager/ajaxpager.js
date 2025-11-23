@@ -150,7 +150,7 @@ ajaxPager.pager = (function () {
         else {
             result += `<div class="text-center EmptyList"><span class="text-danger">No Result</span></div>`;
         }
-        var url = IndexForAjaxUrl + "?currentPage=0&&title1=" + (data.title1 || '') + "&&title2=" + (data.title2 || '') + "&&isLike=" + data.isLike + "&&typeId=" + data.typeId;
+        var url = IndexForAjaxUrl + "?currentPage=0&&title1=" + (data.title1 || '') + "&&title2=" + (data.title2 || '') + "&&isLike=" + data.isLike + "&&typeId=" + data.typeId + "&&relatedID=" + data.relatedID;
         if (bUrl) {
             url = bUrl;
         }
