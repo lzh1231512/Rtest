@@ -9,6 +9,7 @@ namespace DL91.Models
     {
         public int Id { set; get; }
         public int CreateDate { set; get; }
+        public int time { set; get; }
         public string Title { set; get; }
 
         public int IsLike { set; get; }

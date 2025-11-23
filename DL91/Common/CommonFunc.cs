@@ -105,7 +105,7 @@ namespace DL91
             return "[" + result.name + "]";
         }
 
-        public static string M3u8fix(int id, int isHD,string domain)
+        public static string M3u8fix(int id, int isHD,string domain,int intime)
         {
             var result = @"#EXTM3U
 #EXT-X-TARGETDURATION:10
@@ -117,7 +117,7 @@ namespace DL91
             using (var db = new DB91Context())
             {
                 var obj = db.DB91s.FirstOrDefault(f => f.id == id);
-                var time = obj.time;
+                var time = obj?.time ?? intime;
                 var url = domain + GetM3u8Url(id, isHD, false).Replace("index.m3u8", "");
                 for (int i = 1; time > 0; i++)
                 {
@@ -150,9 +150,9 @@ namespace DL91
             return "/hls/contents/videos/" + ((id / 1000) * 1000) + "/" + id + "/" + id + ".mp4/index.m3u8";
         }
 
-        public static (string, string,string) GetFixedM3u8(int id)
+        public static (string, string, string) GetFixedM3u8(int id, int time = 1000)
         {
-            var domains= new List<string>() { 
+            var domains = new List<string>() {
                 "https://91rbnet.gslb-al.com",
                 "https://91rbnet.douyincontent.com"
             };
@@ -163,11 +163,11 @@ namespace DL91
                     var url = domain + GetM3u8Url(id, i, false).Replace("index.m3u8", "");
                     if (HttpHelper.TestHttp(url + "cdn-1-v1-a1.ts"))
                     {
-                        return ("https://fj.lzhsb.cc/home/m3u8fix/" + i + "/" + id + "/index.m3u8", M3u8fix(id, i, domain), domain);
+                        return ("https://fj.lzhsb.cc/home/m3u8fix/" + i + "/" + id + "/index.m3u8", M3u8fix(id, i, domain, time), domain);
                     }
                 }
             }
-           
+
             return ("https://91rbnet.douyincontent.com" + GetM3u8Url(id, 0, false), null, "https://91rbnet.douyincontent.com");
         }
     }

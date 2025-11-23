@@ -283,6 +283,7 @@ namespace DL91.BLL
                 newitem.CreateDate = (int)(DateTime.UtcNow - new DateTime(1990, 1, 1)).TotalMinutes;
                 newitem.Id = item.VideoId;
                 newitem.IsHD = item.IsHd;
+                newitem.time = item.Duration;
                 model.Data.Add(newitem);
             }
             model.NextPageIDs = "";

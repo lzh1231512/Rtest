@@ -137,7 +137,7 @@ ajaxPager.pager = (function () {
             for (var i = 0; i < data.data.length; i++) {
                 var dt = data.data[i];
                 result += `<div class="col-md-2">`;
-                result += `<a href="#" onclick="play(this)" data-id="${dt.id}" data-createdate="${dt.createDate}" data-url="${dt.url}" data-title="${dt.title}" data-filesize="${dt.fileSize}" data-ishd="${dt.isHD}" data-islike="${dt.isLike}" target="_blank"><img data-imgid="${dt.id}" style="width:256px;height:144px;" /></a>`;
+                result += `<a href="#" onclick="play(this)" data-id="${dt.id}" data-createdate="${dt.createDate}" data-url="${dt.url}" data-title="${dt.title}" data-filesize="${dt.fileSize}" data-ishd="${dt.isHD}" data-time="${dt.time}" data-islike="${dt.isLike}" target="_blank"><img data-imgid="${dt.id}" style="width:256px;height:144px;" /></a>`;
                 result += `<div style="min-height:36px;"><a data-id="${dt.id}" class="edit" href="#" style="display:none" onclick="edit(this)" target="_blank">[Edit]</a><span class="title" data-id="${dt.id}" data-time="${dt.createDate}">${dt.title}</span></div>`;
                 result += `</div>`;
                 if (i % 6 == 5) {

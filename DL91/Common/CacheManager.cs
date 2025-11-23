@@ -280,6 +280,7 @@ namespace DL91
                                     IsLike = f.isLike,
                                     FileSize = GetFileSize(f.videoFileSize),
                                     Url = f.url,
+                                    time = f.time,
                                     Title = (f.isHD ? "[HD]" : "") + getTimeString(f.time) + getTypeName(f.typeId, typeLst) + "</br>" + f.title
                                 }).ToList();
                             model.NextPageIDs = string.Join(',', dbdata.Skip(model.Page.PageSize).Select(f => f.id));

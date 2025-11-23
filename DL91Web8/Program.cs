@@ -71,7 +71,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "m3u8fix",
-    pattern: "Home/m3u8fix/{isHD}/{id}/index.m3u8", 
+    pattern: "Home/m3u8fix/{isHD}/{id}/{time}/index.m3u8", 
     defaults: new { Controller = "Home", Action = "m3u8fix" });
 app.MapControllerRoute(
     name: "default",

@@ -54,6 +54,7 @@
             var islike = $(obj).data('islike');
             var url = $(obj).data('url');
             var createdate = $(obj).data('createdate');
+            var time =  $(obj).data('time');
 
             var newHtml = 'play.html';
             switch ($('#selPlayer').val()) {
@@ -68,6 +69,7 @@
                 isLike: islike,
                 filesize: filesize,
                 url: url,
+                time:time,
                 createdate: createdate
             });
         }
