@@ -11,6 +11,7 @@
 /Release/db/91db.db
 /Release/wwwroot/cache
 /Release/wwwroot/imgs
+/Release/.playwright/
 /file-sharing-master/app/release
 /DL91Web8/db/91db.db
 /DL91Web8/bin/

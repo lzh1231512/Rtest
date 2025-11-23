@@ -1,5 +1,6 @@
 ﻿using DL91.Jobs;
 using DL91.Models;
+using DL91.WebProcess;
 using ImageMagick;
 using System;
 using System.Collections.Generic;
@@ -252,6 +253,11 @@ namespace DL91.BLL
 
         public void Search(SearchViewModel model, int currentPage,int pageSize)
         {
+            if (model.relatedID > 0)
+            {
+                GetRelated(model, currentPage, pageSize);
+                return;
+            }
             model.Page = new Pager()
             {
                 CurrentPage = currentPage,
@@ -265,5 +271,32 @@ namespace DL91.BLL
             CacheManager.Cache(model.LastPage);
             CacheManager.Cache(model.PrevPage);
         }
+
+        private void GetRelated(SearchViewModel model, int currentPage, int pageSize)
+        {
+            var result = ProcessHtml.GetRelated(model.relatedID, currentPage, pageSize);
+            model.Data = new List<DataViewModel>();
+            foreach (var item in result.Content.Data)
+            {
+                var newitem =new DataViewModel();
+                newitem.Title= (item.IsHd>0 ? "[HD]" : "") + getTimeString(item.Duration) + "</br>" + item.Title;
+                newitem.CreateDate = (int)(DateTime.UtcNow - new DateTime(1990, 1, 1)).TotalMinutes;
+                newitem.Id = item.VideoId;
+                newitem.IsHD = item.IsHd;
+                model.Data.Add(newitem);
+            }
+            model.NextPageIDs = "";
+            model.Page.RecordCount = result.Content.Total;
+            model.Page = new Pager()
+            {
+                CurrentPage = currentPage,
+                PageSize = pageSize
+            };
+        }
+        private static string getTimeString(int time)
+        {
+            return string.Format("[{0:D2}:{1:D2}]", time / 60, time % 60);
+        }
+
     }
 }

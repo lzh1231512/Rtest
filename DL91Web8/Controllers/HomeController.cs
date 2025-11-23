@@ -32,9 +32,10 @@ namespace DL91Web8.Controllers
             return View();
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int relatedID = 0)
         {
             var model = new SearchViewModel();
+            model.relatedID = relatedID;
             model.Page = new Pager()
             {
                 CurrentPage = 1,

@@ -1,6 +1,7 @@
 ﻿using DL91.Jobs;
 using HtmlAgilityPack;
 using Humanizer.Localisation;
+using JsonParsingDemo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,18 @@ namespace DL91.WebProcess
             DownloadDetails();
             return result;
         }
+
+        public static RootModel GetRelated(int id, int currentPage, int pageSize)
+        {
+            var url = getRelatedUrl(currentPage, pageSize, id);
+            var p = HttpHelper.GetHtml(url);
+            if (p.IsGood)
+            {
+                return JsonParsingDemo.helper.parseJson(p.Html);
+            }
+            return null;
+        }
+
 
         public static bool DownloadList(bool isTest = false)
         {
@@ -165,7 +178,10 @@ namespace DL91.WebProcess
         {
             return AutoProcessService.domain + "/api/videos/index?page=" + page + "&size=24&sort=post_date&tags=&&tt=" + Guid.NewGuid();
         }
-
+        private static string getRelatedUrl(int page,int size, int id)
+        {
+            return AutoProcessService.domain + "/api/videos/related?page=" + page + "&size="+ size + "&id="+ id + "&&tt=" + Guid.NewGuid();
+        }
         private static string getDetailHtml(string url)
         {
             var i = 0;

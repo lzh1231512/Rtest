@@ -19,12 +19,13 @@ namespace DL91.Models
         public string title2 { set; get; }
         public int isLike { set; get; }
         public int typeId { set; get; }
+        public int relatedID { set; get; }
         public DateTime CachedTime { set; get; }
         public string HashCode
         {
             get
             {
-                return isLike + MD5Encrypt16(title1 + ";;" + title2 + ";;" + typeId + ";;" + Page?.PageHashCode);
+                return isLike + MD5Encrypt16(title1 + ";;" + title2 + ";;" + typeId + ";;" + relatedID + ";;" + Page?.PageHashCode);
             }
         }
 
@@ -51,6 +52,7 @@ namespace DL91.Models
                 title2 = title2,
                 isLike = isLike,
                 typeId = typeId,
+                relatedID = relatedID,
                 Page = new Pager()
                 {
                     CurrentPage = page,

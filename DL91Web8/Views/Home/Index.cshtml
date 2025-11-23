@@ -148,7 +148,11 @@
                     ajaxPager.pager.gotopage(1, $("div.pagination-container"), false, list);
                 }
                 else {
-                    var baseurl = IndexForAjaxUrl + "?currentPage=0&&title1=" + ($('#title1').val() || '') + "&&title2=" + ($('#title2').val() || '') + "&&isLike=" + ($('#isLike').is(':checked')?1:2) + "&&typeId=" + $('#typeId').val();
+                    var baseurl = IndexForAjaxUrl + "?currentPage=0&&title1=" + ($('#title1').val() || '') 
+                        + "&&title2=" + ($('#title2').val() || '') 
+                        + "&&isLike=" + ($('#isLike').is(':checked')?1:2) 
+                        + "&&typeId=" + $('#typeId').val()
+                        + "&&relatedID=" + $('#relatedID').val();
                     $('input[name=hipagebaseurl]').val(baseurl);
                     ajaxPager.pager.gotopage(1, $("div.pagination-container"));
                 }
@@ -221,6 +225,7 @@
                     </div>
                     <div class="row" style="margin-top:10px;">
                         <div class="col-md-12 form-button-Lines">
+                            @Html.HiddenFor(m=>m.relatedID)
                             <button id="btnSubmitSalesOrderSearch" class="btn btn-info CommonBtn"><i class='fa fa-search'></i> Search</button>
                             <input id="btnClear" type="button" class="btn btn-default CommonBtn" value="Clear All" />
                             <a href="@Url.Action("Add")" target="_blank"><input type="button" class="btn btn-default CommonBtn" value="Add1" /></a>
