@@ -286,12 +286,12 @@ namespace DL91.BLL
                 model.Data.Add(newitem);
             }
             model.NextPageIDs = "";
-            model.Page.RecordCount = result.Content.Total;
             model.Page = new Pager()
             {
                 CurrentPage = currentPage,
                 PageSize = pageSize
             };
+            model.Page.RecordCount = result.Content.Total;
         }
         private static string getTimeString(int time)
         {
