@@ -25,9 +25,15 @@ namespace DL91.WebProcess
         {
             var url = getRelatedUrl(currentPage, pageSize, id);
             var p = HttpHelper.GetHtml(url);
+            LogTool.Instance.Info(url);
             if (p.IsGood)
             {
+                LogTool.Instance.Info(p.Html);
                 return JsonParsingDemo.helper.parseJson(p.Html);
+            }
+            else
+            {
+                LogTool.Instance.Error("Failed To load" + url);
             }
             return null;
         }
