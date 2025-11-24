@@ -31,7 +31,17 @@ namespace DL91Web8.Controllers
         {
             return View();
         }
-
+        public IActionResult Related(int relatedID = 0)
+        {
+            var model = new SearchViewModel();
+            model.relatedID = relatedID;
+            model.Page = new Pager()
+            {
+                CurrentPage = 1,
+                PageSize = new CookiesHelper().GetPageSize(HttpContext)
+            };
+            return View("Index_Related", model);
+        }
         public IActionResult Index(int relatedID = 0)
         {
             var model = new SearchViewModel();
