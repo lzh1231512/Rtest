@@ -1,4 +1,5 @@
-﻿using ImageMagick;
+﻿using DL91.WebProcess;
+using ImageMagick;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,6 +27,19 @@ namespace DL91
             canvas.Format = MagickFormat.Jpeg;
             var index = 0;
             var nopic = new MagickImage("wwwroot/images/NOPIC.jpg");
+            var downloadList=new List<int>();
+            foreach (var item in allImg.Select(f => int.TryParse(f, out int res) ? res : 0))
+            {
+                var imgpath1 = new FileInfo("wwwroot/imgs/" + (item < 0 ? "-1" : (item / 1000).ToString()) + "/" + item + ".jpg");
+                if (!imgpath1.Exists)
+                {
+                    downloadList.Add(item);
+                }
+            }
+            if (downloadList.Count > 0)
+            {
+                ProcessImg.DownloadImg(downloadList);
+            }
             foreach (var item in allImg.Select(f => int.TryParse(f, out int res) ? res : 0))
             {
                 var imgpath1 = new FileInfo("wwwroot/imgs/" + (item < 0 ? "-1" : (item / 1000).ToString()) + "/" + item + ".jpg");
@@ -47,18 +61,6 @@ namespace DL91
                 }
                 else
                 {
-                    if (item > 0)
-                    {
-                        using (var db = new DB91Context())
-                        {
-                            var obj = db.DB91s.FirstOrDefault(f => f.id == item);
-                            if(obj != null)
-                            {
-                                obj.isVideoDownloaded = 0;
-                                db.SaveChanges();
-                            }
-                        }
-                    }
                     canvas.Composite(nopic, 0, index++ * 180);
                 }
                 

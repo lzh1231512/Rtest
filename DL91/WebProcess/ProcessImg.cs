@@ -40,7 +40,7 @@ namespace DL91.WebProcess
                         {
                             url = item.imgUrl,
                             isJsonImg = true,
-                            savepath = getImgSavePath(item)
+                            savepath = getImgSavePath(item.id)
                         });
                     }
                     var dLst2 = DownloadHelper.DL(dLst.ToList(), 8);
@@ -54,10 +54,30 @@ namespace DL91.WebProcess
                 }
             }
         }
-
-        private static string getImgSavePath(DB91 task)
+        public static void DownloadImg(List<int> ids)
         {
-            return "wwwroot/imgs/" + (task.id / 1000) + "/" + task.id + ".jpg";
+            var imgBaseUrl = AutoProcessService.domain + "/api/videos/img/";
+            var dLst = new List<DownloadTask>();
+            foreach (var item in ids)
+            {
+                var encrypted = ImgIndexHelper.ProcessAsync(item);
+                if (string.IsNullOrEmpty(encrypted))
+                {
+                    LogTool.Instance.Error("img encrypt failed " + item);
+                    continue;
+                }
+                dLst.Add(new DownloadTask()
+                {
+                    url = imgBaseUrl + encrypted,
+                    isJsonImg = true,
+                    savepath = getImgSavePath(item)
+                });
+            }
+            DownloadHelper.DL(dLst.ToList(), 8);
+        }
+        private static string getImgSavePath(int id)
+        {
+            return "wwwroot/imgs/" + (id / 1000) + "/" + id + ".jpg";
         }
     }
 }
