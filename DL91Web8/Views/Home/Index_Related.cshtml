@@ -55,11 +55,11 @@
             var createdate = $(obj).data('createdate');
             var time =  $(obj).data('time');
 
-            var newHtml = 'play.html';
+            var newHtml = '/play.html';
             switch ($('#selPlayer').val()) {
-                case '1': newHtml = 'play.html'; break;
-                case '2': newHtml = 'play2.html'; break;
-                case '3': newHtml = 'play3.html'; break;
+                case '1': newHtml = '/play.html'; break;
+                case '2': newHtml = '/play2.html'; break;
+                case '3': newHtml = '/play3.html'; break;
             }
             obj.href = postData.url(newHtml, {
                 id: id,
@@ -92,7 +92,7 @@
                 + "&&title2="
                 + "&&isLike=2"
                 + "&&typeId="
-                + "&&relatedID=" + $('#relatedID').val();
+                + "&&relatedID=@(Model.relatedID)";
             $('input[name=hipagebaseurl]').val(baseurl);
             ajaxPager.pager.gotopage(1, $("div.pagination-container"));
         });
