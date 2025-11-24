@@ -276,15 +276,22 @@ namespace DL91.BLL
         {
             var result = ProcessHtml.GetRelated(model.relatedID, currentPage, pageSize);
             model.Data = new List<DataViewModel>();
-            foreach (var item in result.Content.Data)
+            using (var db = new DB91Context())
             {
-                var newitem =new DataViewModel();
-                newitem.Title= (item.IsHd>0 ? "[HD]" : "") + getTimeString(item.Duration) + "</br>" + item.Title;
-                newitem.CreateDate = (int)(DateTime.UtcNow - new DateTime(1990, 1, 1)).TotalMinutes;
-                newitem.Id = item.VideoId;
-                newitem.IsHD = item.IsHd;
-                newitem.time = item.Duration;
-                model.Data.Add(newitem);
+                foreach (var item in result.Content.Data)
+                {
+                    var newitem = new DataViewModel();
+                    newitem.Title = (item.IsHd > 0 ? "[HD]" : "") + getTimeString(item.Duration) + "</br>" + item.Title;
+                    
+                    newitem.Id = item.VideoId;
+                    newitem.IsHD = item.IsHd;
+                    newitem.time = item.Duration;
+                    var dbitem = db.DB91s.FirstOrDefault(f => f.id == item.VideoId);
+                    newitem.CreateDate = dbitem != null ?
+                        dbitem.createDate :
+                        (int)(DateTime.UtcNow - new DateTime(1990, 1, 1)).TotalMinutes;
+                    model.Data.Add(newitem);
+                }
             }
             model.NextPageIDs = "";
             model.Page = new Pager()
