@@ -43,10 +43,12 @@ namespace DL91.WebProcess
         {
             var hasNew = false;
             var pageCount = 1500;
-            for (int page = 1, existsflag = 0; page <= pageCount && existsflag < 5; page++)
+            var pageSize = 240;
+            var existsflagC = 40;
+            for (int page = 1, existsflag = 0; page <= pageCount && existsflag < existsflagC; page++)
             {
                 LogTool.Instance.Info("Load Page " + page);
-                var json = getListHtml(page, out bool is404);
+                var json = getListHtml(page, pageSize, out bool is404);
                 if (is404)
                     break;
                 var isExists = true;
@@ -161,12 +163,12 @@ namespace DL91.WebProcess
             }
         }
 
-        private static string getListHtml(int page, out bool is404)
+        private static string getListHtml(int page,int size, out bool is404)
         {
             is404 = false;
             while (true)
             {
-                var p = HttpHelper.GetHtml(getListUrl(page));
+                var p = HttpHelper.GetHtml(getListUrl(page, size));
                 if (p.IsGood)
                 {
                     return p.Html;
@@ -180,9 +182,9 @@ namespace DL91.WebProcess
             }
         }
 
-        private static string getListUrl(int page)
+        private static string getListUrl(int page, int size)
         {
-            return AutoProcessService.domain + "/api/videos/index?page=" + page + "&size=24&sort=post_date&tags=&&tt=" + Guid.NewGuid();
+            return AutoProcessService.domain + "/api/videos/index?page=" + page + "&size="+ size + "&sort=post_date&tags=&&tt=" + Guid.NewGuid();
         }
         private static string getRelatedUrl(int page,int size, int id)
         {
