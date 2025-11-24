@@ -43,8 +43,8 @@ namespace DL91.WebProcess
         {
             var hasNew = false;
             var pageCount = 1500;
-            var pageSize = 240;
-            var existsflagC = 40;
+            var pageSize = 24;
+            var existsflagC = 10;
             for (int page = 1, existsflag = 0; page <= pageCount && existsflag < existsflagC; page++)
             {
                 LogTool.Instance.Info("Load Page " + page);
@@ -112,7 +112,7 @@ namespace DL91.WebProcess
                         {
                             var json = DetailHelper.parseJson(html);
 
-                            typeName = json?.Content.Categories[0].Title;
+                            typeName = json?.Content.Categories.Count > 0 ? json?.Content.Categories[0].Title : "";
                             try
                             {
                                 created = DateTime.ParseExact(json?.Content.PostDate, "yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture);
