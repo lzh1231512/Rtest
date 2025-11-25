@@ -32,6 +32,12 @@ jobs:
           ~/.gradle/wrapper
         key: ${{ runner.os }}-gradle-${{ hashFiles('file-sharing-master/**/*.gradle*', 'file-sharing-master/**/gradle-wrapper.properties') }}
 
+    
+    # ✅ 给 gradlew 添加执行权限
+    - name: Grant execute permission for gradlew
+      working-directory: file-sharing-master
+      run: chmod +x gradlew
+
     # 4. 编译 APK（注意切换到源码目录）
     - name: Build APK
       working-directory: file-sharing-master
