@@ -1,4 +1,4 @@
-@echo off
+@echo off 
 setlocal enabledelayedexpansion
 cd %~dp0
 del /q %1_out
