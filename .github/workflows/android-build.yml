@@ -1,0 +1,44 @@
+
+name: Android Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. 拉取代码
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 2. 设置 JDK（Android Gradle Plugin 推荐 Java 11）
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+
+    # 3. 缓存 Gradle 依赖
+    - name: Cache Gradle
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('file-sharing-master/**/*.gradle*', 'file-sharing-master/**/gradle-wrapper.properties') }}
+
+    # 4. 编译 APK（注意切换到源码目录）
+    - name: Build APK
+      working-directory: file-sharing-master
+      run: ./gradlew assembleDebug
+
+    # 5. 上传 APK 作为构建产物
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-debug
+        path: file-sharing-master/app/build/outputs/apk/debug/app-debug.apk
