@@ -117,18 +117,18 @@ public class CacheController {
 			id -= 1;
 		}
 		Files.createDirectory(Paths.get(FileUtils.fileDirectory + "/" + id));
+		final int finalid=id;
+		final String path0 = FileUtils.fileDirectory + "/" + id;
+		final String path1 = path0 + "/1.mp4";
+		final String path2 = path0 + "/1.m3u8";
+		final Path P_path2 = Paths.get(path2);
+		final String path3 = path0 + "/%3d.ts";
+		final String path4 = path0 + "/1.jpg";
 
-		String path0 = FileUtils.fileDirectory + "/" + id;
-		String path1 = path0 + "/1.mp4";
-		String path2 = path0 + "/1.m3u8";
-		Path P_path2 = Paths.get(path2);
-		String path3 = path0 + "/%3d.ts";
-		String path4 = path0 + "/1.jpg";
-
-		String pathM = path0 + "/m3";
-		String pathI = path0 + "/m1";
-		String pathE = FileUtils.fileDirectory + "/menu/" + id;
-		Path P_pathE = Paths.get(pathE);
+		final String pathM = path0 + "/m3";
+		final String pathI = path0 + "/m1";
+		final String pathE = FileUtils.fileDirectory + "/menu/" + id;
+		final Path P_pathE = Paths.get(pathE);
 
 		ff.transferTo(new File(path1));
 		
@@ -164,7 +164,7 @@ public class CacheController {
                                 File oldFile = new File(path0 + "/" + line);
                                 File newFile = new File(path0 + "/" + k);
                                 oldFile.renameTo(newFile);
-                                m3u8Info.set(i, "fileList?filename=" + id + "/" + k + "&mime=application/video/MP2T");
+                                m3u8Info.set(i, "fileList?filename=" + finalid + "/" + k + "&mime=application/video/MP2T");
                                 k++;
                             }
                         }
@@ -175,7 +175,7 @@ public class CacheController {
 
                         Files.delete(Paths.get(path1));
                         Files.delete(P_path2);
-                        String jsonInner = jsonCopy.replace("{id}", id + "");
+                        String jsonInner = jsonCopy.replace("{id}", finalid + "");
                         if (Files.exists(P_pathE)) {
                             Files.delete(P_pathE);
                         }
