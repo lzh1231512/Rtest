@@ -111,30 +111,31 @@ public class CacheController {
         mp4TaskProgress.put(taskID, 0);
         mp4TaskStatus.put(taskID, "pending");
         final String jsonCopy = json; // 新增这一行
+		
+		int id = -100000;
+		while (Files.exists(Paths.get(FileUtils.fileDirectory + "/" + id))) {
+			id -= 1;
+		}
+		Files.createDirectory(Paths.get(FileUtils.fileDirectory + "/" + id));
+
+		String path0 = FileUtils.fileDirectory + "/" + id;
+		String path1 = path0 + "/1.mp4";
+		String path2 = path0 + "/1.m3u8";
+		Path P_path2 = Paths.get(path2);
+		String path3 = path0 + "/%3d.ts";
+		String path4 = path0 + "/1.jpg";
+
+		String pathM = path0 + "/m3";
+		String pathI = path0 + "/m1";
+		String pathE = FileUtils.fileDirectory + "/menu/" + id;
+		Path P_pathE = Paths.get(pathE);
+
+		ff.transferTo(new File(path1));
+		
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O && !ff.isEmpty()) {
             executorService.submit(() -> {
                 mp4TaskStatus.put(taskID, "processing");
                 try {
-                    int id = -100000;
-                    while (Files.exists(Paths.get(FileUtils.fileDirectory + "/" + id))) {
-                        id -= 1;
-                    }
-                    Files.createDirectory(Paths.get(FileUtils.fileDirectory + "/" + id));
-
-                    String path0 = FileUtils.fileDirectory + "/" + id;
-                    String path1 = path0 + "/1.mp4";
-                    String path2 = path0 + "/1.m3u8";
-                    Path P_path2 = Paths.get(path2);
-                    String path3 = path0 + "/%3d.ts";
-                    String path4 = path0 + "/1.jpg";
-
-                    String pathM = path0 + "/m3";
-                    String pathI = path0 + "/m1";
-                    String pathE = FileUtils.fileDirectory + "/menu/" + id;
-                    Path P_pathE = Paths.get(pathE);
-
-                    ff.transferTo(new File(path1));
-
                     // 设置进度回调
                     FFmpegKitConfig.enableStatisticsCallback(statistics -> {
                         long time = (long)statistics.getTime();
