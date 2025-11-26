@@ -132,7 +132,7 @@ public class CacheController {
 
 		ff.transferTo(new File(path1));
 		
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O && !ff.isEmpty()) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             executorService.submit(() -> {
                 mp4TaskStatus.put(taskID, "processing");
                 try {
