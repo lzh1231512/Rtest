@@ -25,7 +25,7 @@
             $("#btn").click(async function () {
                 cacheDomain = $('#cacheDomain').val();
                 var file = $("#ff")[0];
-                if (!file.value || file.value.indexOf('mp4') < 0|| file.value.indexOf('MP4') < 0) {
+                if (!file.value || (file.value.indexOf('mp4') < 0 && file.value.indexOf('MP4') < 0)) {
                     alert('select mp4');
                     return;
                 }
