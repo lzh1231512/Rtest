@@ -136,7 +136,7 @@ public class CacheController {
 
                     // 设置进度回调
                     FFmpegKitConfig.enableStatisticsCallback(statistics -> {
-                        long time = statistics.getTime();
+                        long time = (long)statistics.getTime();
                         long duration = getVideoDuration(path1);
                         int percent = duration > 0 ? (int) (time * 100 / duration) : 0;
                         mp4TaskProgress.put(taskID, Math.min(percent, 100));
@@ -146,7 +146,7 @@ public class CacheController {
                             + "\" -c:v libx264 -preset veryfast -c:a aac -map 0 -f segment -segment_list \"" + path2
                             + "\" -segment_time 5 \"" + path3 + "\"");
 
-                    FFmpegKitConfig.disableStatisticsCallback();
+                    FFmpegKitConfig.enableStatisticsCallback(null);
 
                     if (ReturnCode.isSuccess(session.getReturnCode())) {
                         mp4TaskProgress.put(taskID, 100);
@@ -173,11 +173,11 @@ public class CacheController {
 
                         Files.delete(Paths.get(path1));
                         Files.delete(P_path2);
-                        jsonCopy = jsonCopy.replace("{id}", id + "");
+                        String jsonInner = jsonCopy.replace("{id}", id + "");
                         if (Files.exists(P_pathE)) {
                             Files.delete(P_pathE);
                         }
-                        Files.write(P_pathE, jsonCopy.getBytes());
+                        Files.write(P_pathE, jsonInner.getBytes());
                     } else if (ReturnCode.isCancel(session.getReturnCode())) {
                         mp4TaskStatus.put(taskID, "cancel");
                     } else {
