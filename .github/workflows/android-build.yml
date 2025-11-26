@@ -2,9 +2,6 @@
 name: Android Build
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
   workflow_dispatch:   # ✅ 手动触发选项
 
 jobs:
