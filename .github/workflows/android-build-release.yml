@@ -40,12 +40,6 @@ jobs:
       working-directory: file-sharing-master
       run: chmod +x gradlew
 
-    # 4. 编译 APK（注意切换到源码目录）
-    - name: Build APK
-      working-directory: file-sharing-master
-      run: ./gradlew assembleDebug
-      
-
     # 6. 编译 Release APK（带签名）
     - name: Build Release APK
       working-directory: file-sharing-master
@@ -55,13 +49,6 @@ jobs:
         -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
         -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
         -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
-
-    # 5. 上传 APK 作为构建产物
-    - name: Upload Debug APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-debug
-        path: file-sharing-master/app/build/outputs/apk/debug/app-debug.apk
 
     # 8. 上传 Release APK
     - name: Upload Release APK
