@@ -144,9 +144,9 @@ public class CacheController {
                         mp4TaskProgress.put(taskID, Math.min(percent, 100));
                     });
 
-                    FFmpegSession session = FFmpegKit.execute("-i " + path1
-                            + " -c:v libx264 -preset veryfast -c:a aac -map 0 -f segment -segment_list " + path2
-                            + " -segment_time 5 " + path3);
+                    FFmpegSession session = FFmpegKit.execute("-i \"" + path1
+                            + "\" -c copy -map 0 -f segment -segment_list \"" + path2
+                            + "\" -segment_time 5 -force_key_frames expr:gte(t,n_forced*5) \"" + path3 +"\"");
 
                     FFmpegKitConfig.enableStatisticsCallback(null);
 
