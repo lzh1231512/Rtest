@@ -186,7 +186,7 @@ public class CacheController {
                     }
                 } catch (Exception e) {
                     mp4TaskStatus.put(taskID, "error");
-					mp4TaskErrorMessage..put(taskID, e.getMessage());
+					mp4TaskErrorMessage.put(taskID, e.getMessage());
                 }
             });
         } else {
