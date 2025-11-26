@@ -52,6 +52,7 @@ public class CacheController {
     // 存储任务进度和状态
     private static final ConcurrentHashMap<String, Integer> mp4TaskProgress = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, String> mp4TaskStatus = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, String> mp4TaskErrorMessage = new ConcurrentHashMap<>();
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
 
     @GetMapping("/getMenu")
@@ -185,6 +186,7 @@ public class CacheController {
                     }
                 } catch (Exception e) {
                     mp4TaskStatus.put(taskID, "error");
+					mp4TaskErrorMessage..put(taskID, e.getMessage());
                 }
             });
         } else {
@@ -201,6 +203,13 @@ public class CacheController {
         int progress = mp4TaskProgress.getOrDefault(taskID, 0);
         String status = mp4TaskStatus.getOrDefault(taskID, "not_found");
         return "{\"taskID\":\"" + taskID + "\", \"progress\":" + progress + ", \"status\":\"" + status + "\"}";
+    }
+	
+	@GetMapping("/getError")
+    @ResponseBody
+    @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.GET})
+    public String getError(@RequestParam("taskID") String taskID) {
+        return mp4TaskErrorMessage.getOrDefault(taskID, "not_found");
     }
 
     /**
