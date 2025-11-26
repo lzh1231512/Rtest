@@ -96,7 +96,7 @@ public class CacheController {
         dir.delete();
         File menu = new File(FileUtils.fileDirectory + "/menu/" + id);
         menu.delete();
-        response.setHeader("Content-Type","text/html;chartset=utf-8");
+        response.setHeader("Content-Type","text/html;charset=utf-8");
         return "删除文件“"+id+"”成功！";
     }
 
@@ -248,5 +248,8 @@ public class CacheController {
         bmpRet.compress(Bitmap.CompressFormat.JPEG,100,fos);
         fos.flush();
         fos.close();
+
+        bm.recycle();
+        bmpRet.recycle();
     }
 }

@@ -20,14 +20,12 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script>
         var cacheDomain = localStorage.getItem('cacheDomain') || 'http://localhost:1080';
-        //var cacheDomain = 'http://192.168.31.161:1080';
         $(function () {
             $('#cacheDomain').val(cacheDomain);
             $("#btn").click(async function () {
                 cacheDomain = $('#cacheDomain').val();
-                localStorage.setItem('localStorage', localStorage);
                 var file = $("#ff")[0];
-                if (!file.value || file.value.indexOf('mp4') < 0) {
+                if (!file.value || file.value.indexOf('mp4') < 0|| file.value.indexOf('MP4') < 0) {
                     alert('select mp4');
                     return;
                 }
@@ -48,6 +46,7 @@
                     createDate: parseInt(((new Date()).getTime() - (new Date(1990, 0, 1)).getTime()) / 60000) - (8 * 60)
                 }));
                 $("#btn").attr('disabled', 'disabled');
+                $('#spanProgress').html("上传中：0%");
                 $.ajax({
                     url: cacheDomain + "/uploadMp4",
                     type: 'POST',
@@ -56,21 +55,53 @@
                     contentType: false,
                     processData: false,
                     xhr: function () {
-                        var xhr = $.ajaxSettings.xhr();
-                        if (xhr.upload) {
-                            xhr.upload.addEventListener('progress', function (event) {
-                                var percent = Math.floor(event.loaded / event.total * 100); //进度值（百分比制）
-                                $('#spanProgress').html(percent + "%");
-                            }, false);
-                        }
-                        return xhr
+                        var xhr = new window.XMLHttpRequest();
+                        xhr.upload.addEventListener("progress", function (evt) {
+                            if (evt.lengthComputable) {
+                                var percentComplete = Math.round(evt.loaded * 100 / evt.total);
+                                $('#spanProgress').html("上传中：" + percentComplete + "%");
+                            }
+                        }, false);
+                        return xhr;
                     },
                     success: function (ret) {
-                        alert(ret);
-                        $("#btn").removeAttr('disabled');
+                        try {
+                            var obj = JSON.parse(ret);
+                            var taskID = obj.taskID;
+                            if (!taskID) {
+                                alert('No taskID returned');
+                                $("#btn").removeAttr('disabled');
+                                return;
+                            }
+                            $('#spanProgress').html("mp4处理中：0%");
+                            // 轮询进度
+                            var timer = setInterval(function () {
+                                $.ajax({
+                                    url: cacheDomain + "/queryMp4Task?taskID=" + taskID,
+                                    type: 'GET',
+                                    success: function (data) {
+                                        var res = typeof data === "string" ? JSON.parse(data) : data;
+                                        $('#spanProgress').html("mp4处理中：" + res.progress + "% [" + res.status + "]");
+                                        if (res.status === "success" || res.status === "failed" || res.status === "error" || res.status === "cancel") {
+                                            clearInterval(timer);
+                                            $("#btn").removeAttr('disabled');
+                                            alert("处理结果: " + res.status);
+                                        }
+                                    },
+                                    error: function () {
+                                        clearInterval(timer);
+                                        $("#btn").removeAttr('disabled');
+                                        alert('查询进度失败');
+                                    }
+                                });
+                            }, 3000);
+                        } catch (e) {
+                            alert('返回格式错误');
+                            $("#btn").removeAttr('disabled');
+                        }
                     },
                     error: function () {
-                        alert('failed');
+                        alert('上传失败');
                         $("#btn").removeAttr('disabled');
                     }
                 });
