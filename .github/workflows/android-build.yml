@@ -29,7 +29,12 @@ jobs:
           ~/.gradle/wrapper
         key: ${{ runner.os }}-gradle-${{ hashFiles('file-sharing-master/**/*.gradle*', 'file-sharing-master/**/gradle-wrapper.properties') }}
 
-    
+    # 4. 恢复签名文件
+    - name: Decode Keystore
+      run: |
+        mkdir -p $HOME/keystore
+        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > $HOME/keystore/keystore.jks
+
     # ✅ 给 gradlew 添加执行权限
     - name: Grant execute permission for gradlew
       working-directory: file-sharing-master
@@ -39,6 +44,17 @@ jobs:
     - name: Build APK
       working-directory: file-sharing-master
       run: ./gradlew assembleDebug
+      
+
+    # 6. 编译 Release APK（带签名）
+    - name: Build Release APK
+      working-directory: file-sharing-master
+      run: |
+        ./gradlew assembleRelease \
+        -Pandroid.injected.signing.store.file=$HOME/keystore/keystore.jks \
+        -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
+        -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
+        -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
 
     # 5. 上传 APK 作为构建产物
     - name: Upload Debug APK
@@ -46,4 +62,11 @@ jobs:
       with:
         name: app-debug
         path: file-sharing-master/app/build/outputs/apk/debug/app-debug.apk
+
+    # 8. 上传 Release APK
+    - name: Upload Release APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-release
+        path: file-sharing-master/app/build/outputs/apk/release/app-release.apk
 
