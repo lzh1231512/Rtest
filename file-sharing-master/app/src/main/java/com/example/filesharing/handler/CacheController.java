@@ -145,8 +145,8 @@ public class CacheController {
                     });
 
                     FFmpegSession session = FFmpegKit.execute("-i \"" + path1
-                            + "\" -c copy -map 0 -f segment -segment_list \"" + path2
-                            + "\" -segment_time 5 -force_key_frames expr:gte(t,n_forced*5) \"" + path3 +"\"");
+                            + "\" -c:v libx264 -preset veryfast -c:a aac -map 0 -f segment -segment_list \"" + path2
+                            + "\" -segment_time 5 \"" + path3 + "\"");
 
                     FFmpegKitConfig.enableStatisticsCallback(null);
 
@@ -184,10 +184,25 @@ public class CacheController {
                         mp4TaskStatus.put(taskID, "cancel");
                     } else {
                         mp4TaskStatus.put(taskID, "failed");
+                        StringBuilder errorMsg = new StringBuilder();
+                        errorMsg.append("FFmpeg failed. ");
+                        errorMsg.append("ReturnCode: ").append(session.getReturnCode()).append("\n");
+                        errorMsg.append("FailStackTrace: ").append(session.getFailStackTrace()).append("\n");
+                        errorMsg.append("Logs: ");
+                        session.getAllLogs().forEach(log -> errorMsg.append(log.getMessage()).append("\n"));
+                        mp4TaskErrorMessage.put(taskID, errorMsg.toString());
                     }
                 } catch (Exception e) {
                     mp4TaskStatus.put(taskID, "error");
-					mp4TaskErrorMessage.put(taskID, e.getMessage());
+                    StringBuilder errorMsg = new StringBuilder();
+                    errorMsg.append("Exception: ").append(e.toString()).append("\n");
+                    if (e.getCause() != null) {
+                        errorMsg.append("Cause: ").append(e.getCause().toString()).append("\n");
+                    }
+                    for (StackTraceElement ste : e.getStackTrace()) {
+                        errorMsg.append(ste.toString()).append("\n");
+                    }
+                    mp4TaskErrorMessage.put(taskID, errorMsg.toString());
                 }
             });
         } else {
