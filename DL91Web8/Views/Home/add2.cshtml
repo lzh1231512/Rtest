@@ -34,6 +34,8 @@
                     alert('title');
                     return;
                 }
+				
+				$('#errorMsg').html("");
                 var formdata = new FormData();
                 formdata.append("ff", file.files[0]);
                 formdata.append("json", JSON.stringify({
@@ -93,7 +95,7 @@
                                                 type: 'GET',
                                                 success: function (data) {
                                                     console.log(data);
-                                                    alert(data);
+													$('#errorMsg').html(data);
                                                 },
                                                 error: function () {
                                                     clearInterval(timer);
@@ -148,5 +150,11 @@
             <input id="btn" type="button" class="btn btn-default CommonBtn" value="submit" />
         </div>
     </div>
+	<br/>
+	<br/>
+	<div id="errorMsg">
+	
+	</div>
+	<br/>
 </body>
 </html>
