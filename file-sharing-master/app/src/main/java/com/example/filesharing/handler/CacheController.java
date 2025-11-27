@@ -50,7 +50,8 @@ import com.arthenica.ffmpegkit.Statistics;
 @Controller
 public class CacheController {
     // 存储任务进度和状态
-    private static final ConcurrentHashMap<String, Integer> mp4TaskProgress = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, long> mp4TaskProgress = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, long> mp4TaskDuration = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, String> mp4TaskStatus = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, String> mp4TaskErrorMessage = new ConcurrentHashMap<>();
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
@@ -137,11 +138,11 @@ public class CacheController {
                 mp4TaskStatus.put(taskID, "processing");
                 try {
                     // 设置进度回调
+                    long duration = getVideoDuration(path1);
+                    mp4TaskDuration.put(taskID, duration);
                     FFmpegKitConfig.enableStatisticsCallback(statistics -> {
                         long time = (long)statistics.getTime();
-                        long duration = getVideoDuration(path1);
-                        int percent = duration > 0 ? (int) (time * 100 / duration) : 0;
-                        mp4TaskProgress.put(taskID, Math.min(percent, 100));
+                        mp4TaskProgress.put(taskID, time);
                     });
 
                     FFmpegSession session = FFmpegKit.execute("-i \"" + path1
@@ -151,7 +152,6 @@ public class CacheController {
                     FFmpegKitConfig.enableStatisticsCallback(null);
 
                     if (ReturnCode.isSuccess(session.getReturnCode())) {
-                        mp4TaskProgress.put(taskID, 100);
                         mp4TaskStatus.put(taskID, "success");
 
                         FFmpegKit.execute("-i \"" + path1
@@ -216,9 +216,16 @@ public class CacheController {
     @ResponseBody
     @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.GET})
     public String queryMp4Task(@RequestParam("taskID") String taskID) {
-        int progress = mp4TaskProgress.getOrDefault(taskID, 0);
+        long progress = mp4TaskProgress.getOrDefault(taskID, 0);
+        long duration = mp4TaskDuration.getOrDefault(taskID, 1);
+        int percent = duration>0?(int)((progress * 100) / duration):0;
         String status = mp4TaskStatus.getOrDefault(taskID, "not_found");
-        return "{\"taskID\":\"" + taskID + "\", \"progress\":" + progress + ", \"status\":\"" + status + "\"}";
+        return "{\"taskID\":\"" + taskID + 
+        "\", \"progress\":" + progress + 
+        ", \"duration\":\"" + duration + 
+        ", \"percent\":\"" + percent + 
+        ", \"status\":\"" + status + 
+        "\"}";
     }
 	
 	@GetMapping("/getError")

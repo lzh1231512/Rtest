@@ -1,24 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\zack\\github\\Rtest\\DL91Web8\\DL91Web8.csproj": {}
+    "C:\\Git\\Rtest\\DL91Web8\\DL91Web8.csproj": {}
   },
   "projects": {
-    "D:\\zack\\github\\Rtest\\DL91Web8\\DL91Web8.csproj": {
+    "C:\\Git\\Rtest\\DL91Web8\\DL91Web8.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\zack\\github\\Rtest\\DL91Web8\\DL91Web8.csproj",
+        "projectUniqueName": "C:\\Git\\Rtest\\DL91Web8\\DL91Web8.csproj",
         "projectName": "DL91Web8",
-        "projectPath": "D:\\zack\\github\\Rtest\\DL91Web8\\DL91Web8.csproj",
-        "packagesPath": "D:\\.nuget\\packages",
-        "outputPath": "D:\\zack\\github\\Rtest\\DL91Web8\\obj\\",
+        "projectPath": "C:\\Git\\Rtest\\DL91Web8\\DL91Web8.csproj",
+        "packagesPath": "C:\\Users\\lzhen\\.nuget\\packages\\",
+        "outputPath": "C:\\Git\\Rtest\\DL91Web8\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\zack liu\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lzhen\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -27,15 +26,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\zack\\github\\Rtest\\DL91\\DL91.csproj": {
-                "projectPath": "D:\\zack\\github\\Rtest\\DL91\\DL91.csproj"
+              "C:\\Git\\Rtest\\DL91\\DL91.csproj": {
+                "projectPath": "C:\\Git\\Rtest\\DL91\\DL91.csproj"
               }
             }
           }
@@ -66,6 +64,24 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.22, 8.0.22]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[8.0.22, 8.0.22]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.22, 8.0.22]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.22, 8.0.22]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -74,25 +90,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\zack\\github\\Rtest\\DL91\\DL91.csproj": {
+    "C:\\Git\\Rtest\\DL91\\DL91.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\zack\\github\\Rtest\\DL91\\DL91.csproj",
+        "projectUniqueName": "C:\\Git\\Rtest\\DL91\\DL91.csproj",
         "projectName": "DL91",
-        "projectPath": "D:\\zack\\github\\Rtest\\DL91\\DL91.csproj",
-        "packagesPath": "D:\\.nuget\\packages",
-        "outputPath": "D:\\zack\\github\\Rtest\\DL91\\obj\\",
+        "projectPath": "C:\\Git\\Rtest\\DL91\\DL91.csproj",
+        "packagesPath": "C:\\Users\\lzhen\\.nuget\\packages\\",
+        "outputPath": "C:\\Git\\Rtest\\DL91\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\zack liu\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lzhen\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -101,7 +116,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -190,12 +204,30 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.22, 8.0.22]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[8.0.22, 8.0.22]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.22, 8.0.22]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.22, 8.0.22]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

@@ -83,7 +83,7 @@
                                     type: 'GET',
                                     success: function (data) {
                                         var res = typeof data === "string" ? JSON.parse(data) : data;
-                                        $('#spanProgress').html("mp4处理中：" + res.progress + "% [" + res.status + "]");
+                                        $('#spanProgress').html("mp4处理中：" + res.progress +"/" + res.duration + " [" + res.status + "]");
                                         if (res.status === "success" || res.status === "failed" || res.status === "error" || res.status === "cancel") {
                                             clearInterval(timer);
                                             $("#btn").removeAttr('disabled');

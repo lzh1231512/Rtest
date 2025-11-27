@@ -5,6 +5,6 @@
   </PropertyGroup>
   <PropertyGroup>
     <ActiveDebugProfile>IIS Express</ActiveDebugProfile>
-    <NameOfLastUsedPublishProfile>D:\zack\github\Rtest\DL91Web8\Properties\PublishProfiles\FolderProfile1.pubxml</NameOfLastUsedPublishProfile>
+    <NameOfLastUsedPublishProfile>C:\Git\Rtest\DL91Web8\Properties\PublishProfiles\FolderProfile.pubxml</NameOfLastUsedPublishProfile>
   </PropertyGroup>
 </Project>
