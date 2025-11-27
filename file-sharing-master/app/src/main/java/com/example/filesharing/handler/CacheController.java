@@ -50,8 +50,8 @@ import com.arthenica.ffmpegkit.Statistics;
 @Controller
 public class CacheController {
     // 存储任务进度和状态
-    private static final ConcurrentHashMap<String, long> mp4TaskProgress = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<String, long> mp4TaskDuration = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Long> mp4TaskProgress = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Long> mp4TaskDuration = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, String> mp4TaskStatus = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, String> mp4TaskErrorMessage = new ConcurrentHashMap<>();
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
