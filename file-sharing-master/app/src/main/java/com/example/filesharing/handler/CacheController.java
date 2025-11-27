@@ -146,7 +146,7 @@ public class CacheController {
                     });
 
                     FFmpegSession session = FFmpegKit.execute("-i \"" + path1
-                            + "\" -c:v libx264 -preset veryfast -c:a aac -map 0 -f segment -segment_list \"" + path2
+                            + "\" -c:v libx264 -preset medium -c:a aac -map 0 -f segment -segment_list \"" + path2
                             + "\" -segment_time 5 \"" + path3 + "\"");
 
                     FFmpegKitConfig.enableStatisticsCallback(null);
@@ -222,9 +222,9 @@ public class CacheController {
         String status = mp4TaskStatus.getOrDefault(taskID, "not_found");
         return "{\"taskID\":\"" + taskID + 
         "\", \"progress\":" + progress + 
-        ", \"duration\":\"" + duration + 
-        ", \"percent\":\"" + percent + 
-        ", \"status\":\"" + status + 
+        "\", \"duration\":\"" + duration + 
+        "\", \"percent\":\"" + percent + 
+        "\", \"status\":\"" + status + 
         "\"}";
     }
 	
