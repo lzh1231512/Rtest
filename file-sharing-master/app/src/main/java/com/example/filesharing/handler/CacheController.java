@@ -221,7 +221,7 @@ public class CacheController {
         int percent = duration>0?(int)((progress * 100) / duration):0;
         String status = mp4TaskStatus.getOrDefault(taskID, "not_found");
         return "{\"taskID\":\"" + taskID + 
-        "\", \"progress\":" + progress + 
+        "\", \"progress\":\"" + progress + 
         "\", \"duration\":\"" + duration + 
         "\", \"percent\":\"" + percent + 
         "\", \"status\":\"" + status + 
