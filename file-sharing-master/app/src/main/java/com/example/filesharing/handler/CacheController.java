@@ -225,19 +225,8 @@ public class CacheController {
     @ResponseBody
     @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.GET})
     public String getError(@RequestParam("taskID") String taskID) {
-        String errorMsg = mp4TaskErrorMessage.getOrDefault(taskID, "not_found");
-        List<String> codecs = com.arthenica.ffmpegkit.FFmpegKitConfig.getSupportedCodecs();
-        StringBuilder sb = new StringBuilder();
-        sb.append("{");
-        sb.append("\"error\":\"").append(errorMsg.replace("\"", "\\\"").replace("\n", "\\n")).append("\",");
-        sb.append("\"supportedCodecs\":[");
-        for (int i = 0; i < codecs.size(); i++) {
-            sb.append("\"").append(codecs.get(i)).append("\"");
-            if (i != codecs.size() - 1) sb.append(",");
-        }
-        sb.append("]");
-        sb.append("}");
-        return sb.toString();
+        
+        return mp4TaskErrorMessage.getOrDefault(taskID, "not_found");
     }
 
     /**
