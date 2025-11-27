@@ -89,7 +89,7 @@
                                             $("#btn").removeAttr('disabled');
                                             alert("处理结果: " + res.status);
                                         }
-                                        if(res.status === "error"){
+                                        if(res.status === "error"||res.status === "failed"){
                                             $.ajax({
                                                 url: cacheDomain + "/getError?taskID=" + taskID,
                                                 type: 'GET',
