@@ -102,18 +102,28 @@ public class CacheController {
         return "删除文件“"+id+"”成功！";
     }
 
+
+    @PostMapping("/uploadMp4Recode")
+    @ResponseBody
+    @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.GET})
+    public String uploadMp4Recode(RequestBody body, HttpResponse response,
+                       @RequestParam("ff") MultipartFile ff,
+                       @RequestParam(name = "json") String json) throws IOException {
+        return uploadMp4(body, response, ff, json, 1);
+    }
+
     @PostMapping("/uploadMp4")
     @ResponseBody
     @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.GET})
     public String uploadMp4(RequestBody body, HttpResponse response,
                        @RequestParam("ff") MultipartFile ff,
                        @RequestParam(name = "json") String json,
-                       @RequestParam(name = "reEncode") Integer reEncode) throws IOException {
+                       @RequestParam(name = "reEncode", defaultValue = "0") int reEncode) throws IOException {
         String taskID = UUID.randomUUID().toString();
         mp4TaskProgress.put(taskID, 0L);
         mp4TaskStatus.put(taskID, "pending");
         final String jsonCopy = json; // 新增这一行
-        final Integer reEncodeCopy = reEncode; // 新增这一行
+        final int reEncodeCopy = reEncode; // 新增这一行
 		
 		int id = -100000;
 		while (Files.exists(Paths.get(FileUtils.fileDirectory + "/" + id))) {
@@ -147,7 +157,7 @@ public class CacheController {
                         mp4TaskProgress.put(taskID, time);
                     });
 
-                    String cmd = (reEncodeCopy != null && reEncodeCopy.intValue() == 1)
+                    String cmd = reEncodeCopy == 1
                         ? "-c:v libx264 -preset medium -c:a aac"
                         : "-c copy";
                     FFmpegSession session = FFmpegKit.execute("-i \"" + path1

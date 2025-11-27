@@ -38,7 +38,6 @@
 				$('#errorMsg').html("");
                 var formdata = new FormData();
                 formdata.append("ff", file.files[0]);
-                formdata.append("reEncode", $('#reEncode').is(":checked")?1:0);
                 formdata.append("json", JSON.stringify({
                     id: "{id}",
                     isLike: "0",
@@ -51,7 +50,7 @@
                 $("#btn").attr('disabled', 'disabled');
                 $('#spanProgress').html("上传中：0%");
                 $.ajax({
-                    url: cacheDomain + "/uploadMp4",
+                    url: cacheDomain + ($('#reEncode').is(":checked")?"/uploadMp4Recode":"/uploadMp4"),
                     type: 'POST',
                     data: formdata,
                     cache: false,
