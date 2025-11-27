@@ -38,6 +38,7 @@
 				$('#errorMsg').html("");
                 var formdata = new FormData();
                 formdata.append("ff", file.files[0]);
+                formdata.append("reEncode", $('#reEncode').is(":checked")?1:0);
                 formdata.append("json", JSON.stringify({
                     id: "{id}",
                     isLike: "0",
@@ -83,7 +84,7 @@
                                     type: 'GET',
                                     success: function (data) {
                                         var res = typeof data === "string" ? JSON.parse(data) : data;
-                                        $('#spanProgress').html("mp4处理中：" + res.progress +"/" + res.duration + " [" + res.status + "]");
+                                        $('#spanProgress').html("mp4处理中：" + res.progress +"/" + res.duration + " ("+ res.percent +"%)" + " [" + res.status + "]");
                                         if (res.status === "success" || res.status === "failed" || res.status === "error" || res.status === "cancel") {
                                             clearInterval(timer);
                                             $("#btn").removeAttr('disabled');
@@ -139,6 +140,10 @@
         <div class="col-md-2">
             @Html.Label("", "cacheDomain")
             <input id="cacheDomain" type="text" name="cacheDomain" value="" class="form-control"/>
+        </div>
+        <div class="col-md-2">
+            @Html.Label("", "RE Encode")
+            <input id="reEncode" type="checkbox" name="reEncode" class="form-control" />
         </div>
         <div class="col-md-2">
             @Html.Label("", "progress")

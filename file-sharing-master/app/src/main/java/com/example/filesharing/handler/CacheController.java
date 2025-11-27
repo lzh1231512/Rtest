@@ -107,11 +107,13 @@ public class CacheController {
     @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.GET})
     public String uploadMp4(RequestBody body, HttpResponse response,
                        @RequestParam("ff") MultipartFile ff,
-                       @RequestParam(name = "json") String json) throws IOException {
+                       @RequestParam(name = "json") String json,
+                       @RequestParam(name = "reEncode") Integer reEncode) throws IOException {
         String taskID = UUID.randomUUID().toString();
         mp4TaskProgress.put(taskID, 0L);
         mp4TaskStatus.put(taskID, "pending");
         final String jsonCopy = json; // 新增这一行
+        final Integer reEncodeCopy = reEncode; // 新增这一行
 		
 		int id = -100000;
 		while (Files.exists(Paths.get(FileUtils.fileDirectory + "/" + id))) {
@@ -145,8 +147,12 @@ public class CacheController {
                         mp4TaskProgress.put(taskID, time);
                     });
 
+                    String cmd = reEncodeCopy==1 ?
+                            "-c:v libx264 -preset medium -c:a aac"
+                            :
+                            "-c copy";
                     FFmpegSession session = FFmpegKit.execute("-i \"" + path1
-                            + "\" -c:v libx264 -preset medium -c:a aac -map 0 -f segment -segment_list \"" + path2
+                            + "\" "+ cmd +" -map 0 -f segment -segment_list \"" + path2
                             + "\" -segment_time 5 \"" + path3 + "\"");
 
                     FFmpegKitConfig.enableStatisticsCallback(null);
