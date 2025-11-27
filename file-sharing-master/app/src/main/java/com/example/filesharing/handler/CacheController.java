@@ -147,10 +147,9 @@ public class CacheController {
                         mp4TaskProgress.put(taskID, time);
                     });
 
-                    String cmd = reEncodeCopy==1 ?
-                            "-c:v libx264 -preset medium -c:a aac"
-                            :
-                            "-c copy";
+                    String cmd = (reEncodeCopy != null && reEncodeCopy.intValue() == 1)
+                        ? "-c:v libx264 -preset medium -c:a aac"
+                        : "-c copy";
                     FFmpegSession session = FFmpegKit.execute("-i \"" + path1
                             + "\" "+ cmd +" -map 0 -f segment -segment_list \"" + path2
                             + "\" -segment_time 5 \"" + path3 + "\"");
