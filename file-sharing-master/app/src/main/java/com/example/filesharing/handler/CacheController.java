@@ -109,7 +109,7 @@ public class CacheController {
                        @RequestParam("ff") MultipartFile ff,
                        @RequestParam(name = "json") String json) throws IOException {
         String taskID = UUID.randomUUID().toString();
-        mp4TaskProgress.put(taskID, 0);
+        mp4TaskProgress.put(taskID, 0L);
         mp4TaskStatus.put(taskID, "pending");
         final String jsonCopy = json; // 新增这一行
 		
@@ -216,8 +216,8 @@ public class CacheController {
     @ResponseBody
     @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.GET})
     public String queryMp4Task(@RequestParam("taskID") String taskID) {
-        long progress = mp4TaskProgress.getOrDefault(taskID, 0);
-        long duration = mp4TaskDuration.getOrDefault(taskID, 1);
+        long progress = mp4TaskProgress.getOrDefault(taskID, 0L);
+        long duration = mp4TaskDuration.getOrDefault(taskID, 1L);
         int percent = duration>0?(int)((progress * 100) / duration):0;
         String status = mp4TaskStatus.getOrDefault(taskID, "not_found");
         return "{\"taskID\":\"" + taskID + 
