@@ -52,6 +52,7 @@ public class CacheController {
     // 存储任务进度和状态
     private static final ConcurrentHashMap<String, Long> mp4TaskProgress = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, Long> mp4TaskDuration = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, String> mp4TaskOrigCodec = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, String> mp4TaskStatus = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, String> mp4TaskErrorMessage = new ConcurrentHashMap<>();
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
@@ -152,6 +153,8 @@ public class CacheController {
                     // 设置进度回调
                     long duration = getVideoDuration(path1);
                     mp4TaskDuration.put(taskID, duration);
+                    String origCodec = getVideoCodec(path1);
+                    mp4TaskOrigCodec.put(taskID, origCodec);
                     FFmpegKitConfig.enableStatisticsCallback(statistics -> {
                         long time = (long)statistics.getTime();
                         mp4TaskProgress.put(taskID, time);
@@ -242,6 +245,7 @@ public class CacheController {
     public String queryMp4Task(@RequestParam("taskID") String taskID) {
         long progress = mp4TaskProgress.getOrDefault(taskID, 0L);
         long duration = mp4TaskDuration.getOrDefault(taskID, 1L);
+        String origCodec = mp4TaskOrigCodec.getOrDefault(taskID, "unknown");
         int percent = duration>0?(int)((progress * 100) / duration):0;
         String status = mp4TaskStatus.getOrDefault(taskID, "not_found");
         return "{\"taskID\":\"" + taskID + 
@@ -249,6 +253,7 @@ public class CacheController {
         "\", \"duration\":\"" + duration + 
         "\", \"percent\":\"" + percent + 
         "\", \"status\":\"" + status + 
+        "\", \"origCodec\":\"" + origCodec + 
         "\"}";
     }
 	
@@ -274,6 +279,14 @@ public class CacheController {
         } catch (Exception e) {
             return 0;
         }
+    }
+    /**
+     * 获取视频编码格式
+     */
+    private String getVideoCodec(String videoPath) {
+        String cmd = "-v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 \"" + videoPath + "\"";
+        FFprobeSession session = FFprobeKit.execute(cmd);
+        return session.getOutput().trim(); // 例如返回 "h264"
     }
 
     private static void zoomImg(String srcPath,String dstPath) throws IOException{
