@@ -171,18 +171,7 @@ public class CacheController {
 
                     if (ReturnCode.isSuccess(session.getReturnCode())) {
                         mp4TaskStatus.put(taskID, "success");
-
-                        try {
-                            // 先尝试提取内置封面
-                            FFmpegSession coverSession = FFmpegKit.execute("-i \"" + path1 + "\" -map 0:v -disposition:v attached_pic -c copy \"" + path4 + "\"");
-                            if (!ReturnCode.isSuccess(coverSession.getReturnCode())) {
-                                // 如果失败，则用第6秒截图
-                                FFmpegKit.execute("-i \"" + path1 + "\" -ss 00:00:06 -vframes 1 \"" + path4 + "\"");
-                            }
-                        } catch (Exception e) {
-                            // 如果异常，也用第6秒截图
-                            FFmpegKit.execute("-i \"" + path1 + "\" -ss 00:00:06 -vframes 1 \"" + path4 + "\"");
-                        }
+                        extractCover(path1, path4, pathI);
 
                         List<String> m3u8Info = Files.readAllLines(P_path2);
                         for (int i = 0, k = 0; i < m3u8Info.size(); i++) {
@@ -196,8 +185,6 @@ public class CacheController {
                             }
                         }
                         Files.write(Paths.get(pathM), String.join("\r\n", m3u8Info).getBytes());
-
-                        zoomImg(path4, pathI);
                         Files.delete(Paths.get(path4));
 
                         Files.delete(Paths.get(path1));
@@ -237,6 +224,53 @@ public class CacheController {
         }
         // 立即返回taskID
         return "{\"taskID\":\"" + taskID + "\"}";
+    }
+
+    /**
+     * 提取视频封面：优先尝试内置封面，失败则用第6秒截图
+     * 自动检测 attached_pic 流索引
+     */
+    private void extractCover(String videoPath, String coverPath, String zoomedPath) {
+        try {
+            // 用 FFprobe 检查 attached_pic 流索引
+            String probeCmd = "-v error -select_streams v -show_entries stream=index,disposition -of json \"" + videoPath + "\"";
+            FFprobeSession probeSession = FFprobeKit.execute(probeCmd);
+            String output = probeSession.getOutput();
+            int attachedPicIndex = -1;
+            // 简单解析 JSON，查找 disposition.attached_pic==1 的流
+            if (output != null && output.contains("\"attached_pic\":1")) {
+                String[] parts = output.split("\\{");
+                for (String part : parts) {
+                    if (part.contains("\"attached_pic\":1") && part.contains("\"index\":")) {
+                        String idxStr = part.split("\"index\":")[1].split(",")[0].replaceAll("[^0-9]", "");
+                        try {
+                            attachedPicIndex = Integer.parseInt(idxStr);
+                            break;
+                        } catch (Exception ignore) {}
+                    }
+                }
+            }
+
+            FFmpegSession coverSession;
+            if (attachedPicIndex != -1) {
+                // 提取内置封面
+                coverSession = FFmpegKit.execute("-i \"" + videoPath + "\" -map 0:v:" + attachedPicIndex + " -c:v mjpeg -f image2 \"" + coverPath + "\"");
+            } else {
+                // 没有内置封面，直接截图
+                coverSession = FFmpegKit.execute("-i \"" + videoPath + "\" -ss 00:00:06 -vframes 1 \"" + coverPath + "\"");
+            }
+
+            if (!ReturnCode.isSuccess(coverSession.getReturnCode())) {
+                // 如果提取失败，再用第6秒截图
+                FFmpegKit.execute("-i \"" + videoPath + "\" -ss 00:00:06 -vframes 1 \"" + coverPath + "\"");
+            }
+            zoomImg(coverPath, zoomedPath);
+        } catch (Exception e) {
+            try {
+                FFmpegKit.execute("-i \"" + videoPath + "\" -ss 00:00:06 -vframes 1 \"" + coverPath + "\"");
+                zoomImg(coverPath, zoomedPath);
+            } catch (Exception ignore) {}
+        }
     }
 
     @GetMapping("/queryMp4Task")
