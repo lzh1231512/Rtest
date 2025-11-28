@@ -135,7 +135,7 @@ public class CacheController {
 		final String path1 = path0 + "/1.mp4";
 		final String path2 = path0 + "/1.m3u8";
 		final Path P_path2 = Paths.get(path2);
-		final String path3 = path0 + "/%3d.ts";
+		final String path3 = path0 + "/%03d.ts";
 		final String path4 = path0 + "/1.jpg";
 
 		final String pathM = path0 + "/m3";
@@ -161,16 +161,25 @@ public class CacheController {
                         ? "-c:v libx264 -preset medium -c:a aac"
                         : "-c copy";
                     FFmpegSession session = FFmpegKit.execute("-i \"" + path1
-                            + "\" "+ cmd +" -map 0 -f segment -segment_list \"" + path2
-                            + "\" -segment_time 5 \"" + path3 + "\"");
+                        + "\" " + cmd + " -map 0 -f hls -hls_time 5 -hls_playlist_type vod -hls_flags independent_segments -hls_segment_filename \"" + path3
+                        + "\" \"" + path2 + "\"");
 
                     FFmpegKitConfig.enableStatisticsCallback(null);
 
                     if (ReturnCode.isSuccess(session.getReturnCode())) {
                         mp4TaskStatus.put(taskID, "success");
 
-                        FFmpegKit.execute("-i \"" + path1
-                                + "\" -ss 00:00:06 -vframes 1 \"" + path4 + "\"");
+                        try {
+                            // 先尝试提取内置封面
+                            FFmpegSession coverSession = FFmpegKit.execute("-i \"" + path1 + "\" -map 0:v -disposition:v attached_pic -c copy \"" + path4 + "\"");
+                            if (!ReturnCode.isSuccess(coverSession.getReturnCode())) {
+                                // 如果失败，则用第6秒截图
+                                FFmpegKit.execute("-i \"" + path1 + "\" -ss 00:00:06 -vframes 1 \"" + path4 + "\"");
+                            }
+                        } catch (Exception e) {
+                            // 如果异常，也用第6秒截图
+                            FFmpegKit.execute("-i \"" + path1 + "\" -ss 00:00:06 -vframes 1 \"" + path4 + "\"");
+                        }
 
                         List<String> m3u8Info = Files.readAllLines(P_path2);
                         for (int i = 0, k = 0; i < m3u8Info.size(); i++) {
