@@ -52,6 +52,7 @@ public class CacheController {
     // 存储任务进度和状态
     private static final ConcurrentHashMap<String, Long> mp4TaskProgress = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, Long> mp4TaskDuration = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, String> mp4TaskOrigCodec = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, String> mp4TaskStatus = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, String> mp4TaskErrorMessage = new ConcurrentHashMap<>();
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
@@ -135,7 +136,7 @@ public class CacheController {
 		final String path1 = path0 + "/1.mp4";
 		final String path2 = path0 + "/1.m3u8";
 		final Path P_path2 = Paths.get(path2);
-		final String path3 = path0 + "/%3d.ts";
+		final String path3 = path0 + "/%03d.ts";
 		final String path4 = path0 + "/1.jpg";
 
 		final String pathM = path0 + "/m3";
@@ -152,6 +153,8 @@ public class CacheController {
                     // 设置进度回调
                     long duration = getVideoDuration(path1);
                     mp4TaskDuration.put(taskID, duration);
+                    String origCodec = getVideoCodec(path1);
+                    mp4TaskOrigCodec.put(taskID, origCodec);
                     FFmpegKitConfig.enableStatisticsCallback(statistics -> {
                         long time = (long)statistics.getTime();
                         mp4TaskProgress.put(taskID, time);
@@ -161,16 +164,14 @@ public class CacheController {
                         ? "-c:v libx264 -preset medium -c:a aac"
                         : "-c copy";
                     FFmpegSession session = FFmpegKit.execute("-i \"" + path1
-                            + "\" "+ cmd +" -map 0 -f segment -segment_list \"" + path2
-                            + "\" -segment_time 5 \"" + path3 + "\"");
+                        + "\" " + cmd + " -map 0 -f hls -hls_time 5 -hls_playlist_type vod -hls_flags independent_segments -hls_segment_filename \"" + path3
+                        + "\" \"" + path2 + "\"");
 
                     FFmpegKitConfig.enableStatisticsCallback(null);
 
                     if (ReturnCode.isSuccess(session.getReturnCode())) {
                         mp4TaskStatus.put(taskID, "success");
-
-                        FFmpegKit.execute("-i \"" + path1
-                                + "\" -ss 00:00:06 -vframes 1 \"" + path4 + "\"");
+                        extractCover(path1, path4, pathI);
 
                         List<String> m3u8Info = Files.readAllLines(P_path2);
                         for (int i = 0, k = 0; i < m3u8Info.size(); i++) {
@@ -184,8 +185,6 @@ public class CacheController {
                             }
                         }
                         Files.write(Paths.get(pathM), String.join("\r\n", m3u8Info).getBytes());
-
-                        zoomImg(path4, pathI);
                         Files.delete(Paths.get(path4));
 
                         Files.delete(Paths.get(path1));
@@ -227,12 +226,60 @@ public class CacheController {
         return "{\"taskID\":\"" + taskID + "\"}";
     }
 
+    /**
+     * 提取视频封面：优先尝试内置封面，失败则用第6秒截图
+     * 自动检测 attached_pic 流索引
+     */
+    private void extractCover(String videoPath, String coverPath, String zoomedPath) {
+        try {
+            // 用 FFprobe 检查 attached_pic 流索引
+            String probeCmd = "-v error -select_streams v -show_entries stream=index,disposition -of json \"" + videoPath + "\"";
+            FFprobeSession probeSession = FFprobeKit.execute(probeCmd);
+            String output = probeSession.getOutput();
+            int attachedPicIndex = -1;
+            // 简单解析 JSON，查找 disposition.attached_pic==1 的流
+            if (output != null && output.contains("\"attached_pic\":1")) {
+                String[] parts = output.split("\\{");
+                for (String part : parts) {
+                    if (part.contains("\"attached_pic\":1") && part.contains("\"index\":")) {
+                        String idxStr = part.split("\"index\":")[1].split(",")[0].replaceAll("[^0-9]", "");
+                        try {
+                            attachedPicIndex = Integer.parseInt(idxStr);
+                            break;
+                        } catch (Exception ignore) {}
+                    }
+                }
+            }
+
+            FFmpegSession coverSession;
+            if (attachedPicIndex != -1) {
+                // 提取内置封面
+                coverSession = FFmpegKit.execute("-i \"" + videoPath + "\" -map 0:v:" + attachedPicIndex + " -c:v mjpeg -f image2 \"" + coverPath + "\"");
+            } else {
+                // 没有内置封面，直接截图
+                coverSession = FFmpegKit.execute("-i \"" + videoPath + "\" -ss 00:00:06 -vframes 1 \"" + coverPath + "\"");
+            }
+
+            if (!ReturnCode.isSuccess(coverSession.getReturnCode())) {
+                // 如果提取失败，再用第6秒截图
+                FFmpegKit.execute("-i \"" + videoPath + "\" -ss 00:00:06 -vframes 1 \"" + coverPath + "\"");
+            }
+            zoomImg(coverPath, zoomedPath);
+        } catch (Exception e) {
+            try {
+                FFmpegKit.execute("-i \"" + videoPath + "\" -ss 00:00:06 -vframes 1 \"" + coverPath + "\"");
+                zoomImg(coverPath, zoomedPath);
+            } catch (Exception ignore) {}
+        }
+    }
+
     @GetMapping("/queryMp4Task")
     @ResponseBody
     @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.GET})
     public String queryMp4Task(@RequestParam("taskID") String taskID) {
         long progress = mp4TaskProgress.getOrDefault(taskID, 0L);
         long duration = mp4TaskDuration.getOrDefault(taskID, 1L);
+        String origCodec = mp4TaskOrigCodec.getOrDefault(taskID, "unknown");
         int percent = duration>0?(int)((progress * 100) / duration):0;
         String status = mp4TaskStatus.getOrDefault(taskID, "not_found");
         return "{\"taskID\":\"" + taskID + 
@@ -240,6 +287,7 @@ public class CacheController {
         "\", \"duration\":\"" + duration + 
         "\", \"percent\":\"" + percent + 
         "\", \"status\":\"" + status + 
+        "\", \"origCodec\":\"" + origCodec + 
         "\"}";
     }
 	
@@ -265,6 +313,14 @@ public class CacheController {
         } catch (Exception e) {
             return 0;
         }
+    }
+    /**
+     * 获取视频编码格式
+     */
+    private String getVideoCodec(String videoPath) {
+        String cmd = "-v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 \"" + videoPath + "\"";
+        FFprobeSession session = FFprobeKit.execute(cmd);
+        return session.getOutput().trim(); // 例如返回 "h264"
     }
 
     private static void zoomImg(String srcPath,String dstPath) throws IOException{
