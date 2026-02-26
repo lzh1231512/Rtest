@@ -155,8 +155,9 @@ namespace DL91
         public static (string, string, string) GetFixedM3u8(int id, int time = 1000)
         {
             var domains = new List<string>() {
+                "https://delivery.douyincontent.com",
                 "https://91rbnet.gslb-al.com",
-                "https://91rbnet.douyincontent.com"
+                "https://91rbnet.douyincontent.com",
             };
             foreach (var domain in domains)
             {
