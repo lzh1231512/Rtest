@@ -38,7 +38,7 @@ namespace DL91
             }
             if (downloadList.Count > 0)
             {
-                ProcessImg.DownloadImg(downloadList);
+                //ProcessImg.DownloadImg(downloadList);
             }
             foreach (var item in allImg.Select(f => int.TryParse(f, out int res) ? res : 0))
             {

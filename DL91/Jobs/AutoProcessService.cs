@@ -13,7 +13,7 @@ namespace DL91.Jobs
 
     public class AutoProcessService : BackgroundService
     {
-        public const string domain = "https://www.rm2029.com";
+        public const string domain = "https://www.r1091.com";
         public static int SyncFlag { set; get; } = 0;
         public static int DownloadVideoFlag { set; get; } = 0;
         public static bool EnableCacheProcess { set; get; } = false;

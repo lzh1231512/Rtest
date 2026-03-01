@@ -15,6 +15,41 @@ namespace DL91.WebProcess
             while (true)
             {
                 LogTool.Instance.Info("download img " + downloaded);
+
+                using (var db = new DB91Context())
+                {
+                    var lst = db.DB91s.Where(f => f.IsImgDownload == 0).Take(200);
+                    if (!lst.Any())
+                        break;
+
+                    foreach (var item in lst)
+                    {
+                        item.imgUrl = item.imgUrl;
+                    }
+
+                    var dLst = lst.Select(f => new DownloadTask()
+                    {
+                        url = f.imgUrl,
+                        savepath = getImgSavePath(f)
+                    });
+                    var dLst2 = DownloadHelper.DL(dLst.ToList(), 8);
+
+                    foreach (var item in lst)
+                    {
+                        item.IsImgDownload = dLst2.Single(f => f.url == item.imgUrl).result;
+                    }
+                    db.SaveChanges();
+                    downloaded += lst.Count();
+                }
+            }
+        }
+
+        public static void DownloadImgAPI()
+        {
+            var downloaded = 0;
+            while (true)
+            {
+                LogTool.Instance.Info("download img " + downloaded);
                 using (var db = new DB91Context())
                 {
                     var lst = db.DB91s.Where(f => f.IsImgDownload == 0).Take(200);
@@ -40,7 +75,7 @@ namespace DL91.WebProcess
                         {
                             url = item.imgUrl,
                             isJsonImg = true,
-                            savepath = getImgSavePath(item.id)
+                            savepath = getImgSavePathAPI(item.id)
                         });
                     }
                     var dLst2 = DownloadHelper.DL(dLst.ToList(), 8);
@@ -70,14 +105,18 @@ namespace DL91.WebProcess
                 {
                     url = imgBaseUrl + encrypted,
                     isJsonImg = true,
-                    savepath = getImgSavePath(item)
+                    savepath = getImgSavePathAPI(item)
                 });
             }
             DownloadHelper.DL(dLst.ToList(), 8);
         }
-        private static string getImgSavePath(int id)
+        private static string getImgSavePathAPI(int id)
         {
             return "wwwroot/imgs/" + (id / 1000) + "/" + id + ".jpg";
+        }
+        private static string getImgSavePath(DB91 task)
+        {
+            return "wwwroot/imgs/" + (task.id / 1000) + "/" + task.id + ".jpg";
         }
     }
 }

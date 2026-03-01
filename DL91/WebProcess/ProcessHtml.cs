@@ -38,8 +38,79 @@ namespace DL91.WebProcess
             return null;
         }
 
+        private static bool DownloadList()
+        {
+            var hasNew = false;
+            var pageCount = 1500;
+            for (int page = 1, existsflag = 0; page <= pageCount && existsflag < 5; page++)
+            {
+                LogTool.Instance.Info("Load Page " + page);
+                var html = getListHtml(page, out bool is404);
+                if (is404)
+                    break;
 
-        public static bool DownloadList(bool isTest = false)
+                HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+                doc.LoadHtml(html);
+                HtmlNode navNode = doc.GetElementbyId("list_videos_latest_videos_list_items");
+                HtmlNodeCollection categoryNodeList = navNode.SelectNodes("div");
+
+                var isExists = true;
+                var dt91 = new DateTime(1990, 1, 1);
+                for (int i = 0; i < categoryNodeList.Count; i++)
+                {
+
+                    HtmlNode nat = categoryNodeList[i];
+                    var atag = nat.SelectNodes("a")[0];
+                    String href = atag.Attributes["href"].Value;
+                    href = href.Replace(AutoProcessService.domain, "");
+                    var a = href.IndexOf('/', 2);
+                    var b = href.IndexOf('/', a + 1);
+                    var id = int.Parse(href.Substring(a + 1, b - a - 1));
+                    String title = atag.Attributes["title"].Value;
+                    String img = atag.SelectNodes("div")[0].SelectNodes("img")[0].Attributes["data-original"].Value;
+                    var time = atag.SelectNodes("div")[0].SelectNodes("div")[0].SelectNodes("div")[1].InnerText.Trim('\r', '\n', ' ').Split(':');
+                    var isHD = nat.SelectNodes("a//span[@class='is-hd']") != null;
+                    int timeInt = 0;
+                    if (time.Length == 3)
+                    {
+                        timeInt = int.Parse(time[0]) * 60 * 60 + int.Parse(time[1]) * 60 + int.Parse(time[2]);
+                    }
+                    else if (time.Length == 2)
+                    {
+                        timeInt = int.Parse(time[0]) * 60 + int.Parse(time[1]);
+                    }
+                    using (var db = new DB91Context())
+                    {
+                        if (!db.DB91s.Any(f => f.id == id))
+                        {
+                            isExists = false;
+                            hasNew = true;
+                            db.DB91s.Add(new DB91()
+                            {
+                                id = id,
+                                time = timeInt,
+                                title = title,
+                                imgUrl = img,
+                                typeId = 0,
+                                url = href,
+                                isHD = isHD,
+                                createDate = (int)(DateTime.UtcNow - dt91).TotalMinutes
+                            });
+                            db.SaveChanges();
+                        }
+                    }
+                }
+
+                if (isExists)
+                {
+                    existsflag++;
+                }
+            }
+            return hasNew;
+        }
+
+
+        public static bool DownloadListAPI(bool isTest = false)
         {
             var hasNew = false;
             var pageCount = 1500;
@@ -48,7 +119,7 @@ namespace DL91.WebProcess
             for (int page = 1, existsflag = 0; page <= pageCount && existsflag < existsflagC; page++)
             {
                 LogTool.Instance.Info("Load Page " + page);
-                var json = getListHtml(page, pageSize, out bool is404);
+                var json = getListHtmlAPI(page, pageSize, out bool is404);
                 if (is404)
                     break;
                 var isExists = true;
@@ -87,8 +158,71 @@ namespace DL91.WebProcess
             }
             return hasNew;
         }
+        private static void DownloadDetails()
+        {
+            using (var db = new DB91Context())
+            {
+                var types = db.DBTypes.ToList();
+                var count = db.DB91s.Where(f => f.typeId == 0).Count();
+                var index = 0;
+                foreach (var item in db.DB91s.Where(f => f.typeId == 0))
+                {
+                    index++;
+                    if (index % 10 == 0)
+                    {
+                        LogTool.Instance.Info("Load Detail " + index + "/" + count);
+                    }
+                    var typeName = "";
+                    var typeID = -1;
+                    try
+                    {
+                        var html = getDetailHtml(AutoProcessService.domain + item.url);
+                        if (html != null)
+                        {
+                            HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+                            doc.LoadHtml(html);
+                            var navNode = doc.DocumentNode.SelectNodes("//div[@class='top-options flex']");
+                            if (navNode != null && navNode.Count > 0)
+                            {
+                                typeName = navNode[0].SelectNodes("div")[1].SelectNodes("a")[0].InnerHtml;
+                            }
+                        }
 
-        public static void DownloadDetails()
+                        if (!string.IsNullOrEmpty(typeName))
+                        {
+                            var type = types.FirstOrDefault(f => f.name == typeName);
+                            if (type == null)
+                            {
+                                var ntype = new DBType()
+                                {
+                                    url = "",
+                                    name = typeName,
+                                    count = 0,
+                                    maxID = 0
+                                };
+                                db.DBTypes.Add(ntype);
+                                db.SaveChanges();
+                                types = db.DBTypes.ToList();
+                                type = types.FirstOrDefault(f => f.name == typeName);
+                            }
+                            if (type != null)
+                            {
+                                typeID = type.id;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTool.Instance.Error("Failed to get detail for " + item.id + " " + item.url + "\r\n" + ex.Message + "\r\n" + ex.StackTrace);
+                    }
+                    item.typeId = typeID;
+                    db.SaveChanges();
+                }
+
+            }
+        }
+
+        public static void DownloadDetailsAPI()
         {
             using (var db = new DB91Context())
             {
@@ -162,13 +296,36 @@ namespace DL91.WebProcess
 
             }
         }
-
-        private static string getListHtml(int page,int size, out bool is404)
+        private static string getListHtml(int page, out bool is404)
         {
             is404 = false;
             while (true)
             {
-                var p = HttpHelper.GetHtml(getListUrl(page, size));
+                var p = HttpHelper.GetHtml(getListUrl(page));
+                if (p.IsGood)
+                {
+                    return p.Html;
+                }
+                if (p.Is404)
+                {
+                    is404 = true;
+                    return "";
+                }
+                Thread.Sleep(60000);
+            }
+        }
+        private static string getListUrl(int page)
+        {
+            ///latest-updates/?mode=async&function=get_block&block_id=list_videos_latest_videos_list&sort_by=post_date&from=2&_=1772376240485
+            return AutoProcessService.domain + "/latest-updates/?mode=async&function=get_block&block_id=list_videos_latest_videos_list&sort_by=post_date&from=" + page + "&_=" + Guid.NewGuid();
+        }
+
+        private static string getListHtmlAPI(int page,int size, out bool is404)
+        {
+            is404 = false;
+            while (true)
+            {
+                var p = HttpHelper.GetHtml(getListUrlAPI(page, size));
                 if (p.IsGood)
                 {
                     return p.Html;
@@ -182,7 +339,7 @@ namespace DL91.WebProcess
             }
         }
 
-        private static string getListUrl(int page, int size)
+        private static string getListUrlAPI(int page, int size)
         {
             return AutoProcessService.domain + "/api/videos/index?page=" + page + "&size="+ size + "&sort=post_date&tags=&&tt=" + Guid.NewGuid();
         }

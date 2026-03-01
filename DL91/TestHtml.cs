@@ -1,4 +1,5 @@
 ﻿using DL91.Jobs;
+using DL91.WebProcess;
 using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
@@ -45,7 +46,7 @@ namespace DL91
                 var id = int.Parse(href.Substring(a + 1, b - a - 1));
                 String title = atag.Attributes["title"].Value;
                 String img = atag.SelectNodes("div")[0].SelectNodes("img")[0].Attributes["data-original"].Value;
-                var time = atag.SelectNodes("div")[1].SelectNodes("div")[0].InnerText.Split(':');
+                var time = atag.SelectNodes("div")[0].SelectNodes("div")[0].SelectNodes("div")[1].InnerText.Trim('\r', '\n', ' ').Split(':');
                 var isHD = nat.SelectNodes("a//span[@class='is-hd']") != null;
                 int timeInt = 0;
                 if (time.Length == 3)
@@ -66,14 +67,10 @@ namespace DL91
             HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
             doc.LoadHtml(Html);
 
-            HtmlNode navNode = doc.GetElementbyId("tab_video_info");
-            foreach (var atag in navNode.SelectNodes("div//a"))
+            var navNode = doc.DocumentNode.SelectNodes("//div[@class='top-options flex']");
+            if (navNode != null&& navNode.Count>0)
             {
-                var href = atag.Attributes["href"].Value;
-                if (href.Contains("categories"))
-                {
-                    var typeName = atag.InnerText.Trim();
-                }
+                var types = navNode[0].SelectNodes("div")[1].SelectNodes("a")[0].InnerHtml;
             }
         }
     }
