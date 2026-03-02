@@ -73,5 +73,23 @@ namespace DL91
                 var types = navNode[0].SelectNodes("div")[1].SelectNodes("a")[0].InnerHtml;
             }
         }
+
+        public static string TestDetailImgURL()
+        {
+            try
+            {
+                var Html = File.ReadAllText("htmlsample/detail.txt");
+                HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+                doc.LoadHtml(Html);
+
+                var navNode = doc.GetElementbyId("list_videos_related_videos_items");
+                if (navNode != null)
+                {
+                    return navNode.SelectNodes("//img[@class='lazy-load']")[0].Attributes["data-original"].Value;
+                }
+            }
+            catch { }
+            return null;
+        }
     }
 }

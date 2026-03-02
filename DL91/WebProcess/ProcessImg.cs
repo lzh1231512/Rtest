@@ -89,7 +89,7 @@ namespace DL91.WebProcess
                 }
             }
         }
-        public static void DownloadImg(List<int> ids)
+        public static void DownloadImgAPI(List<int> ids)
         {
             var imgBaseUrl = AutoProcessService.domain + "/api/videos/img/";
             var dLst = new List<DownloadTask>();
@@ -104,6 +104,25 @@ namespace DL91.WebProcess
                 dLst.Add(new DownloadTask()
                 {
                     url = imgBaseUrl + encrypted,
+                    isJsonImg = true,
+                    savepath = getImgSavePathAPI(item)
+                });
+            }
+            DownloadHelper.DL(dLst.ToList(), 8);
+        }
+        public static void DownloadImg(List<int> ids)
+        {
+            var dLst = new List<DownloadTask>();
+            foreach (var item in ids)
+            {
+                var imgurl = ProcessHtml.FixImgURL(item);
+                if(string.IsNullOrEmpty(imgurl))
+                { 
+                    continue;
+                }
+                dLst.Add(new DownloadTask()
+                {
+                    url = imgurl,
                     isJsonImg = true,
                     savepath = getImgSavePathAPI(item)
                 });

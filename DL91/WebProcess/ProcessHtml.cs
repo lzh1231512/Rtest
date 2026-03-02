@@ -2,6 +2,7 @@
 using HtmlAgilityPack;
 using Humanizer.Localisation;
 using JsonParsingDemo;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -219,6 +220,48 @@ namespace DL91.WebProcess
                     db.SaveChanges();
                 }
 
+            }
+        }
+
+        public static string FixImgURL(int id)
+        {
+            try
+            {
+                using (var db = new DB91Context())
+                {
+                    var item = db.DB91s.Where(f => f.id == id).FirstOrDefault();
+                    if (item == null)
+                        return null;
+                    if (!string.IsNullOrEmpty(item.imgUrl))
+                    {
+                        return item.imgUrl;
+                    }
+                    if (string.IsNullOrEmpty(item.url))
+                    {
+                        return null;
+                    }
+                    var html = getDetailHtml(AutoProcessService.domain + item.url);
+                    if (html != null)
+                    {
+                        HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+                        doc.LoadHtml(html);
+                        var navNode = doc.GetElementbyId("list_videos_related_videos_items");
+                        if (navNode != null)
+                        {
+                            var result = navNode.SelectNodes("//img[@class='lazy-load']")[0].Attributes["data-original"].Value;
+                            LogTool.Instance.Info("FixImgURL " + id + " " + result);
+                            item.imgUrl = result;
+                            db.SaveChanges();
+                            return result;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTool.Instance.Error("Filed fiximgurl " + id + ":" + ex.Message);
+                return null;
             }
         }
 

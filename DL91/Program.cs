@@ -26,7 +26,7 @@ namespace DL91
             //var xxx = ImgIndexHelper.ProcessAsync(123);
             //ProcessHtml.DownloadList(true);
             //ProcessHtml.DownloadDetails();
-            //TestHtml.TestDetail();
+            TestHtml.TestDetailImgURL();
         }
         public static void Test2(string[] args)
         {
