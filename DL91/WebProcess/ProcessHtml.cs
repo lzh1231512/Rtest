@@ -232,10 +232,6 @@ namespace DL91.WebProcess
                     var item = db.DB91s.Where(f => f.id == id).FirstOrDefault();
                     if (item == null)
                         return null;
-                    if (!string.IsNullOrEmpty(item.imgUrl))
-                    {
-                        return item.imgUrl;
-                    }
                     if (string.IsNullOrEmpty(item.url))
                     {
                         return null;
