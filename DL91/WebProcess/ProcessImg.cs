@@ -123,7 +123,7 @@ namespace DL91.WebProcess
                 dLst.Add(new DownloadTask()
                 {
                     url = imgurl,
-                    isJsonImg = true,
+                    isJsonImg = false,
                     savepath = getImgSavePathAPI(item)
                 });
             }
