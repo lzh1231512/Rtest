@@ -235,43 +235,44 @@ namespace DL91.WebProcess
                         return null;
                     if (string.IsNullOrEmpty(item.url))
                     {
-                        var html = getDetailHtml(AutoProcessService.domain + "/search/" + item.title + "/");
+                        var html0 = getDetailHtml(AutoProcessService.domain + "/search/" + item.title + "/");
 
                         HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
-                        doc.LoadHtml(html);
+                        doc.LoadHtml(html0);
 
                         var navNode = doc.GetElementbyId("list_videos_videos_list_search_result")
                             ?.SelectSingleNode("//a[@title='" + item.title + "']");
                         if (navNode != null)
                         {
                             var href = navNode.Attributes["href"].Value;
-                            href = href.Replace(AutoProcessService.domain, "");
-                            var imgNode = navNode.SelectNodes("//img[@class='lazy-load']")[0].Attributes["data-original"].Value;
-                            var imgURl = navNode.SelectNodes("//img[@class='lazy-load']")[0].Attributes["src"].Value;
-                            item.imgUrl = imgURl;
+                            if (!href.StartsWith(href))
+                            {
+                                return null;
+                            }
                             item.url = href;
-                            db.SaveChanges();
-                            return imgURl;
                         }
-
+                    }
+                    if (string.IsNullOrEmpty(item.url))
+                    {
                         return null;
                     }
-                    else
+                    var html = getDetailHtml(AutoProcessService.domain + item.url);
+                    if (html != null)
                     {
-                        var html = getDetailHtml(AutoProcessService.domain + item.url);
-                        if (html != null)
+                        HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+                        doc.LoadHtml(html);
+                        var navNode = doc.GetElementbyId("list_videos_related_videos_items");
+                        if (navNode != null)
                         {
-                            HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
-                            doc.LoadHtml(html);
-                            var navNode = doc.GetElementbyId("list_videos_related_videos_items");
-                            if (navNode != null)
+                            var result = navNode.SelectNodes("//img[@class='lazy-load']")[0].Attributes["data-original"].Value;
+                            if(result==null || !result.StartsWith("http"))
                             {
-                                var result = navNode.SelectNodes("//img[@class='lazy-load']")[0].Attributes["data-original"].Value;
-                                LogTool.Instance.Info("FixImgURL " + id + " " + result);
-                                item.imgUrl = result;
-                                db.SaveChanges();
-                                return result;
+                                return null;
                             }
+                            LogTool.Instance.Info("FixImgURL " + id + " " + result);
+                            item.imgUrl = result;
+                            db.SaveChanges();
+                            return result;
                         }
                     }
                     return null;
