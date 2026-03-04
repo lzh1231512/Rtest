@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "qnE1xIw4OhU=",
+  "dgSpecHash": "SZdrOJw+rms=",
   "success": true,
   "projectFilePath": "C:\\Git\\Rtest\\DL91Web8\\DL91Web8.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\lzhen\\.nuget\\packages\\htmlagilitypack\\1.11.40\\htmlagilitypack.1.11.40.nupkg.sha512",
+    "C:\\Users\\lzhen\\.nuget\\packages\\httptosocks5proxy\\1.4.0\\httptosocks5proxy.1.4.0.nupkg.sha512",
     "C:\\Users\\lzhen\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\lzhen\\.nuget\\packages\\log4net\\2.0.17\\log4net.2.0.17.nupkg.sha512",
     "C:\\Users\\lzhen\\.nuget\\packages\\magick.net-q16-anycpu\\13.4.0\\magick.net-q16-anycpu.13.4.0.nupkg.sha512",

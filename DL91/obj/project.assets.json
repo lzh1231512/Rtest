@@ -15,6 +15,15 @@
           }
         }
       },
+      "HttpToSocks5Proxy/1.4.0": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/MihaZupan.HttpToSocks5Proxy.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/MihaZupan.HttpToSocks5Proxy.dll": {}
+        }
+      },
       "Humanizer.Core/2.14.1": {
         "type": "package",
         "compile": {
@@ -1564,6 +1573,19 @@
         "lib/uap10.0/HtmlAgilityPack.dll",
         "lib/uap10.0/HtmlAgilityPack.pdb",
         "lib/uap10.0/HtmlAgilityPack.pri"
+      ]
+    },
+    "HttpToSocks5Proxy/1.4.0": {
+      "sha512": "yh4EBEYNBFcgVWF2BIITcLjCBzk077lvbWlRO03NuOpwJylmLNQAiqJj8Nm7waYxUgpDIz/06SkJ4iPVUEQEhA==",
+      "type": "package",
+      "path": "httptosocks5proxy/1.4.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "httptosocks5proxy.1.4.0.nupkg.sha512",
+        "httptosocks5proxy.nuspec",
+        "lib/net45/MihaZupan.HttpToSocks5Proxy.dll",
+        "lib/netstandard2.0/MihaZupan.HttpToSocks5Proxy.dll"
       ]
     },
     "Humanizer.Core/2.14.1": {
@@ -4211,6 +4233,7 @@
   "projectFileDependencyGroups": {
     "net8.0": [
       "HtmlAgilityPack >= 1.11.40",
+      "HttpToSocks5Proxy >= 1.4.0",
       "Magick.NET-Q16-AnyCPU >= 13.4.0",
       "Magick.NET.Core >= 13.4.0",
       "Microsoft.EntityFrameworkCore >= 8.0.4",
@@ -4278,6 +4301,10 @@
           "HtmlAgilityPack": {
             "target": "Package",
             "version": "[1.11.40, )"
+          },
+          "HttpToSocks5Proxy": {
+            "target": "Package",
+            "version": "[1.4.0, )"
           },
           "Magick.NET-Q16-AnyCPU": {
             "target": "Package",

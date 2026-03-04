@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.11.40" />
+    <PackageReference Include="HttpToSocks5Proxy" Version="1.4.0" />
     <PackageReference Include="log4net" Version="2.0.17" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.4.0" />
     <PackageReference Include="Magick.NET.Core" Version="13.4.0" />

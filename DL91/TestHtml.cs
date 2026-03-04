@@ -1,10 +1,13 @@
 ﻿using DL91.Jobs;
 using DL91.WebProcess;
 using HtmlAgilityPack;
+using MihaZupan;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace DL91
 {
@@ -90,6 +93,34 @@ namespace DL91
             }
             catch { }
             return null;
+        }
+
+        public static async Task<string> TestHttp()
+        {
+            var proxy = new HttpToSocks5Proxy("127.0.0.1", 1080);
+            var handler = new HttpClientHandler { Proxy = proxy };
+            HttpClient httpClient = new HttpClient(handler, true);
+
+            var keyword = "";
+
+            var result = await httpClient.SendAsync(
+                new HttpRequestMessage(HttpMethod.Get, "https://www.r1091.com/search/"+ keyword + "/"));
+
+            var html = await result.Content.ReadAsStringAsync();
+
+            HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+            doc.LoadHtml(html);
+
+            var navNode = doc.GetElementbyId("list_videos_videos_list_search_result")
+                ?.SelectSingleNode("//a[@title='" + keyword + "']");
+            if (navNode != null)
+            {
+                var url = navNode.Attributes["href"];
+                var imgNode= navNode.SelectNodes("//img[@class='lazy-load']")[0].Attributes["data-original"].Value;
+                var imgURl= navNode.SelectNodes("//img[@class='lazy-load']")[0].Attributes["src"].Value;
+            }
+
+            return "";
         }
     }
 }

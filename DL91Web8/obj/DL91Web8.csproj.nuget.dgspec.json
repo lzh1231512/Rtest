@@ -144,6 +144,10 @@
               "target": "Package",
               "version": "[1.11.40, )"
             },
+            "HttpToSocks5Proxy": {
+              "target": "Package",
+              "version": "[1.4.0, )"
+            },
             "Magick.NET-Q16-AnyCPU": {
               "target": "Package",
               "version": "[13.4.0, )"
