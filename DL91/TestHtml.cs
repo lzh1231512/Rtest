@@ -88,7 +88,7 @@ namespace DL91
                 var navNode = doc.GetElementbyId("list_videos_related_videos_items");
                 if (navNode != null)
                 {
-                    return navNode.SelectNodes("//img[@class='lazy-load']")[0].Attributes["data-original"].Value;
+                    return navNode.SelectNodes(".//img[@class='lazy-load']")[0].Attributes["data-original"].Value;
                 }
             }
             catch { }
@@ -112,12 +112,11 @@ namespace DL91
             doc.LoadHtml(html);
 
             var navNode = doc.GetElementbyId("list_videos_videos_list_search_result")
-                ?.SelectSingleNode("//a[@title='" + keyword + "']");
+                ?.SelectSingleNode(".//a[@title='" + keyword + "']");
             if (navNode != null)
             {
                 var url = navNode.Attributes["href"];
-                var imgNode= navNode.SelectNodes("//img[@class='lazy-load']")[0].Attributes["data-original"].Value;
-                var imgURl= navNode.SelectNodes("//img[@class='lazy-load']")[0].Attributes["src"].Value;
+                var imgURL= navNode.SelectSingleNode(".//img[@class='lazy-load']")?.Attributes["data-original"].Value;
             }
 
             return "";

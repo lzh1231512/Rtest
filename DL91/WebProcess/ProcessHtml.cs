@@ -239,13 +239,13 @@ namespace DL91.WebProcess
                     doc.LoadHtml(html0);
 
                     var navNode = doc.GetElementbyId("list_videos_videos_list_search_result")
-                        ?.SelectSingleNode("//a[@title='" + item.title + "']");
+                        ?.SelectSingleNode(".//a[@title='" + item.title + "']");
                     if (navNode != null)
                     {
                         var href = navNode.Attributes["href"].Value;
                         href = href.Replace(AutoProcessService.domain, "");
                         item.url = href;
-                        var imgUrl = navNode.SelectSingleNode("//img[@class='lazy-load']")?.Attributes["data-original"].Value;
+                        var imgUrl = navNode.SelectSingleNode(".//img[@class='lazy-load']")?.Attributes["data-original"].Value;
                         item.imgUrl = imgUrl;
                         if (imgUrl == null || !imgUrl.ToLower().StartsWith("http"))
                             return null;
