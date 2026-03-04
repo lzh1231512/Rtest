@@ -245,10 +245,11 @@ namespace DL91.WebProcess
                         if (navNode != null)
                         {
                             var href = navNode.Attributes["href"].Value;
-                            if (!href.StartsWith(href))
+                            if (!href.StartsWith(AutoProcessService.domain))
                             {
                                 return null;
                             }
+                            href = href.Replace(AutoProcessService.domain, "");
                             item.url = href;
                         }
                     }
@@ -412,17 +413,20 @@ namespace DL91.WebProcess
         }
         private static string getDetailHtml(string url)
         {
+            LogTool.Instance.Info("getDetailHtml:" + url);
             var i = 0;
             while (i < 3)
             {
                 var p = HttpHelper.GetHtml(url);
                 if (p.IsGood)
                 {
+                    LogTool.Instance.Info("getDetailHtml:" + url+" success");
                     return p.Html;
                 }
                 Thread.Sleep(60000);
                 i++;
             }
+            LogTool.Instance.Info("getDetailHtml:" + url + " failed");
             return null;
         }
 
