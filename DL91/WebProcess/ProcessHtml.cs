@@ -233,48 +233,24 @@ namespace DL91.WebProcess
                     var item = db.DB91s.Where(f => f.id == id).FirstOrDefault();
                     if (item == null)
                         return null;
-                    if (string.IsNullOrEmpty(item.url))
-                    {
-                        var html0 = getDetailHtml(AutoProcessService.domain + "/search/" + item.title + "/");
+                    var html0 = getDetailHtml(AutoProcessService.domain + "/search/" + item.title + "/");
 
-                        HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
-                        doc.LoadHtml(html0);
+                    HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+                    doc.LoadHtml(html0);
 
-                        var navNode = doc.GetElementbyId("list_videos_videos_list_search_result")
-                            ?.SelectSingleNode("//a[@title='" + item.title + "']");
-                        if (navNode != null)
-                        {
-                            var href = navNode.Attributes["href"].Value;
-                            if (!href.StartsWith(AutoProcessService.domain))
-                            {
-                                return null;
-                            }
-                            href = href.Replace(AutoProcessService.domain, "");
-                            item.url = href;
-                        }
-                    }
-                    if (string.IsNullOrEmpty(item.url))
+                    var navNode = doc.GetElementbyId("list_videos_videos_list_search_result")
+                        ?.SelectSingleNode("//a[@title='" + item.title + "']");
+                    if (navNode != null)
                     {
-                        return null;
-                    }
-                    var html = getDetailHtml(AutoProcessService.domain + item.url);
-                    if (html != null)
-                    {
-                        HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
-                        doc.LoadHtml(html);
-                        var navNode = doc.GetElementbyId("list_videos_related_videos_items");
-                        if (navNode != null)
-                        {
-                            var result = navNode.SelectNodes("//img[@class='lazy-load']")[0].Attributes["data-original"].Value;
-                            if(result==null || !result.StartsWith("http"))
-                            {
-                                return null;
-                            }
-                            LogTool.Instance.Info("FixImgURL " + id + " " + result);
-                            item.imgUrl = result;
-                            db.SaveChanges();
-                            return result;
-                        }
+                        var href = navNode.Attributes["href"].Value;
+                        href = href.Replace(AutoProcessService.domain, "");
+                        item.url = href;
+                        var imgUrl = navNode.SelectSingleNode("//img[@class='lazy-load']")?.Attributes["data-original"].Value;
+                        item.imgUrl = imgUrl;
+                        if (imgUrl == null || !imgUrl.ToLower().StartsWith("http"))
+                            return null;
+                        db.SaveChanges();
+                        return imgUrl;
                     }
                     return null;
                 }
