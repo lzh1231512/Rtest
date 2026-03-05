@@ -228,32 +228,22 @@ namespace DL91.WebProcess
         {
             try
             {
-                using (var db = new DB91Context())
+                var url = "https://cdnp.rimghi.com/videos_screenshots/" + (id / 1000 * 1000) + "/" + id + "/320x180/5.jpg";
+                if (HttpHelper.TestHttp(url))
                 {
-                    var item = db.DB91s.Where(f => f.id == id).FirstOrDefault();
-                    if (item == null)
-                        return null;
-                    var html0 = getDetailHtml(AutoProcessService.domain + "/search/" + item.title + "/");
-
-                    HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
-                    doc.LoadHtml(html0);
-
-                    var navNode = doc.GetElementbyId("list_videos_videos_list_search_result")
-                        ?.SelectSingleNode(".//a[@title='" + item.title + "']");
-                    if (navNode != null)
-                    {
-                        var href = navNode.Attributes["href"].Value;
-                        href = href.Replace(AutoProcessService.domain, "");
-                        item.url = href;
-                        var imgUrl = navNode.SelectSingleNode(".//img[@class='lazy-load']")?.Attributes["data-original"].Value;
-                        item.imgUrl = imgUrl;
-                        if (imgUrl == null || !imgUrl.ToLower().StartsWith("http"))
-                            return null;
-                        db.SaveChanges();
-                        return imgUrl;
-                    }
-                    return null;
+                    return url;
                 }
+                url = "https://cdnp.rimghi.com/videos_screenshots/" + (id / 1000 * 1000) + "/" + id + "/320x180/1.jpg";
+                if (HttpHelper.TestHttp(url))
+                {
+                    return url;
+                }
+                url = "https://cdnp.rimghi.com/videos_screenshots/" + (id / 1000 * 1000) + "/" + id + "/preview.jpg";
+                if (HttpHelper.TestHttp(url))
+                {
+                    return url;
+                }
+                return null;
             }
             catch (Exception ex)
             {

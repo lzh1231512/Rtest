@@ -101,7 +101,7 @@ namespace DL91
             var handler = new HttpClientHandler { Proxy = proxy };
             HttpClient httpClient = new HttpClient(handler, true);
 
-            var keyword = "重磅露出-群P-顶级江南小少妇【欢欢】最新付费福利各种场所露出勾引路人 毫无羞耻心";
+            var keyword = "极品稀缺 百合预警大一学妹S和『男朋友』T的恋爱日常+舌吻+做爱 各种姿势 非常会玩 光声就可射 (1)";
 
             var result = await httpClient.SendAsync(
                 new HttpRequestMessage(HttpMethod.Get, "https://www.r1091.com/search/"+ keyword + "/"));
