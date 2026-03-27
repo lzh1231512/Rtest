@@ -228,17 +228,17 @@ namespace DL91.WebProcess
         {
             try
             {
-                var url = "https://cdnp.rimghi.com/videos_screenshots/" + (id / 1000 * 1000) + "/" + id + "/320x180/5.jpg";
+                var url = "https://www.91rb.com/contents/videos_screenshots/" + (id / 1000 * 1000) + "/" + id + "/320x180/5.jpg";
                 if (HttpHelper.TestHttp(url))
                 {
                     return url;
                 }
-                url = "https://cdnp.rimghi.com/videos_screenshots/" + (id / 1000 * 1000) + "/" + id + "/320x180/1.jpg";
+                url = "https://www.91rb.com/contents/videos_screenshots/" + (id / 1000 * 1000) + "/" + id + "/320x180/1.jpg";
                 if (HttpHelper.TestHttp(url))
                 {
                     return url;
                 }
-                url = "https://cdnp.rimghi.com/videos_screenshots/" + (id / 1000 * 1000) + "/" + id + "/preview.jpg";
+                url = "https://www.91rb.com/contents/videos_screenshots/" + (id / 1000 * 1000) + "/" + id + "/preview.jpg";
                 if (HttpHelper.TestHttp(url))
                 {
                     return url;

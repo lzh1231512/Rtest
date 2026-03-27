@@ -35,6 +35,19 @@ namespace DL91
                 {
                     downloadList.Add(item);
                 }
+                else
+                {
+                    try
+                    {
+                        using var first = new MagickImage(imgpath1.FullName);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        imgpath1.Delete();
+                        downloadList.Add(item);
+                    }
+                }
             }
             if (downloadList.Count > 0)
             {
