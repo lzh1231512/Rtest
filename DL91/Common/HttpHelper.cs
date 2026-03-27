@@ -54,11 +54,46 @@ namespace DL91
             }
         }
 
+        public static async Task<bool> TestImageUrlAsync(string url)
+        {
+            try
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Head, url);
+                var response = await HttpClient.SendAsync(
+                    request,
+                    HttpCompletionOption.ResponseHeadersRead
+                );
+
+                if (!response.IsSuccessStatusCode)
+                    return false;
+
+                if (response.Content.Headers.ContentType?.MediaType?.StartsWith("image/") == true)
+                    return true;
+
+                // 如果 HEAD 没返回 Content-Type，则尝试 GET
+                using var getRequest = new HttpRequestMessage(HttpMethod.Get, url);
+                using var getResponse = await HttpClient.SendAsync(
+                    getRequest,
+                    HttpCompletionOption.ResponseHeadersRead
+                );
+
+                var contentType = getResponse.Content.Headers.ContentType?.MediaType;
+                return contentType?.StartsWith("image/") == true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static bool TestHttp(string url)
         {
             return Task.Run(() => TestHttpSync(url)).Result;
         }
-
+        public static bool TestImageUrl(string url)
+        {
+            return Task.Run(() => TestImageUrlAsync(url)).Result;
+        }
         public static async Task<HttpStatus> DownloadFileSync(string url,FileStream fs)
         {
             var result = new HttpStatus();
