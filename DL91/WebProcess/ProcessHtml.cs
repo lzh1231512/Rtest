@@ -229,14 +229,14 @@ namespace DL91.WebProcess
             try
             {
 
-                for (int i = 5; i >=1; i--)
-                {
-                    var url = "https://www.91rb.com/contents/videos_screenshots/" + (id / 1000 * 1000) + "/" + id + "/320x180/"+i+".jpg";
-                    if (HttpHelper.TestImageUrl(url))
-                    {
-                        return url;
-                    }
-                }
+                //for (int i = 5; i >=1; i--)
+                //{
+                //    var url = "https://www.91rb.com/contents/videos_screenshots/" + (id / 1000 * 1000) + "/" + id + "/320x180/"+i+".jpg";
+                //    if (HttpHelper.TestImageUrl(url))
+                //    {
+                //        return url;
+                //    }
+                //}
                
                 var url2 = "https://www.91rb.com/contents/videos_screenshots/" + (id / 1000 * 1000) + "/" + id + "/preview.jpg";
                 if (HttpHelper.TestImageUrl(url2))
