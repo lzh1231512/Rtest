@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static System.Net.WebRequestMethods;
 
@@ -94,17 +95,42 @@ namespace DL91
         {
             return Task.Run(() => TestImageUrlAsync(url)).Result;
         }
-        public static async Task<HttpStatus> DownloadFileSync(string url,FileStream fs)
+        public static async Task<HttpStatus> DownloadFileSync(string url, FileStream fs)
         {
             var result = new HttpStatus();
             try
             {
-                var response = await HttpClient.GetAsync(url);
+                // 完整流式下载，不缓冲到内存
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                using var response = await HttpClient.SendAsync(
+                    request,
+                    HttpCompletionOption.ResponseHeadersRead, // 关键：流式读取
+                    CancellationToken.None);
+
                 result.StatusCode = response.StatusCode;
-                await response.Content.CopyToAsync(fs);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    result.IsGood = false;
+                    return result;
+                }
+
+                // 读取流并写入文件，带缓冲区，确保完整写入
+                using var stream = await response.Content.ReadAsStreamAsync();
+                var buffer = new byte[81920]; // 80k 缓冲区
+                int read;
+                while ((read = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                {
+                    await fs.WriteAsync(buffer, 0, read);
+                }
+
+                // 强制刷新到磁盘
+                await fs.FlushAsync();
+
                 result.Length = fs.Length;
+                result.IsGood = true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 result.IsGood = false;
                 LogTool.Instance.Error("Failed to access " + url, e);
@@ -114,7 +140,8 @@ namespace DL91
 
         public static HttpStatus DownloadFile(string url, FileStream fs)
         {
-            return Task.Run(() => DownloadFileSync(url, fs)).Result;
+            // 避免 .Result 死锁，用 GetAwaiter().GetResult() 更稳
+            return DownloadFileSync(url, fs).GetAwaiter().GetResult();
         }
 
         public static async Task<HttpStatus> GetHtmlSync(string url)
