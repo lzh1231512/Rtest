@@ -77,7 +77,7 @@ namespace DL91
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.ToString());
-                        imgpath1.Delete();
+                        //imgpath1.Delete();
                         canvas.Composite(nopic, 0, index++ * 180);
                     }
                 }
