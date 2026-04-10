@@ -70,12 +70,12 @@ namespace DL91
         private static void addTask(DownloadTask task)
         {
             addCount();
-            Task.Factory.StartNew(() =>
+            Task.Factory.StartNew(async () =>
             {
                 task.result = 2;
                 for (int i = 0; i < 10; i++)
                 {
-                    if (DLSingleFile(task, i == 9))
+                    if (await DLSingleFile(task, i == 9))
                     {
                         task.result = 1;
                         break;
@@ -86,7 +86,7 @@ namespace DL91
         }
 
 
-        private static bool DLSingleFile(DownloadTask task, bool isFinal)
+        private static async Task<bool> DLSingleFile(DownloadTask task, bool isFinal)
         {
             try
             {
@@ -105,7 +105,7 @@ namespace DL91
                 else
                 {
                     using FileStream fs = new FileStream(task.savepath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
-                    var dl = HttpHelper.DownloadFile(task.url, fs);
+                    var dl = await HttpHelper.DownloadFileSync(task.url, fs);
                     if (!dl.IsGood)
                     {
                         return false;

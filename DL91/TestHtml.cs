@@ -5,6 +5,7 @@ using MihaZupan;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -101,23 +102,35 @@ namespace DL91
             var handler = new HttpClientHandler { Proxy = proxy };
             HttpClient httpClient = new HttpClient(handler, true);
 
-            var keyword = "极品稀缺 百合预警大一学妹S和『男朋友』T的恋爱日常+舌吻+做爱 各种姿势 非常会玩 光声就可射 (1)";
 
-            var result = await httpClient.SendAsync(
-                new HttpRequestMessage(HttpMethod.Get, "https://www.r1091.com/search/"+ keyword + "/"));
-
-            var html = await result.Content.ReadAsStringAsync();
-
-            HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
-            doc.LoadHtml(html);
-
-            var navNode = doc.GetElementbyId("list_videos_videos_list_search_result")
-                ?.SelectSingleNode(".//a[@title='" + keyword + "']");
-            if (navNode != null)
+            var dLst = new List<DownloadTask>();
+            dLst.Add(new DownloadTask()
             {
-                var url = navNode.Attributes["href"];
-                var imgURL= navNode.SelectSingleNode(".//img[@class='lazy-load']")?.Attributes["data-original"].Value;
-            }
+                url = "https://www.91rb.com/contents/videos_screenshots/315000/315492/320x180/1.jpg?_=123123",
+                isJsonImg = false,
+                savepath = "D://test.jpg"
+            });
+            DownloadHelper.DL(dLst.ToList(), 1);
+
+
+
+            //var keyword = "";
+
+            //var result = await httpClient.SendAsync(
+            //    new HttpRequestMessage(HttpMethod.Get, "https://www.r1091.com/search/"+ keyword + "/"));
+
+            //var html = await result.Content.ReadAsStringAsync();
+
+            //HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+            //doc.LoadHtml(html);
+
+            //var navNode = doc.GetElementbyId("list_videos_videos_list_search_result")
+            //    ?.SelectSingleNode(".//a[@title='" + keyword + "']");
+            //if (navNode != null)
+            //{
+            //    var url = navNode.Attributes["href"];
+            //    var imgURL= navNode.SelectSingleNode(".//img[@class='lazy-load']")?.Attributes["data-original"].Value;
+            //}
 
             return "";
         }

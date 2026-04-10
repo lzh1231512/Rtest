@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MihaZupan;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,6 +26,7 @@ namespace DL91
                     _httpClient = new HttpClient(new SocketsHttpHandler()
                     {
                         UseCookies = false,
+                        //Proxy = new HttpToSocks5Proxy("127.0.0.1", 1080),
                         ConnectTimeout = TimeSpan.FromSeconds(10),
                         KeepAlivePingTimeout = TimeSpan.FromSeconds(60),
                         SslOptions = new System.Net.Security.SslClientAuthenticationOptions()
@@ -32,7 +34,7 @@ namespace DL91
                             RemoteCertificateValidationCallback = (sender, cer, chain, err) => true
                         }
                     });
-                    _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
+                    _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
                 }
                 return _httpClient;
             }
@@ -98,14 +100,19 @@ namespace DL91
         public static async Task<HttpStatus> DownloadFileSync(string url, FileStream fs)
         {
             var result = new HttpStatus();
+
             try
             {
-                // 完整流式下载，不缓冲到内存
+                url += (url.Contains("?") ? "&" : "?") + "_r=" + Guid.NewGuid();
+
                 using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                // 禁止 gzip/deflate/br，避免写入压缩流
+                request.Headers.AcceptEncoding.Clear();
+                request.Headers.UserAgent.ParseAdd(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36");
                 using var response = await HttpClient.SendAsync(
                     request,
-                    HttpCompletionOption.ResponseHeadersRead, // 关键：流式读取
-                    CancellationToken.None);
+                    HttpCompletionOption.ResponseHeadersRead);
 
                 result.StatusCode = response.StatusCode;
 
@@ -115,17 +122,26 @@ namespace DL91
                     return result;
                 }
 
-                // 读取流并写入文件，带缓冲区，确保完整写入
+                var expectedLength = response.Content.Headers.ContentLength;
+
                 using var stream = await response.Content.ReadAsStreamAsync();
-                var buffer = new byte[81920]; // 80k 缓冲区
+
+                var buffer = new byte[81920];
                 int read;
+
                 while ((read = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                 {
                     await fs.WriteAsync(buffer, 0, read);
                 }
 
-                // 强制刷新到磁盘
                 await fs.FlushAsync();
+
+                //// 校验长度（如果服务器提供）
+                //if (expectedLength.HasValue && fs.Length != expectedLength.Value)
+                //{
+                //    result.IsGood = false;
+                //    return result;
+                //}
 
                 result.Length = fs.Length;
                 result.IsGood = true;
@@ -135,6 +151,7 @@ namespace DL91
                 result.IsGood = false;
                 LogTool.Instance.Error("Failed to access " + url, e);
             }
+
             return result;
         }
 
