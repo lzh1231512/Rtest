@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Data;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace DL91Web8.Controllers
@@ -79,6 +80,7 @@ namespace DL91Web8.Controllers
 
         public IActionResult GetImg(string imgs)
         {
+            LogTool.Instance.Info("GetImg " + imgs);
             if (string.IsNullOrEmpty(imgs))
             {
                 return Content("NoPIC");
@@ -86,9 +88,12 @@ namespace DL91Web8.Controllers
             var fileName = "img" + SearchViewModel.MD5Encrypt16(imgs);
             if (System.IO.File.Exists(CommonFunc.cachePath + fileName))
             {
+                LogTool.Instance.Info("Return cache " + fileName);
                 return File(cacheVirtualPath + fileName, "image/Jpeg");
             }
+            LogTool.Instance.Info("Begin MergeImgs " + fileName);
             CommonFunc.MergeImgs(imgs, fileName);
+            LogTool.Instance.Info("MergeImgs finish, Return cache " + fileName);
             return File(cacheVirtualPath + fileName, "image/Jpeg");
         }
 
