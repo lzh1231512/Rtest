@@ -32,7 +32,7 @@ namespace DL91.WebProcess
                         url = f.imgUrl,
                         savepath = getImgSavePath(f)
                     });
-                    var dLst2 = DownloadHelper.DL(dLst.ToList(), 1);
+                    var dLst2 = DownloadHelper.DL(dLst.ToList(), 4);
 
                     foreach (var item in lst)
                     {
@@ -78,7 +78,7 @@ namespace DL91.WebProcess
                             savepath = getImgSavePathAPI(item.id)
                         });
                     }
-                    var dLst2 = DownloadHelper.DL(dLst.ToList(), 1);
+                    var dLst2 = DownloadHelper.DL(dLst.ToList(), 4);
 
                     foreach (var item in lst)
                     {
@@ -108,7 +108,7 @@ namespace DL91.WebProcess
                     savepath = getImgSavePathAPI(item)
                 });
             }
-            DownloadHelper.DL(dLst.ToList(), 1);
+            DownloadHelper.DL(dLst.ToList(), 4);
         }
         public static void DownloadImg(List<int> ids)
         {
@@ -127,7 +127,7 @@ namespace DL91.WebProcess
                     savepath = getImgSavePathAPI(item)
                 });
             }
-            DownloadHelper.DL(dLst.ToList(), 1);
+            DownloadHelper.DL(dLst.ToList(), 4);
         }
         private static string getImgSavePathAPI(int id)
         {
